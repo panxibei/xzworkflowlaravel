@@ -34,6 +34,15 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            2 => 
+            array (
+                'cfg_id' => 3,
+                'cfg_name' => 'SITE_COPYRIGHT',
+                'cfg_value' => '© 2013-2018 xizhisoft.com All Rights Reserved.',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }

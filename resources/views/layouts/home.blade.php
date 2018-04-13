@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	@yield('my_title')
+	<title>@yield('my_title')</title>
 	<link rel="stylesheet" href="{{ asset('statics/bootstrap/css/bootstrap.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
@@ -25,8 +25,8 @@
 	@section('my_logo_and_title')
 	<div class="header">
 		<div class="text-center">
-			<h2>{$Think.config.site_title}
-			<small>{$Think.config.site_version}</small></h2>
+			<h2>{{$site_title}}
+			<small>{{$site_version}}</small></h2>
 		</div>
 	</div>
 	@show
@@ -42,7 +42,7 @@
 	<div class="text-center">
 		<hr>
 		<small>
-			<a href="{:U('Home/Index/index')}">{$Think.config.site_system_name}</a>&nbsp;|&nbsp;{$Think.config.site_copyright}
+			<a href="{:U('Home/Index/index')}">{{$site_title}}</a>&nbsp;|&nbsp;{{$site_copyright}}
 		</small>
 	</div>
 	@show

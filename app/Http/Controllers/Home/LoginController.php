@@ -16,18 +16,23 @@ class LoginController extends Controller
      */
     public function index()
     {
-		$config = Config::select('cfg_id', 'cfg_name', 'cfg_value', 'created_at')
-            ->orderBy('created_at', 'desc');
+		// $config = Config::select('cfg_id', 'cfg_name', 'cfg_value', 'created_at')
+            // ->orderBy('created_at', 'desc');
 
-        $assign = [
-            // 'category_id' => 'index',
-            'article' => $config,
+		$site_title = Config::where('cfg_name', 'SITE_TITLE')->first();
+		$site_version = Config::where('cfg_name', 'SITE_VERSION')->first();
+		$site_copyright = Config::where('cfg_name', 'SITE_COPYRIGHT')->first();
+		
+        // $assign = [
+            // 'config' => $config,
             // 'head' => $head,
             // 'tagName' => ''
-        ];
-		dd($assign);
-		
-        return view('home.login', $assign);
+        // ];
+
+        return view('home.login')
+			->with('site_title',$site_title['cfg_value'])
+			->with('site_version',$site_version['cfg_value'])
+			->with('site_copyright',$site_copyright['cfg_value']);
     }
 
     /**

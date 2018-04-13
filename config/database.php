@@ -49,7 +49,7 @@ return [
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8'),
             'collation' => env('DB_COLLATION', 'utf8_unicode_ci'),
-            'prefix' => env('DB_PRIFIX', ''),
+            'prefix' => env('DB_PREFIX', ''),
             'strict' => true,
             'engine' => null,
         ],

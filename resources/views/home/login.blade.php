@@ -1,6 +1,6 @@
 @extends('layouts.home')
 
-@section('title', "<title>Login - {:C('SITE_TITLE')}  Ver: {:C('SITE_VERSION')}</title>")
+@section('my_title', "Login - $site_title  Ver: $site_version")
 
 @section('my_js')
 <script type="text/javascript">
