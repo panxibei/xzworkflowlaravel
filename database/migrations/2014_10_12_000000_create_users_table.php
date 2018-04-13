@@ -15,11 +15,16 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
-            $table->string('email')->unique();
+            $table->string('name',32)->unique();
+            $table->string('email',36)->unique();
             $table->string('password');
+			$table->integer('login_time')->default(null)->comment('登录时间');
+			$table->string('login_ip',15)->default(null)->comment('登录ip');
+			$table->integer('login_counts')->default(0)->comment('登录次数');
             $table->rememberToken();
             $table->timestamps();
+			$table->softDeletes();
+			$table->engine = 'InnoDB';
         });
     }
 
