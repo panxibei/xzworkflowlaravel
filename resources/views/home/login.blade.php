@@ -1,6 +1,6 @@
 @extends('layouts.home')
 
-@section('my_title', "Login - $site_title  Ver: $site_version")
+@section('my_title', "Login - $SITE_TITLE  Ver: $SITE_VERSION")
 
 @section('my_js')
 <script type="text/javascript">

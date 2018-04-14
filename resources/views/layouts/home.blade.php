@@ -25,8 +25,8 @@
 	@section('my_logo_and_title')
 	<div class="header">
 		<div class="text-center">
-			<h2>{{$site_title}}
-			<small>{{$site_version}}</small></h2>
+			<h2>{{$SITE_TITLE}}
+			<small>{{$SITE_VERSION}}</small></h2>
 		</div>
 	</div>
 	@show
@@ -42,7 +42,7 @@
 	<div class="text-center">
 		<hr>
 		<small>
-			<a href="{:U('Home/Index/index')}">{{$site_title}}</a>&nbsp;|&nbsp;{{$site_copyright}}
+			<a href="{:U('Home/Index/index')}">{{$SITE_TITLE}}</a>&nbsp;|&nbsp;{{$SITE_COPYRIGHT}}
 		</small>
 	</div>
 	@show

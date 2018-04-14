@@ -16,23 +16,9 @@ class LoginController extends Controller
      */
     public function index()
     {
-		// $config = Config::select('cfg_id', 'cfg_name', 'cfg_value', 'created_at')
-            // ->orderBy('created_at', 'desc');
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
 
-		$site_title = Config::where('cfg_name', 'SITE_TITLE')->first();
-		$site_version = Config::where('cfg_name', 'SITE_VERSION')->first();
-		$site_copyright = Config::where('cfg_name', 'SITE_COPYRIGHT')->first();
-		
-        // $assign = [
-            // 'config' => $config,
-            // 'head' => $head,
-            // 'tagName' => ''
-        // ];
-
-        return view('home.login')
-			->with('site_title',$site_title['cfg_value'])
-			->with('site_version',$site_version['cfg_value'])
-			->with('site_copyright',$site_copyright['cfg_value']);
+        return view('home.login', $config);
     }
 
     /**
