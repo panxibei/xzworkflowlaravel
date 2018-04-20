@@ -18,3 +18,7 @@
 Route::group(['namespace' =>'Home'], function() {
 	Route::get('/', 'LoginController@index');
 });
+
+Route::get('test', function(){
+	return view('test');
+});

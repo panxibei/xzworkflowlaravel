@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+use App\Models\Config;
+
 class ConfigsTableSeeder extends Seeder
 {
     /**
@@ -13,9 +15,12 @@ class ConfigsTableSeeder extends Seeder
     {
 		$nowtime = date("Y-m-d H:i:s",time());
 		
-        DB::table('configs')->delete();
+        // DB::table('configs')->delete();
+		// Let's clear the users table first
+		Config::truncate();
 		
-		DB::table('configs')->insert(array (
+		// DB::table('configs')->insert(array (
+		Config::insert(array (
             0 => 
             array (
                 'cfg_id' => 1,
