@@ -124,7 +124,7 @@
 			new Vue({
 				el: '.title',
 				data: {
-					message: 'Hello Laravel!'
+					message: 'Hello Laravel!!!!'
 				}
 			})
 
@@ -172,6 +172,12 @@
 					}
 				}
 			})
+			
+			//export default {
+			//	mounted: function() {
+			//	  alert('444');
+			//	}
+			//}
 		</script>
     </body>
 </html>

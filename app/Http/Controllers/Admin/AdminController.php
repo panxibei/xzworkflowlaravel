@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Models\Config;
+use App\Models\User;
 
 class AdminController extends Controller
 {
@@ -110,7 +111,9 @@ class AdminController extends Controller
     public function userList()
     {
         // 获取用户信息
-		$user = User::pluck('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts')->toArray();
+		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts')
+			->get()
+			->toArray();
 
         return $user;
 		

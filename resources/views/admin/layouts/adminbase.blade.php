@@ -14,11 +14,15 @@
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css') }}">
+<style type="text/css">
+	/* 解决闪烁问题的CSS */
+	[v-cloak] {	display: none; }
+</style>
 @yield('my_style')
 <script src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <script src="{{ asset('statics/bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/jquery.form.js') }}"></script>
+<script src="{{ asset('js/jquery.form.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap-dialog.min.js') }}"></script>
 <script src="{{ asset('js/moment-with-locales.min.js') }}"></script>
 <script src="{{ asset('statics/daterangepicker/daterangepicker.js') }}"></script>
@@ -401,9 +405,9 @@
 	<a href="{:U('Home/Index/index')}">{{$SITE_TITLE}}</a>&nbsp;|&nbsp;{{$SITE_COPYRIGHT}}
 	</div>
 <br>
-<script src="./vue.min.js"></script>
-<script src="./axios.min.js"></script>
-<script src="./bluebird.min.js"></script>
+<script src="{{ asset('js/vue.min.js') }}"></script>
+<script src="{{ asset('js/axios.min.js') }}"></script>
+<script src="{{ asset('js/bluebird.min.js') }}"></script>
 @show
 <!-- /底部 -->
 </div>

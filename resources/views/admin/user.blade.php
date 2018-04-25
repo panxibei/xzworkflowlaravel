@@ -4,6 +4,7 @@
 
 @section('my_js')
 <script type="text/javascript">
+/*
 	$(function(){
 		// 一打开就默认显示所有用户列表
 		$.cookie('cookie_wf_user_account','');
@@ -259,6 +260,7 @@
 			}
 		});
 	}
+*/
 </script>
 @endsection
 
@@ -348,7 +350,24 @@
 											<th>操作</th>
 										</tr>
 									</thead>
-									<tbody id="tbody_user_query">
+									<tbody id="tbody_user_query" v-cloak>
+					
+					
+					<tr v-for="val in gets">
+						<td><div>@{{ val.id }}</div></td>
+						<td><div v-bind:id="'user_edit_account' + val.id">@{{ val.account }}</div></td>
+						<td><div>@{{ val.group }}</div></td>
+						<td><div>@{{ val.login_ip }}</div></td>
+						<td><div>@{{ val.login_count }}</div></td>
+						<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
+						<td><div>@{{ val.status == 1 ? "启用" : "禁用" }}</div></td>
+						<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
+						<td><div><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal_user_edit" v-bind:id="'user_edit' + val.id" v-bind:value="val.id"><i class="fa fa-edit fa-fw"></i></button>
+						&nbsp;<button class="btn btn-danger btn-xs" v-bind:id="'user_del' + val.id" v-bind:value="val.id"><i class="fa fa-times fa-fw"></i></button></td>
+					</tr>
+		
+									
+									
 									</tbody>
 								</table>
 								<div id="div_user_query" class="dropup"></div>
@@ -484,46 +503,32 @@
 @parent
 <script>
 // ajax 获取数据
-var vm2 = new Vue({
-    el: '.vue-ajax',
+new Vue({
+    el: '#tbody_user_query',
     data: {
-        posts:{}
+		gets: {}
     },
-	methods: {
-		"loaddata": function(){
-			// 以下为以前vue-resource写法，现在不推荐这样写。
-			//this.$http.get('data.php').then(function(response){
-			//	this.posts=response.data;
-            //})
-
-			// vue使用axios中存在 this 指向问题，使用_this代替this为一种hack写法。
-			var _this= this;
-			axios.get('data.php')
-				.then(function (response) {
-					//console.log(response);
-					_this.posts = response.data;
-					// 或者按下一句，使用定义的变更名，这样更直观有效。
-					//vm2.posts = response.data;
-				})
-				.catch(function (error) {
-					console.log(error);
-				})
-		}
-	},
     mounted: function(){
 		var _this= this;
-		var page_id = page_id;
-		var url = route('admin.user.list');
-		axios.get(url)
-			.then(function (response) {
-				//console.log(response);
-				_this.posts = response.data;
-				// 或者按下一句，使用定义的变更名，这样更直观有效。
-				//vm2.posts = response.data;
-			})
-			.catch(function (error) {
+		var page_id = 1;
+		var url = {{ route('admin.user.list') }};
+		alert(url);
+		// axios.get(url, {
+				// params: {
+					// p: page_id
+				// }
+			// })
+			// .then(function (response) {
+				// alert(response);
+				
+				// _this.gets = response.user;
+				
+
+			// })
+			// .catch(function (error) {
 				console.log(error);
-			})
+				// alert('查询失败！' + error);
+			// })
     }
 });
 </script>
