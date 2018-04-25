@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
 	<link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
+	@yield('my_style')
 	<script src="{{ asset('js/jquery.min.js') }}"></script>
 	<script src="{{ asset('js/jquery.cookie.js') }}"></script>
 	<script src="{{ asset('js/jquery.form.min.js') }}"></script>

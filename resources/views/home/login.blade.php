@@ -1,4 +1,4 @@
-@extends('layouts.home')
+@extends('home.layouts.homebase')
 
 @section('my_title', "Login - $SITE_TITLE  Ver: $SITE_VERSION")
 
