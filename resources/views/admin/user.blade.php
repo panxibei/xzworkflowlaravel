@@ -335,7 +335,7 @@
 						
 						<div class="col-lg-12">
 							<br><div style="background-color:#c9e2b3;height:1px"></div>
-							<div class="table-responsive">
+							<div id="user_list" class="table-responsive" v-cloak>
 								<table class="table table-condensed">
 									<thead>
 										<tr>
@@ -350,27 +350,60 @@
 											<th>操作</th>
 										</tr>
 									</thead>
-									<tbody id="tbody_user_query" v-cloak>
-					
-					
-					<tr v-for="val in gets">
+									<tbody id="tbody_user_query">
+				
+					<tr v-for="val in gets.data">
 						<td><div>@{{ val.id }}</div></td>
-						<td><div v-bind:id="'user_edit_account' + val.id">@{{ val.account }}</div></td>
+						<td><div v-bind:id="'user_edit_account' + val.id">@{{ val.name }}</div></td>
 						<td><div>@{{ val.group }}</div></td>
 						<td><div>@{{ val.login_ip }}</div></td>
-						<td><div>@{{ val.login_count }}</div></td>
+						<td><div>@{{ val.login_counts }}</div></td>
 						<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
-						<td><div>@{{ val.status == 1 ? "启用" : "禁用" }}</div></td>
+						<td><div>@{{ val.delete_at ? "禁用" : "启用" }}</div></td>
 						<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
 						<td><div><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal_user_edit" v-bind:id="'user_edit' + val.id" v-bind:value="val.id"><i class="fa fa-edit fa-fw"></i></button>
-						&nbsp;<button class="btn btn-danger btn-xs" v-bind:id="'user_del' + val.id" v-bind:value="val.id"><i class="fa fa-times fa-fw"></i></button></td>
+						&nbsp;<button class="btn btn-danger btn-xs" v-bind:id="'user_del' + val.id" v-bind:value="val.id"><i class="fa fa-times fa-fw"></i></button></div></td>
 					</tr>
+					
 		
-									
 									
 									</tbody>
 								</table>
-								<div id="div_user_query" class="dropup"></div>
+								<div id="div_user_query" class="dropup">
+								
+								
+								
+<tr>
+<td colspan="9">
+<div>
+<nav>
+<ul class="pagination pagination-sm">
+<li><a id="big" aria-label="Previous">上一页</a></li>&nbsp;
+<li class="active"><span class="current">@{{ gets.current_page }}</span></li>&nbsp;
+<li><a id="big" aria-label="Next" href="javascript:user_query(2)">下一页</a></li>&nbsp;&nbsp;
+<li><span aria-label=""> 11 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+
+<div class="btn-group">
+<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
+<ul class="dropdown-menu">
+<li><a id="page_5" href="javascript:;" value="5"><small>5条记录</small></a></li>
+<li><a id="page_10" href="javascript:;" value="10"><small>10条记录</small></a></li>
+<li><a id="page_20" href="javascript:;" value="20"><small>20条记录</small></a></li>
+</ul>
+</div>
+</ul>
+</nav>
+</div>
+</td>
+</tr>
+								
+								
+								
+								
+								
+								
+								
+								</div>
 							</div>
 						</div>
 					</div>
@@ -504,32 +537,33 @@
 <script>
 // ajax 获取数据
 new Vue({
-    el: '#tbody_user_query',
+    el: '#user_list',
     data: {
 		gets: {}
     },
-    mounted: function(){
-		var _this= this;
-		var page_id = 1;
-		var url = {{ route('admin.user.list') }};
-		alert(url);
-		// axios.get(url, {
-				// params: {
-					// p: page_id
-				// }
-			// })
-			// .then(function (response) {
-				// alert(response);
-				
-				// _this.gets = response.user;
-				
-
-			// })
-			// .catch(function (error) {
+	methods: {
+		"loaddata": function(){
+			alert('abc');
+		}
+	},
+	mounted: function(){
+		var _this = this;
+		var url = "{{ route('admin.user.list') }}";
+		var page = 1;
+		axios.get(url, {
+				params: {
+					page: page
+				}
+			})
+			.then(function (response) {
+				//console.log(response);
+				_this.gets = response.data;
+				// alert(_this.gets);
+			})
+			.catch(function (error) {
 				console.log(error);
-				// alert('查询失败！' + error);
-			// })
-    }
+			})
+	}
 });
 </script>
 @endsection

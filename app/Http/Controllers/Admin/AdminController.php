@@ -112,10 +112,11 @@ class AdminController extends Controller
     {
         // 获取用户信息
 		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts')
-			->get()
+			// ->get()
+			->paginate(1)
 			->toArray();
 
-        return $user;
+			return $user;
 		
 		
     }
