@@ -108,14 +108,20 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function userList()
+    public function userList(Request $request)
     {
         // 获取用户信息
+		$perPage = $request->input('perPage');
+		$page = $request->input('page');
+		if (null == $page) $page = 1;
+
 		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts')
 			// ->get()
-			->paginate(1)
-			->toArray();
+			->paginate($perPage, ['*'], 'page', $page);
+			// ->toArray();
 
+			// return $user->links();
+			
 			return $user;
 		
 		

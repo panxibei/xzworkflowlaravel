@@ -378,17 +378,17 @@
 <div>
 <nav>
 <ul class="pagination pagination-sm">
-<li><a id="big" aria-label="Previous">上一页</a></li>&nbsp;
-<li class="active"><span class="current">@{{ gets.current_page }}</span></li>&nbsp;
-<li><a id="big" aria-label="Next" href="javascript:user_query(2)">下一页</a></li>&nbsp;&nbsp;
-<li><span aria-label=""> 11 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+<li><a id="big" aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)">上一页</a></li>&nbsp;
+<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}><a @click="userlist(n, gets.last_page)">@{{ n }}</a></li>&nbsp;
+<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)">下一页</a></li>&nbsp;&nbsp;
+<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
 
 <div class="btn-group">
 <button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
 <ul class="dropdown-menu">
-<li><a id="page_5" href="javascript:;" value="5"><small>5条记录</small></a></li>
-<li><a id="page_10" href="javascript:;" value="10"><small>10条记录</small></a></li>
-<li><a id="page_20" href="javascript:;" value="20"><small>20条记录</small></a></li>
+<li><a><small>5条记录</small></a></li>
+<li><a><small>10条记录</small></a></li>
+<li><a><small>20条记录</small></a></li>
 </ul>
 </div>
 </ul>
@@ -396,6 +396,8 @@
 </div>
 </td>
 </tr>
+
+
 								
 								
 								
@@ -536,23 +538,46 @@
 @parent
 <script>
 // ajax 获取数据
-new Vue({
+var vm_user = new Vue({
     el: '#user_list',
     data: {
 		gets: {}
     },
 	methods: {
-		"loaddata": function(){
-			alert('abc');
-		}
+		"userlist": function(page, last_page){
+			var _this = this;
+			var url = "{{ route('admin.user.list') }}";
+			var perPage = 2;
+			
+			if (page > last_page) {
+				page = last_page;
+			} else if (page < 1) {
+				page = 1;
+			}
+			_this.gets.current_page = page;
+			axios.get(url, {
+					params: {
+						perPage: perPage,
+						page: page
+					}
+				})
+				.then(function (response) {
+					//console.log(response);
+					_this.gets = response.data;
+					// alert(_this.gets);
+				})
+				.catch(function (error) {
+					console.log(error);
+				})
+			}
 	},
 	mounted: function(){
 		var _this = this;
 		var url = "{{ route('admin.user.list') }}";
-		var page = 1;
 		axios.get(url, {
 				params: {
-					page: page
+					perPage: 2,
+					page: 1
 				}
 			})
 			.then(function (response) {
