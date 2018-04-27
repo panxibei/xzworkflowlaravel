@@ -378,10 +378,20 @@
 <div>
 <nav>
 <ul class="pagination pagination-sm">
-<li><a id="big" aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)">上一页</a></li>&nbsp;
-<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}><a @click="userlist(n, gets.last_page)">@{{ n }}</a></li>&nbsp;
-<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)">下一页</a></li>&nbsp;&nbsp;
+<li><a aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+
+<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
+	<a v-if="n==1">1</a>
+	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="userlist(n, gets.last_page)">@{{ n }}</a>
+	<a v-else-if="n==2||n==gets.last_page">...</a>
+</li>&nbsp;
+
+<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
 <li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+
+	<div class="col-xs-2">
+	<input class="form-control input-sm" type="text" placeholder="到第几页">
+	</div>
 
 <div class="btn-group">
 <button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
@@ -547,7 +557,7 @@ var vm_user = new Vue({
 		"userlist": function(page, last_page){
 			var _this = this;
 			var url = "{{ route('admin.user.list') }}";
-			var perPage = 2;
+			var perPage = 1; // 有待修改，将来使用配置项
 			
 			if (page > last_page) {
 				page = last_page;
@@ -576,7 +586,7 @@ var vm_user = new Vue({
 		var url = "{{ route('admin.user.list') }}";
 		axios.get(url, {
 				params: {
-					perPage: 2,
+					perPage: 1,
 					page: 1
 				}
 			})
