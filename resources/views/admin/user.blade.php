@@ -352,69 +352,53 @@
 									</thead>
 									<tbody id="tbody_user_query">
 				
-					<tr v-for="val in gets.data">
-						<td><div>@{{ val.id }}</div></td>
-						<td><div v-bind:id="'user_edit_account' + val.id">@{{ val.name }}</div></td>
-						<td><div>@{{ val.group }}</div></td>
-						<td><div>@{{ val.login_ip }}</div></td>
-						<td><div>@{{ val.login_counts }}</div></td>
-						<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
-						<td><div>@{{ val.delete_at ? "禁用" : "启用" }}</div></td>
-						<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
-						<td><div><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal_user_edit" v-bind:id="'user_edit' + val.id" v-bind:value="val.id"><i class="fa fa-edit fa-fw"></i></button>
-						&nbsp;<button class="btn btn-danger btn-xs" v-bind:id="'user_del' + val.id" v-bind:value="val.id"><i class="fa fa-times fa-fw"></i></button></div></td>
-					</tr>
-					
-		
-									
+										<tr v-for="val in gets.data">
+											<td><div>@{{ val.id }}</div></td>
+											<td><div v-bind:id="'user_edit_account' + val.id">@{{ val.name }}</div></td>
+											<td><div>@{{ val.group }}</div></td>
+											<td><div>@{{ val.login_ip }}</div></td>
+											<td><div>@{{ val.login_counts }}</div></td>
+											<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
+											<td><div>@{{ val.delete_at ? "禁用" : "启用" }}</div></td>
+											<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
+											<td><div><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal_user_edit" v-bind:id="'user_edit' + val.id" v-bind:value="val.id"><i class="fa fa-edit fa-fw"></i></button>
+											&nbsp;<button class="btn btn-danger btn-xs" v-bind:id="'user_del' + val.id" v-bind:value="val.id"><i class="fa fa-times fa-fw"></i></button></div></td>
+										</tr>
+
 									</tbody>
 								</table>
 								<div id="div_user_query" class="dropup">
 								
-								
-								
-<tr>
-<td colspan="9">
-<div>
-<nav>
-<ul class="pagination pagination-sm">
-<li><a aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+									<tr><td colspan="9"><div><nav>
 
-<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-	<a v-if="n==1">1</a>
-	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="userlist(n, gets.last_page)">@{{ n }}</a>
-	<a v-else-if="n==2||n==gets.last_page">...</a>
-</li>&nbsp;
+										<ul class="pagination pagination-sm">
+											<li><a aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
 
-<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+											<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
+												<a v-if="n==1" @click="userlist(1, gets.last_page)">1</a>
+												<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="userlist(n, gets.last_page)">@{{ n }}</a>
+												<a v-else-if="n==2||n==gets.last_page">...</a>
+											</li>&nbsp;
 
-	<div class="col-xs-2">
-	<input class="form-control input-sm" type="text" placeholder="到第几页">
-	</div>
+											<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
+											<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
 
-<div class="btn-group">
-<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
-<ul class="dropdown-menu">
-<li><a><small>5条记录</small></a></li>
-<li><a><small>10条记录</small></a></li>
-<li><a><small>20条记录</small></a></li>
-</ul>
-</div>
-</ul>
-</nav>
-</div>
-</td>
-</tr>
+												<div class="col-xs-2">
+												<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="userlist($event.target.value, gets.last_page)">
+												</div>
 
+											<div class="btn-group">
+											<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
+											<ul class="dropdown-menu">
+											<li><a><small>5条记录</small></a></li>
+											<li><a><small>10条记录</small></a></li>
+											<li><a><small>20条记录</small></a></li>
+											</ul>
+											</div>
+										</ul>
 
-								
-								
-								
-								
-								
-								
-								
+									</nav></div></td></tr>
+
 								</div>
 							</div>
 						</div>

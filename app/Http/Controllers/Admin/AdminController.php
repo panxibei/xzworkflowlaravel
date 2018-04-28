@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Config;
 use App\Models\User;
+use App\Models\Group;
 
 class AdminController extends Controller
 {
@@ -96,14 +97,11 @@ class AdminController extends Controller
     {
         // 获取配置值
 		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-
         return view('admin.user', $config);
-		
-		
     }
 
     /**
-     * 列出用户页面
+     * 列出用户页面 ajax
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -118,12 +116,40 @@ class AdminController extends Controller
 		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts')
 			// ->get()
 			->paginate($perPage, ['*'], 'page', $page);
-			// ->toArray();
-
-			// return $user->links();
 			
 			return $user;
-		
-		
     }
+	
+    /**
+     * 列出用户组页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function groupIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.group', $config);
+    }
+
+    /**
+     * 列出用户组页面 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function groupList(Request $request)
+    {
+        // 获取用户信息
+		$perPage = $request->input('perPage');
+		$page = $request->input('page');
+		if (null == $page) $page = 1;
+
+		$group = Group::select('id', 'title', 'rules', 'created_at')
+			->paginate($perPage, ['*'], 'page', $page);
+			
+			return $group;
+    }
+
 }

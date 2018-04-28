@@ -348,13 +348,13 @@
 				<a href="#"><i class="fa fa-group fa-fw"></i> 权限管理<span class="fa arrow"></span></a>
 				<ul class="nav nav-second-level">
 					<li>
-						<a href="{:U('Admin/Index/user')}"><i class="fa fa-user fa-fw"></i> 用户管理</a>
+						<a href="{{ route('admin.user.index') }}"><i class="fa fa-user fa-fw"></i> 用户管理</a>
 					</li>
 					<li>
-						<a href="{:U('Admin/Index/group')}"><i class="fa fa-group fa-fw"></i> 群组管理</a>
+						<a href="{{ route('admin.group.index') }}"><i class="fa fa-group fa-fw"></i> 群组管理</a>
 					</li>
 					<li>
-						<a href="{:U('Admin/Index/rule')}"><i class="fa fa-key fa-fw"></i> 权限管理</a>
+						<a href="{{ route('admin.rule.index') }}"><i class="fa fa-key fa-fw"></i> 权限管理</a>
 					</li>
 				</ul>
 			</li>

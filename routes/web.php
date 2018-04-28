@@ -24,8 +24,17 @@ Route::group(['prefix' => 'home', 'namespace' =>'Home'], function() {
 Route::group(['prefix' => 'admin', 'namespace' =>'Admin'], function() {
 	// 显示user页面
 	Route::get('userIndex', 'AdminController@userIndex')->name('admin.user.index');
+	// 显示group页面
+	Route::get('groupIndex', 'AdminController@groupIndex')->name('admin.group.index');
+	// 显示rule页面
+	Route::get('ruleIndex', 'AdminController@ruleIndex')->name('admin.rule.index');
+
 	// 获取user数据信息
 	Route::get('userList', 'AdminController@userList')->name('admin.user.list');
+	// 获取group数据信息
+	Route::get('groupList', 'AdminController@groupList')->name('admin.group.list');
+	// 获取rule数据信息
+	Route::get('ruleList', 'AdminController@ruleList')->name('admin.rule.list');
 });
 
 // 测试用
