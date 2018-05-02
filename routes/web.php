@@ -22,6 +22,8 @@ Route::group(['prefix' => 'home', 'namespace' =>'Home'], function() {
 
 // admin模块
 Route::group(['prefix' => 'admin', 'namespace' =>'Admin'], function() {
+	// 显示config页面
+	Route::get('configIndex', 'AdminController@configIndex')->name('admin.config.index');
 	// 显示user页面
 	Route::get('userIndex', 'AdminController@userIndex')->name('admin.user.index');
 	// 显示group页面
@@ -29,6 +31,8 @@ Route::group(['prefix' => 'admin', 'namespace' =>'Admin'], function() {
 	// 显示rule页面
 	Route::get('ruleIndex', 'AdminController@ruleIndex')->name('admin.rule.index');
 
+	// 获取config数据信息
+	Route::get('configList', 'AdminController@configList')->name('admin.config.list');
 	// 获取user数据信息
 	Route::get('userList', 'AdminController@userList')->name('admin.user.list');
 	// 获取group数据信息

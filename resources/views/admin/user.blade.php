@@ -372,15 +372,15 @@
 									<tr><td colspan="9"><div><nav>
 
 										<ul class="pagination pagination-sm">
-											<li><a aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+											<li><a aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
 
 											<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-												<a v-if="n==1" @click="userlist(1, gets.last_page)">1</a>
-												<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="userlist(n, gets.last_page)">@{{ n }}</a>
+												<a v-if="n==1" @click="userlist(1, gets.last_page)" href="javascript:;">1</a>
+												<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="userlist(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
 												<a v-else-if="n==2||n==gets.last_page">...</a>
 											</li>&nbsp;
 
-											<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
+											<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
 											<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
 
 												<div class="col-xs-2">

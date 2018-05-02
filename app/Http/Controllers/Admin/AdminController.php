@@ -88,6 +88,39 @@ class AdminController extends Controller
     }
 
     /**
+     * 列出配置页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function configIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.config', $config);
+    }
+
+    /**
+     * 列出配置页面 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function configList(Request $request)
+    {
+        // 获取用户信息
+		$perPage = $request->input('perPage');
+		$page = $request->input('page');
+		if (null == $page) $page = 1;
+
+		$config = Config::select('cfg_id', 'cfg_name', 'cfg_value', 'cfg_description')
+			->get();
+			// ->paginate($perPage, ['*'], 'page', $page);
+			
+			return $config;
+    }
+
+    /**
      * 列出用户页面
      *
      * @param  int  $id
