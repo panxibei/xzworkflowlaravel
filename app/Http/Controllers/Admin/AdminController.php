@@ -115,9 +115,25 @@ class AdminController extends Controller
 
 		$config = Config::select('cfg_id', 'cfg_name', 'cfg_value', 'cfg_description')
 			->get();
-			// ->paginate($perPage, ['*'], 'page', $page);
 			
-			return $config;
+		return $config;
+    }
+
+    /**
+     * 修改配置 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function configChange(Request $request)
+    {
+		if ($request->isMethod('post')) {
+			$up2data = $request->all();
+			$res = Config::where('cfg_id', $up2data['cfg_id'])->update(['cfg_value'=>$up2data['cfg_value']]);
+			return $res;
+		} else {
+			return false;
+		}
     }
 
     /**

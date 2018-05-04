@@ -298,7 +298,7 @@
 				<a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
 			</li>
 			<li>
-				<a href="{:U('Admin/Index/config')}"><i class="fa fa-table fa-fw"></i> 系统配置</a>
+				<a href="{{ route('admin.config.index') }}"><i class="fa fa-table fa-fw"></i> 系统配置</a>
 			</li>
 			<li>
 				<a href="#"><i class="fa fa-dropbox fa-fw"></i> 元素管理<span class="fa arrow"></span></a>

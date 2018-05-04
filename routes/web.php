@@ -39,6 +39,10 @@ Route::group(['prefix' => 'admin', 'namespace' =>'Admin'], function() {
 	Route::get('groupList', 'AdminController@groupList')->name('admin.group.list');
 	// 获取rule数据信息
 	Route::get('ruleList', 'AdminController@ruleList')->name('admin.rule.list');
+	
+	// 修改config数据
+	Route::post('configChange', 'AdminController@configChange')->name('admin.config.change');
+
 });
 
 // 测试用

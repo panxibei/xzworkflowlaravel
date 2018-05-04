@@ -52,15 +52,17 @@
 				<div class="panel-heading">
 					Basic Form Elements
 				</div>
-				<div id="config_list" class="panel-body">
+				<div id="config_list" class="panel-body" v-cloak>
 				<form role="form">
+
 					<div class="row">
 					<span v-for="(val, index) in gets">
 
 						<div class="col-lg-3">
 							<div class="form-group">
 								<label>@{{ val.cfg_name }}</label>
-								<input v-model="val.cfg_value" class="form-control" placeholder="Enter text" >
+								<!--<input v-model="val.cfg_value" class="form-control" placeholder="暂无配置值" >-->
+								<input v-bind:id="val.cfg_id" v-bind:value="val.cfg_value" v-on:change="configchange" class="form-control" placeholder="暂无配置值" >
 								<p class="help-block">&nbsp;@{{ val.cfg_description }}</p>
 							</div>
 						</div>
@@ -90,6 +92,29 @@ var vm_config = new Vue({
     data: {
 		gets: {}
     },
+	methods: {
+		configchange: function(event){
+			// alert(event.target.id);
+			// alert(event.target.value);
+			var _this = this;
+			var url = "{{ route('admin.config.change') }}";
+			axios.post(url, {
+					cfg_id: event.target.id,
+					cfg_value: event.target.value
+				})
+				.then(function (response) {
+					if (response.data) {
+						// alert('success');
+					} else {
+						alert('failed');
+					}
+				})
+				.catch(function (error) {
+					alert('failed');
+					// console.log(error);
+				})
+		}
+	},
 	mounted: function(){
 		var _this = this;
 		var url = "{{ route('admin.config.list') }}";
