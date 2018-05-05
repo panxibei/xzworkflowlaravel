@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Transformers\UserTransformer;
 
+use App\Models\User;
+
 class AuthController extends Controller
 {
     /**
@@ -34,9 +36,22 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        // return $this->respondWithToken($token);
+        return $token;
     }
 
+	public function testlogin()
+	{
+		// Get some user from somewhere
+		// $user = User::find(1)->where('id',9)->first();
+
+		// Get the token
+		// $token = auth()->login($user);
+		
+		$token = auth()->tokenById(8);
+		return auth()->user();
+		// return $token;
+	}
 
     /**
      * Get the authenticated User.
