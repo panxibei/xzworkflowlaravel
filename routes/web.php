@@ -21,7 +21,7 @@ Route::group(['prefix' => 'home', 'namespace' =>'Home'], function() {
 });
 
 // admin模块
-Route::group(['prefix' => 'admin', 'namespace' =>'Admin'], function() {
+Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
 	// 显示config页面
 	Route::get('configIndex', 'AdminController@configIndex')->name('admin.config.index');
 	// 显示user页面
