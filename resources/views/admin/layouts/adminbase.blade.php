@@ -403,7 +403,7 @@
 @section('my_footer')
 <div class="text-center">
 	<a href="{:U('Home/Index/index')}">{{$SITE_TITLE}}</a>&nbsp;|&nbsp;{{$SITE_COPYRIGHT}}
-	</div>
+</div>
 <br>
 <script src="{{ asset('js/vue.min.js') }}"></script>
 <script src="{{ asset('js/axios.min.js') }}"></script>

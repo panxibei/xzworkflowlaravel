@@ -16,8 +16,9 @@
 // });
 
 // home模块
-Route::group(['prefix' => 'home', 'namespace' =>'Home'], function() {
+Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
 	Route::get('/', 'LoginController@index');
+	Route::post('checklogin', 'LoginController@checklogin')->name('login.checklogin');
 });
 
 // admin模块

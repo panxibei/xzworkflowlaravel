@@ -4,6 +4,7 @@
 
 @section('my_js')
 <script type="text/javascript">
+/*
 $(document).ready(function(){
 	$(function(){
 		//如果记住我，就直接登录
@@ -104,6 +105,7 @@ $(document).ready(function(){
 		$('#form_login').resetForm();
 	});
 });
+*/
 </script>
 @endsection
 
@@ -122,29 +124,29 @@ $(document).ready(function(){
 					<h3 class="panel-title">Please Sign In</h3>
 				</div>
 				<div class="panel-body">
-					<form id="form_login" role="form" method="post">
+					<form id="login_form" role="form" method="post">
 						<fieldset>
 							<div class="form-group">
-								<input id="username" class="form-control" name="user_username" type="text" placeholder="username" value="" autofocus required>
+								<input v-model="username" class="form-control" type="text" placeholder="username" autofocus required>
 							</div>
 							<div class="form-group">
-								<input id="password" class="form-control" name="user_password" type="password" placeholder="password" value="" required>
+								<input v-model="password" class="form-control" type="password" placeholder="password" required>
 							</div>
 							<div class="form-group">
 								<label>
-									<input id="verify_code" class="form-control" name="user_verifycode" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value="8888"  autocomplete="off" required>
+									<input v-model="verifycode" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value="8888"  autocomplete="off" required>
 								</label>
-								<img id="verify_image" src="{:U('Home/Index/myverifycode')}" onclick="this.src+='?rand='+Math.random();" style="cursor:pointer;vertical-align:top;">
+								<img id="verify_image" src="" onclick="this.src+='?rand='+Math.random();" style="cursor:pointer;vertical-align:top;">
 							</div>
 							<div class="checkbox">
 								<label>
-									<input id="rememberme" type="checkbox" value="Remember Me">Remember Me &nbsp;&nbsp;&nbsp;
-								</label><a href="{:U('Home/Index/forget')}">Forget?</a>
+									<input v-model="rememberme" type="checkbox">Remember Me &nbsp;&nbsp;&nbsp;
+								</label><a href="">Forget?</a>
 							</div>
 							
-							<button type="submit" class="btn btn-primary" id="login">登 录</button>&nbsp;&nbsp;&nbsp;&nbsp;
-							<button type="button" class="btn btn-primary" id="input_reset">重 置</button>
-							<div id="verify_is_ok">&nbsp;</div>
+							<button type="button" class="btn btn-primary" id="login_submit" @click="loginsubmit">登 录</button>&nbsp;&nbsp;&nbsp;&nbsp;
+							<button type="button" class="btn btn-primary" id="login_reset" @click="loginreset">重 置</button>&nbsp;&nbsp;
+							<div v-html="loginmessage">@{{ loginmessage }}</div>
 						</fieldset>
 					</form>
 				</div>
@@ -156,4 +158,64 @@ $(document).ready(function(){
 
 @section('my_footer')
 @parent
+<script>
+// ajax 获取数据
+var vm_login = new Vue({
+    el: '#login_form',
+    data: {
+		username: '',
+		password: '',
+		verifycode: '',
+		rememberme: false,
+		loginmessage: ''
+    },
+	methods: {
+		'loginsubmit': function(event){
+			// alert(event.target.id);
+			// alert(event.target.value);
+			
+			var _this = this;
+			var url = "{{ route('login.checklogin') }}";
+			axios.post(url, {
+					username: _this.username,
+					password: _this.password,
+					verifycode: _this.verifycode,
+					rememberme: _this.rememberme
+				})
+				.then(function (response) {
+					// alert(response.data);
+					_this.loginreset();
+					var token = response.data;
+					if (token) {
+						// alert('success');
+						_this.loginmessage = '<div class="text-success">login success, waiting ....</div>';
+						// return false;
+						window.setTimeout(function(){
+							
+							var url = "{{ route('admin.config.index') }}";
+							window.location.href = url + "?token=" + token;
+							// $('div#verify_is_ok').html('&nbsp;');$('#login').removeAttr('disabled');
+						},1000);
+					} else {
+						// alert('failed');
+						_this.loginmessage = '<div class="text-warning">login failed</div>';
+					}
+				})
+				.catch(function (error) {
+					// alert('failed');
+					// console.log(error);
+					_this.loginreset();
+					_this.loginmessage = '<div class="text-warning">error: failed</div>';
+				})
+		},
+		'loginreset': function(){
+			var _this = this;
+			_this.username = '',
+			_this.password = '',
+			_this.verifycode = '',
+			_this.rememberme = false
+		}
+	}
+});
+</script>
 @endsection

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Models\Config;
+use Cookie;
 
 class LoginController extends Controller
 {
@@ -19,6 +20,25 @@ class LoginController extends Controller
 		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
 
         return view('home.login', $config);
+    }
+
+    public function checklogin(Request $request)
+    {
+
+		// $credentials['name'] = $request->('username');
+		$credentials['name'] = $request->input('username');
+		$credentials['password'] = $request->input('password');
+
+        if (! $token = auth()->attempt($credentials)) {
+            // return response()->json(['error' => 'Unauthorized'], 401);
+			return null;
+        }
+
+        // return $this->respondWithToken($token);
+		$minutes = 5;
+		Cookie::queue('token', $token, $minutes);
+        return $token;
+		
     }
 
     /**
