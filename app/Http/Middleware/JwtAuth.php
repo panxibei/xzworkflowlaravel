@@ -18,24 +18,27 @@ class JwtAuth
     {
 
 		// 请求前处理内容
-		$value = Cookie::get('token');
-		dd($value);
+		
+		// 获取JSON格式的jwt-auth用户响应
+		$me = response()->json(auth()->user());
+		
+		// 获取JSON格式的jwt-auth用户信息（$me->getContent()），就是$me的data部分
+		$user = json_decode($me->getContent(), true);
+		// 用户信息：$user['id']、$user['name'] 等
 
-		$credentials = request(['name', 'password']);
-
-		if (! auth()->validate($credentials)) {
-			// credentials are invalid
+		// 判断数组为空，以此来判断是否有有效用户登录
+		if (! sizeof($user)) {
+			// 无有效用户登录，则认证失败，退回登录界面
 			dd('credentials are invalid');
 		}
-		
 
-        // return $this->respondWithToken($token);
-        // return $token;
 
 		// 保存请求内容
 		$response = $next($request);
 
+
 		// 请求后处理内容
+
 
 		// 返回请求
 		return $response;

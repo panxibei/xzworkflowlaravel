@@ -173,7 +173,7 @@ var vm_login = new Vue({
 		'loginsubmit': function(event){
 			// alert(event.target.id);
 			// alert(event.target.value);
-			
+
 			var _this = this;
 			var url = "{{ route('login.checklogin') }}";
 			axios.post(url, {
@@ -183,17 +183,15 @@ var vm_login = new Vue({
 					rememberme: _this.rememberme
 				})
 				.then(function (response) {
-					// alert(response.data);
-					_this.loginreset();
 					var token = response.data;
 					if (token) {
 						// alert('success');
+						event.target.disabled = true;
+						_this.password = '**********';
 						_this.loginmessage = '<div class="text-success">login success, waiting ....</div>';
-						// return false;
 						window.setTimeout(function(){
-							
 							var url = "{{ route('admin.config.index') }}";
-							window.location.href = url + "?token=" + token;
+							window.location.href = url;
 							// $('div#verify_is_ok').html('&nbsp;');$('#login').removeAttr('disabled');
 						},1000);
 					} else {
@@ -204,7 +202,7 @@ var vm_login = new Vue({
 				.catch(function (error) {
 					// alert('failed');
 					// console.log(error);
-					_this.loginreset();
+					// _this.loginreset();
 					_this.loginmessage = '<div class="text-warning">error: failed</div>';
 				})
 		},
