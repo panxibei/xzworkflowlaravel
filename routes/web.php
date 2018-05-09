@@ -17,7 +17,7 @@
 
 // home模块
 Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
-	Route::get('/', 'LoginController@index');
+	Route::get('/', 'LoginController@index')->name('login');
 	Route::post('checklogin', 'LoginController@checklogin')->name('login.checklogin');
 });
 

@@ -325,6 +325,7 @@
 										</script>
 									</div>
 									<button type="button" id="button_user_query" class="btn btn-default btn-sm">查询</button>
+									<button type="button" id="xxx" class="btn btn-default btn-sm" @click="showAlert()">测试</button>
 								</form>
 							</div>
 						</div>
@@ -526,6 +527,13 @@
 	</div>
   </div>
 </div>
+
+<!-- Modal alert exit-->
+<alert :show.sync="alertIsOpen" placement="top" duration="3000" type="danger" width="400px" dismissable>
+  <span class="icon-info-circled alert-icon-float-left"></span>
+  <strong>Heads up!</strong>
+  <p>This alert needs your attention.</p>
+</alert>
 @endsection
 
 @section('my_footer')
@@ -549,21 +557,31 @@ var vm_user = new Vue({
 				page = 1;
 			}
 			_this.gets.current_page = page;
-			axios.get(url, {
-					params: {
-						perPage: perPage,
-						page: page
-					}
-				})
-				.then(function (response) {
-					//console.log(response);
-					_this.gets = response.data;
-					// alert(_this.gets);
-				})
-				.catch(function (error) {
-					console.log(error);
-				})
-			}
+			axios.get(url,{
+				params: {
+					perPage: perPage,
+					page: page
+				},
+				headers: {'X-Requested-With': 'XMLHttpRequest'}
+			})
+			.then(function (response) {
+				// console.log(response);
+				// alert(response.data);
+				if (typeof(response.data.data) == "undefined") {
+					// alert('toekn失效，跳转至登录页面');
+					window.setTimeout(function(){
+						window.location.href = "{{ route('admin.config.index') }}";
+					},1000);
+				}
+				// return false;
+				_this.gets = response.data;
+				// alert(_this.gets);
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		}
 	},
 	mounted: function(){
 		var _this = this;
@@ -584,5 +602,25 @@ var vm_user = new Vue({
 			})
 	}
 });
+
+// modal alert exit
+var vm_alert_exit = new Vue({
+  components: {
+      vSelect: VueStrap.select
+  },
+  el: "body",
+  // data: {
+	  // title: "我是标题",
+	  // alertIsOpen: false,
+	  // showRight: false,
+	  // showTop: false
+  // },
+  methods:{
+	showAlert : function(){
+		alert();
+	  this.$set('alertIsOpen',true);
+	}
+  }
+})
 </script>
 @endsection

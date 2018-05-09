@@ -192,7 +192,6 @@ var vm_login = new Vue({
 						window.setTimeout(function(){
 							var url = "{{ route('admin.config.index') }}";
 							window.location.href = url;
-							// $('div#verify_is_ok').html('&nbsp;');$('#login').removeAttr('disabled');
 						},1000);
 					} else {
 						// alert('failed');
