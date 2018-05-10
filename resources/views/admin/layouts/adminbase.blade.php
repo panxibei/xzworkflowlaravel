@@ -406,7 +406,7 @@
 </div>
 <br>
 <script src="{{ asset('js/vue.min.js') }}"></script>
-<script src="{{ asset('js/vue-strap.min.js') }}"></script>
+<script src="{{ asset('js/uiv.min.js') }}"></script>
 <script src="{{ asset('js/axios.min.js') }}"></script>
 <script src="{{ asset('js/bluebird.min.js') }}"></script>
 @show

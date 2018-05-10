@@ -285,6 +285,9 @@
 								<button type="button" id="button_user_query_open" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapse_user_query" aria-expanded="false" aria-controls="collapse_user_query">打开查询</button>&nbsp;
 								<button type="button" id="user_excel_export" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> 导出</button>&nbsp;
 								<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">新 建</button>&nbsp;
+								
+								
+								
 							</div>
 						</div>
 						<div class="col-lg-12">
@@ -325,7 +328,6 @@
 										</script>
 									</div>
 									<button type="button" id="button_user_query" class="btn btn-default btn-sm">查询</button>
-									<button type="button" id="xxx" class="btn btn-default btn-sm" @click="showAlert()">测试</button>
 								</form>
 							</div>
 						</div>
@@ -528,12 +530,6 @@
   </div>
 </div>
 
-<!-- Modal alert exit-->
-<alert :show.sync="alertIsOpen" placement="top" duration="3000" type="danger" width="400px" dismissable>
-  <span class="icon-info-circled alert-icon-float-left"></span>
-  <strong>Heads up!</strong>
-  <p>This alert needs your attention.</p>
-</alert>
 @endsection
 
 @section('my_footer')
@@ -569,9 +565,10 @@ var vm_user = new Vue({
 				// alert(response.data);
 				if (typeof(response.data.data) == "undefined") {
 					// alert('toekn失效，跳转至登录页面');
-					window.setTimeout(function(){
-						window.location.href = "{{ route('admin.config.index') }}";
-					},1000);
+					_this.alert_exit();
+					// window.setTimeout(function(){
+						// window.location.href = "{{ route('admin.config.index') }}";
+					// },1000);
 				}
 				// return false;
 				_this.gets = response.data;
@@ -581,7 +578,20 @@ var vm_user = new Vue({
 				console.log(error);
 				alert(error);
 			})
+		},
+		alert_exit: function () {
+			this.$alert({
+				title: '会话超时',
+				content: '会话超时，请重新登录！'
+				}, (msg) => {
+				// callback after modal dismissed
+				this.$notify(`You selected ${msg}.`)
+				// window.setTimeout(function(){
+					window.location.href = "{{ route('admin.config.index') }}";
+				// },1000);
+			})
 		}
+
 	},
 	mounted: function(){
 		var _this = this;
@@ -602,25 +612,5 @@ var vm_user = new Vue({
 			})
 	}
 });
-
-// modal alert exit
-var vm_alert_exit = new Vue({
-  components: {
-      vSelect: VueStrap.select
-  },
-  el: "body",
-  // data: {
-	  // title: "我是标题",
-	  // alertIsOpen: false,
-	  // showRight: false,
-	  // showTop: false
-  // },
-  methods:{
-	showAlert : function(){
-		alert();
-	  this.$set('alertIsOpen',true);
-	}
-  }
-})
 </script>
 @endsection
