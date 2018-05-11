@@ -127,10 +127,10 @@ $(document).ready(function(){
 					<form id="login_form" role="form" method="post">
 						<fieldset>
 							<div class="form-group">
-								<input v-model="username" class="form-control" type="text" placeholder="username" autofocus required>
+								<input v-model="username" @keyup.enter="loginsubmit" class="form-control" type="text" placeholder="username" autofocus required>
 							</div>
 							<div class="form-group">
-								<input v-model="password" class="form-control" type="password" placeholder="password" required>
+								<input v-model="password" @keyup.enter="loginsubmit" class="form-control" type="password" placeholder="password" required>
 							</div>
 							<div class="form-group">
 								<label>
