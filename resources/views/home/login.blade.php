@@ -127,14 +127,14 @@ $(document).ready(function(){
 					<form id="login_form" role="form" method="post">
 						<fieldset>
 							<div class="form-group">
-								<input v-model="username" @keyup.enter="loginsubmit" class="form-control" type="text" placeholder="username" autofocus required>
+								<input v-model="username" @keyup.enter="loginsubmit" class="form-control" type="text" placeholder="username" v-bind:autofocus="usernameautofocus" required>
 							</div>
 							<div class="form-group">
 								<input v-model="password" @keyup.enter="loginsubmit" class="form-control" type="password" placeholder="password" required>
 							</div>
 							<div class="form-group">
 								<label>
-									<input v-model="verifycode" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value="8888"  autocomplete="off" required>
+									<input v-model="verifycode" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value=""  autocomplete="off" required>
 								</label>
 								<img id="verify_image" src="" onclick="this.src+='?rand='+Math.random();" style="cursor:pointer;vertical-align:top;">
 							</div>
@@ -165,9 +165,10 @@ var vm_login = new Vue({
     data: {
 		username: '',
 		password: '',
-		verifycode: '',
+		verifycode: '8888',
 		rememberme: false,
-		loginmessage: ''
+		loginmessage: '',
+		usernameautofocus: true
     },
 	methods: {
 		'loginsubmit': function(event){
