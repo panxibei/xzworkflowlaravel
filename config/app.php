@@ -161,6 +161,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
 		Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+		Mews\Captcha\CaptchaServiceProvider::class,
     ],
 
     /*
@@ -211,6 +212,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
 		'JWTAuth' => Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+		'Captcha' => Mews\Captcha\Facades\Captcha::class,
     ],
 
 ];
