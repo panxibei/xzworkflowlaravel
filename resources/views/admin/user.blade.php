@@ -583,9 +583,10 @@ var vm_user = new Vue({
 			this.$alert({
 				title: '会话超时',
 				content: '会话超时，请重新登录！'
-				}, (msg) => {
+			// }, (msg) => {
+			}, function (msg) {
 				// callback after modal dismissed
-				this.$notify(`You selected ${msg}.`)
+				// this.$notify(`You selected ${msg}.`)
 				// window.setTimeout(function(){
 					window.location.href = "{{ route('admin.config.index') }}";
 				// },1000);

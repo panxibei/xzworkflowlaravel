@@ -134,10 +134,10 @@ $(document).ready(function(){
 							</div>
 							<div class="form-group">
 								<label>
-									<input v-model="captcha" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value=""  autocomplete="off" required>
+									<input v-model="captcha" @keyup.enter="loginsubmit" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value=""  autocomplete="off" required>
 								</label>&nbsp;
 								<!--<img src="{{captcha_src('flatxz')}}" onclick="this.src+=Math.random().toString().substr(-1);" style="cursor:pointer;vertical-align:top;">-->
-								<img src="{{captcha_src('flatxz')}}" @click="captchaclick" style="cursor:pointer;vertical-align:top;">
+								<img ref="captcha" src="{{captcha_src('flatxz')}}" @click="captchaclick" style="cursor:pointer;vertical-align:top;">
 							</div>
 							<div class="checkbox">
 								<label>
@@ -166,7 +166,7 @@ var vm_login = new Vue({
     data: {
 		username: '',
 		password: '',
-		captcha: '8888',
+		captcha: '',
 		rememberme: false,
 		loginmessage: '',
 		usernameautofocus: true
@@ -179,35 +179,32 @@ var vm_login = new Vue({
 			var _this = this;
 			var url = "{{ route('login.checklogin') }}";
 			axios.post(url, {
-					username: _this.username,
-					password: _this.password,
-					captcha: _this.captcha,
-					rememberme: _this.rememberme
-				})
-				.then(function (response) {
-					var token = response.data;
-					if (token) {
-						// alert('success');
-						event.target.disabled = true;
-						_this.password = '**********';
-						_this.loginmessage = '<div class="text-success">login success, waiting ....</div>';
-						window.setTimeout(function(){
-							var url = "{{ route('admin.config.index') }}";
-							window.location.href = url;
-						},1000);
-					} else {
-						// alert('failed');
-						_this.loginmessage = '<div class="text-warning">login failed</div>';
-						_this.captchaclick();
-					}
-				})
-				.catch(function (error) {
+				username: _this.username,
+				password: _this.password,
+				captcha: _this.captcha,
+				rememberme: _this.rememberme
+			})
+			.then(function (response) {
+				var token = response.data;
+				if (token) {
+					// alert('success');
+					event.target.disabled = true;
+					_this.password = '**********';
+					_this.loginmessage = '<div class="text-success">login success, waiting ....</div>';
+					window.setTimeout(function(){
+						var url = "{{ route('admin.config.index') }}";
+						window.location.href = url;
+					},1000);
+				} else {
 					// alert('failed');
-					// console.log(error);
-					// _this.loginreset();
-					_this.loginmessage = '<div class="text-warning">error: failed</div>';
-					_this.captchaclick();
-				})
+					_this.loginmessage = '<div class="text-warning">captcha error or login failed</div>';
+				}
+			})
+			.catch(function (error) {
+				// console.log(error);
+				_this.loginmessage = '<div class="text-warning">error: failed</div>';
+			})
+			_this.$refs.captcha.src+=Math.random().toString().substr(-1);
 		},
 		'captchaclick': function(event){
 			event.target.src+=Math.random().toString().substr(-1);
@@ -216,7 +213,7 @@ var vm_login = new Vue({
 			var _this = this;
 			_this.username = '',
 			_this.password = '',
-			_this.verifycode = '',
+			_this.captcha = '',
 			_this.rememberme = false
 		}
 	}
