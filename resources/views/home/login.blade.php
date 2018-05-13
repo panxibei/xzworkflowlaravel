@@ -134,9 +134,10 @@ $(document).ready(function(){
 							</div>
 							<div class="form-group">
 								<label>
-									<input v-model="verifycode" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value=""  autocomplete="off" required>
-								</label>
-								<img id="verify_image" src="" onclick="this.src+='?rand='+Math.random();" style="cursor:pointer;vertical-align:top;">
+									<input v-model="captcha" class="form-control" type="text" pattern="[0-9]{4}" title="请输入4位验证码" style="width:100px;" value=""  autocomplete="off" required>
+								</label>&nbsp;
+								<!--<img src="{{captcha_src('flatxz')}}" onclick="this.src+=Math.random().toString().substr(-1);" style="cursor:pointer;vertical-align:top;">-->
+								<img src="{{captcha_src('flatxz')}}" @click="captchaclick" style="cursor:pointer;vertical-align:top;">
 							</div>
 							<div class="checkbox">
 								<label>
@@ -165,7 +166,7 @@ var vm_login = new Vue({
     data: {
 		username: '',
 		password: '',
-		verifycode: '8888',
+		captcha: '8888',
 		rememberme: false,
 		loginmessage: '',
 		usernameautofocus: true
@@ -180,7 +181,7 @@ var vm_login = new Vue({
 			axios.post(url, {
 					username: _this.username,
 					password: _this.password,
-					verifycode: _this.verifycode,
+					captcha: _this.captcha,
 					rememberme: _this.rememberme
 				})
 				.then(function (response) {
@@ -197,6 +198,7 @@ var vm_login = new Vue({
 					} else {
 						// alert('failed');
 						_this.loginmessage = '<div class="text-warning">login failed</div>';
+						_this.captchaclick();
 					}
 				})
 				.catch(function (error) {
@@ -204,7 +206,11 @@ var vm_login = new Vue({
 					// console.log(error);
 					// _this.loginreset();
 					_this.loginmessage = '<div class="text-warning">error: failed</div>';
+					_this.captchaclick();
 				})
+		},
+		'captchaclick': function(event){
+			event.target.src+=Math.random().toString().substr(-1);
 		},
 		'loginreset': function(){
 			var _this = this;

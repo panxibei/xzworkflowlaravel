@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Config;
 use Cookie;
+use Validator;
 
 class LoginController extends Controller
 {
@@ -24,20 +25,39 @@ class LoginController extends Controller
 
     public function checklogin(Request $request)
     {
+		if ($request->isMethod('post')) {
 
-		// $credentials['name'] = $request->('username');
-		$credentials['name'] = $request->input('username');
-		$credentials['password'] = $request->input('password');
+			// 判断验证码
+			$rules = ['captcha' => 'required|captcha'];
+			// $validator = Validator::make(Input::all(), $rules);
+			$validator = Validator::make($request->all(), $rules);
+			if ($validator->fails()) {
+				// echo '<p style="color: #ff0000;">Incorrect!</p>';
+				// dd('<p style="color: #ff0000;">Incorrect!</p>');
+				return null;
+			} else {
+				// echo '<p style="color: #00ff30;">Matched :)</p>';
+				// dd('<p style="color: #00ff30;">Matched :)</p>');
+			}
 
-        if (! $token = auth()->attempt($credentials)) {
-            // return response()->json(['error' => 'Unauthorized'], 401);
+			// jwt-auth，判断用户认证
+			$credentials['name'] = $request->input('username');
+			$credentials['password'] = $request->input('password');
+
+			if (! $token = auth()->attempt($credentials)) {
+				// 如果认证失败，则返回null
+				// return response()->json(['error' => 'Unauthorized'], 401);
+				return null;
+			}
+
+			// return $this->respondWithToken($token);
+			$minutes = 30;
+			Cookie::queue('token', $token, $minutes);
+			return $token;
+		
+		} else {
 			return null;
-        }
-
-        // return $this->respondWithToken($token);
-		$minutes = 30;
-		Cookie::queue('token', $token, $minutes);
-        return $token;
+		}
 		
     }
 
