@@ -124,7 +124,7 @@ $(document).ready(function(){
 					<h3 class="panel-title">Please Sign In</h3>
 				</div>
 				<div class="panel-body">
-					<form id="login_form" role="form" method="post">
+					<form id="login_form" role="form" method="post" v-cloak>
 						<fieldset>
 							<div class="form-group">
 								<input v-model="username" @keyup.enter="loginsubmit" class="form-control" type="text" placeholder="username" v-bind:autofocus="usernameautofocus" required>
