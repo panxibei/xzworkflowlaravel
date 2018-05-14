@@ -9,7 +9,7 @@
 <title>@yield('my_title')</title>
 <link rel="stylesheet" href="{{ asset('statics/bootstrap/css/bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/daterangepicker/daterangepicker.css') }}">
-<link rel="stylesheet" href="{{ asset('css/bootstrap-dialog.min.css') }}">
+<!--<link rel="stylesheet" href="{{ asset('css/bootstrap-dialog.min.css') }}">-->
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
@@ -20,10 +20,10 @@
 </style>
 @yield('my_style')
 <script src="{{ asset('js/jquery.min.js') }}"></script>
-<script src="{{ asset('js/jquery.cookie.js') }}"></script>
+<!--<script src="{{ asset('js/jquery.cookie.js') }}"></script>-->
 <script src="{{ asset('statics/bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/jquery.form.min.js') }}"></script>
-<script src="{{ asset('js/bootstrap-dialog.min.js') }}"></script>
+<!--<script src="{{ asset('js/jquery.form.min.js') }}"></script>-->
+<!--<script src="{{ asset('js/bootstrap-dialog.min.js') }}"></script>-->
 <script src="{{ asset('js/moment-with-locales.min.js') }}"></script>
 <script src="{{ asset('statics/daterangepicker/daterangepicker.js') }}"></script>
 <script src="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.js') }}"></script>
@@ -253,7 +253,7 @@
 			<li class="divider"></li>
 			<li><a href="{:U('Main/Index/main')}"><i class="fa fa-home fa-fw"></i> 前台首页</a>
 			</li>
-			<li><a href="{:U('Home/Index/logout')}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+			<li><a href="{{route('admin.logout')}}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
 			</li>
 		</ul>
 		<!-- /.dropdown-user -->

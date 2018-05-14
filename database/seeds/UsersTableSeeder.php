@@ -132,6 +132,20 @@ class UsersTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            8 => 
+            array (
+                'id' => 9,
+                'name' => 'user8',
+                'email' => 'user8@xz.com',
+                'password' => '$2y$10$LZyZUTTyHugBeHGiSCumi.KKb4doF5eQYoKqIBYR03J84LLcEVVZW',
+                'login_time' => time(),
+                'login_ip' => '127.0.0.1',
+                'login_counts' => 0,
+                'remember_token' => '',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
 	}
 }

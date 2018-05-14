@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Config;
 use App\Models\User;
 use App\Models\Group;
+use Cookie;
 
 class AdminController extends Controller
 {
@@ -87,6 +88,21 @@ class AdminController extends Controller
         //
     }
 
+	// logout
+	public function logout()
+	{
+		// 删除cookie
+		Cookie::queue(Cookie::forget('token'));
+
+		// Pass true to force the token to be blacklisted "forever"
+		// auth()->logout(true);
+		auth()->logout();
+
+		// 返回登录页面
+		return redirect()->route('login');
+	}
+	
+	
     /**
      * 列出配置页面
      *

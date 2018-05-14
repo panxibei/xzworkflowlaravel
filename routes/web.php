@@ -44,6 +44,9 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	// 修改config数据
 	Route::post('configChange', 'AdminController@configChange')->name('admin.config.change');
 
+	// logout
+	Route::get('logout', 'AdminController@logout')->name('admin.logout');
+
 });
 
 // 测试用

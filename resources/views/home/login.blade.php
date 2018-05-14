@@ -192,6 +192,7 @@ var vm_login = new Vue({
 					_this.password = '**********';
 					_this.loginmessage = '<div class="text-success">login success, waiting ....</div>';
 					window.setTimeout(function(){
+						_this.loginreset;
 						var url = "{{ route('admin.config.index') }}";
 						window.location.href = url;
 					},1000);

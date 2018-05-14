@@ -301,7 +301,7 @@
 										<label for="user_query_login_time" class="control-label">最近登录时间</label>
 										<input class="form-control input-sm" type="text" id="user_query_login_time" />
 										<script type="text/javascript">
-										$(function() {
+										/*$(function() {
 											moment.lang('ja');
 											$('input#user_query_login_time').daterangepicker({
 												singleDatePicker: false,
@@ -324,7 +324,7 @@
 												//});
 											});
 											//$('div.calendar-table').remove();
-										});
+										});*/
 										</script>
 									</div>
 									<button type="button" id="button_user_query" class="btn btn-default btn-sm">查询</button>
@@ -402,6 +402,7 @@
 
 									</nav></div></td></tr>
 
+									
 								</div>
 							</div>
 						</div>
@@ -586,13 +587,13 @@ var vm_user = new Vue({
 			// }, (msg) => {
 			}, function (msg) {
 				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`)
+				// this.$notify(`You selected ${msg}.`);
+				// this.$notify('You selected ${msg}.');
 				// window.setTimeout(function(){
 					window.location.href = "{{ route('admin.config.index') }}";
 				// },1000);
 			})
-		}
-
+		},
 	},
 	mounted: function(){
 		var _this = this;
