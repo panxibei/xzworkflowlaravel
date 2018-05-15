@@ -9,6 +9,8 @@ use App\Models\Config;
 use App\Models\User;
 use App\Models\Group;
 use Cookie;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class AdminController extends Controller
 {
@@ -182,7 +184,7 @@ class AdminController extends Controller
 			// ->get()
 			->paginate($perPage, ['*'], 'page', $page);
 			
-			return $user;
+		return $user;
     }
 	
     /**
@@ -214,7 +216,69 @@ class AdminController extends Controller
 		$group = Group::select('id', 'title', 'rules', 'created_at')
 			->paginate($perPage, ['*'], 'page', $page);
 			
-			return $group;
+		return $group;
+    }
+
+    /**
+     * 列出权限页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function ruleIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.rule', $config);
+    }
+
+    /**
+     * 创建role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleCreate(Request $request)
+    {
+		if (! $request->isMethod('post')) { return null; }
+        $rolename = $request->input('params.rolename');
+		$role = Role::create(['name' => $rolename]);
+        return $role;
+    }
+
+    /**
+     * 创建permission
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionCreate(Request $request)
+    {
+		if (! $request->isMethod('post')) { return null; }
+        $permissionname = $request->input('params.permissionname');
+		$permission = Permission::create(['name' => $permissionname]);
+        return $permission;
+    }
+
+    /**
+     * 赋予permission
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionUpdate(Request $request)
+    {
+		dd($request->ajax());
+		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		if (! $request->isMethod('post')) { return null; }
+		
+        $rolename = $request->input('params.rolename');
+        $permissionname = $request->input('params.permissionname');
+
+		$role = Role::findByName($rolename);
+		dd($role);
+		$result = $role->givePermissionTo($permissionname);
+        return $result;
     }
 
 }

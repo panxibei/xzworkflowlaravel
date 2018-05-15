@@ -51,7 +51,7 @@ class LoginController extends Controller
 			}
 
 			// return $this->respondWithToken($token);
-			$minutes = 30;
+			$minutes = 60;
 			Cookie::queue('token', $token, $minutes);
 			return $token;
 		
