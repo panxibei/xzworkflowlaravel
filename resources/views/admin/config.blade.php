@@ -98,6 +98,7 @@ var vm_config = new Vue({
 			// alert(event.target.value);
 			var _this = this;
 			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
 					cfg_id: event.target.id,
 					cfg_value: event.target.value
@@ -118,6 +119,7 @@ var vm_config = new Vue({
 	mounted: function(){
 		var _this = this;
 		var url = "{{ route('admin.config.list') }}";
+		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 		axios.get(url, {
 				params: {
 					perPage: 1,

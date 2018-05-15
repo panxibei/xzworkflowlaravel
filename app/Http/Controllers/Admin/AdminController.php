@@ -126,6 +126,8 @@ class AdminController extends Controller
      */
     public function configList(Request $request)
     {
+		if (! $request->ajax()) { return null; }
+		
         // 获取用户信息
 		$perPage = $request->input('perPage');
 		$page = $request->input('page');
@@ -145,13 +147,11 @@ class AdminController extends Controller
      */
     public function configChange(Request $request)
     {
-		if ($request->isMethod('post')) {
-			$up2data = $request->all();
-			$res = Config::where('cfg_id', $up2data['cfg_id'])->update(['cfg_value'=>$up2data['cfg_value']]);
-			return $res;
-		} else {
-			return false;
-		}
+		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+
+		$up2data = $request->all();
+		$res = Config::where('cfg_id', $up2data['cfg_id'])->update(['cfg_value'=>$up2data['cfg_value']]);
+		return $res;
     }
 
     /**
@@ -175,6 +175,8 @@ class AdminController extends Controller
      */
     public function userList(Request $request)
     {
+		if (! $request->ajax()) { return null; }
+
         // 获取用户信息
 		$perPage = $request->input('perPage');
 		$page = $request->input('page');
@@ -208,6 +210,8 @@ class AdminController extends Controller
      */
     public function groupList(Request $request)
     {
+		if (! $request->ajax()) { return null; }
+
         // 获取用户信息
 		$perPage = $request->input('perPage');
 		$page = $request->input('page');
@@ -240,7 +244,7 @@ class AdminController extends Controller
      */
     public function roleCreate(Request $request)
     {
-		if (! $request->isMethod('post')) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
         $rolename = $request->input('params.rolename');
 		$role = Role::create(['name' => $rolename]);
         return $role;
@@ -254,7 +258,7 @@ class AdminController extends Controller
      */
     public function permissionCreate(Request $request)
     {
-		if (! $request->isMethod('post')) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
         $permissionname = $request->input('params.permissionname');
 		$permission = Permission::create(['name' => $permissionname]);
         return $permission;
@@ -268,15 +272,12 @@ class AdminController extends Controller
      */
     public function permissionUpdate(Request $request)
     {
-		dd($request->ajax());
-		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-		if (! $request->isMethod('post')) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 		
         $rolename = $request->input('params.rolename');
         $permissionname = $request->input('params.permissionname');
 
 		$role = Role::findByName($rolename);
-		dd($role);
 		$result = $role->givePermissionTo($permissionname);
         return $result;
     }

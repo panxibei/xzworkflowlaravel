@@ -344,10 +344,14 @@
 						<input class="form-control input-sm" type="text" ref="permissioncreateinput" />
 						<button @click="permissioncreate" class="btn btn-primary btn-sm">create permission</button>
 					</div>
-					<div class="form-group">
-						<label class="control-label">permissionupdate</label>
-						<input class="form-control input-sm" type="text" ref="permissionupdateinput" />
-						<button @click="permissionupdate" class="btn btn-primary btn-sm">give permission to</button>
+					<div class="col-lg-3">
+						<div class="form-group">
+							<label class="control-label">permissionupdate role</label>
+							<input class="form-control input-sm" type="text" ref="permissionupdaterole" />
+							<label class="control-label">permissionupdate permission</label>
+							<input class="form-control input-sm" type="text" ref="permissionupdatepermission" />
+							<button @click="permissionupdate" class="btn btn-primary btn-sm">give permission to</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -444,7 +448,7 @@
 @parent
 <script>
 // ajax 获取数据
-var vm_user = new Vue({
+var vm_rule = new Vue({
     el: '#rule_list',
     data: {
 		gets: {}
@@ -461,12 +465,12 @@ var vm_user = new Vue({
 				page = 1;
 			}
 			_this.gets.current_page = page;
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
 					perPage: perPage,
 					page: page
-				},
-				headers: {'X-Requested-With': 'XMLHttpRequest'}
+				}
 			})
 			.then(function (response) {
 				// console.log(response);
@@ -525,12 +529,11 @@ var vm_user = new Vue({
 			var _this = this;
 			var url = "{{ route('admin.role.create') }}";
 			
-			
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
 					rolename: rolename
-				},
-				headers: {'X-Requested-With': 'XMLHttpRequest'}
+				}
 			})
 			.then(function (response) {
 				// console.log(response);
@@ -552,11 +555,11 @@ var vm_user = new Vue({
 			var _this = this;
 			var url = "{{ route('admin.permission.create') }}";
 			
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
 					permissionname: permissionname
-				},
-				headers: {'X-Requested-With': 'XMLHttpRequest'}
+				}
 			})
 			.then(function (response) {
 				// console.log(response);
@@ -571,15 +574,15 @@ var vm_user = new Vue({
 			})
 		},
 		permissionupdate: function () {
-			var rolename = 'writer';
-			var permissionname = this.$refs.permissionupdateinput.value;
-			if(permissionname.length==0){return false;}
+			var rolename = this.$refs.permissionupdaterole.value;
+			var permissionname = this.$refs.permissionupdatepermission.value;
+			
+			if(rolename.length==0||permissionname.length==0){return false;}
 			var _this = this;
 			var url = "{{ route('admin.permission.update') }}";
 			// alert(permissionname);return false;
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				headers: {'X-Requested-With': 'XMLHttpRequest'},
 				params: {
 					rolename: rolename,
 					permissionname: permissionname
@@ -595,6 +598,7 @@ var vm_user = new Vue({
 			})
 			.catch(function (error) {
 				_this.alert_message('ERROR', error.response.data.message);
+				_this.alert_message('ERROR', '已经存在！不要重复追加！');
 			})
 		}
 	},

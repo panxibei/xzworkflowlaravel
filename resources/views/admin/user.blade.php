@@ -554,6 +554,7 @@ var vm_user = new Vue({
 				page = 1;
 			}
 			_this.gets.current_page = page;
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
 					perPage: perPage,
@@ -598,6 +599,7 @@ var vm_user = new Vue({
 	mounted: function(){
 		var _this = this;
 		var url = "{{ route('admin.user.list') }}";
+		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 		axios.get(url, {
 				params: {
 					perPage: 1,
