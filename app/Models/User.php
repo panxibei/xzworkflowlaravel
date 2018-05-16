@@ -14,7 +14,8 @@ class User extends Authenticatable implements JWTSubject
     use Notifiable;
 
 	use HasRoles;
-	protected $guard_name = 'web';
+	// 这里使用api而不是web，是因为用了tymon/jwt-auth
+	protected $guard_name = 'api';
 
     /**
      * The attributes that are mass assignable.

@@ -335,22 +335,47 @@
 				</div>
 				<div id="rule_list" v-cloak>
 					<div class="form-group">
-						<label class="control-label">role</label>
+						<label class="control-label">create role</label>
 						<input class="form-control input-sm" type="text" ref="rolecreateinput" />
 						<button @click="rolecreate" class="btn btn-primary btn-sm">create role</button>
 					</div>
 					<div class="form-group">
-						<label class="control-label">permission</label>
+						<label class="control-label">create permission</label>
 						<input class="form-control input-sm" type="text" ref="permissioncreateinput" />
 						<button @click="permissioncreate" class="btn btn-primary btn-sm">create permission</button>
 					</div>
 					<div class="col-lg-3">
 						<div class="form-group">
-							<label class="control-label">permissionupdate role</label>
-							<input class="form-control input-sm" type="text" ref="permissionupdaterole" />
-							<label class="control-label">permissionupdate permission</label>
-							<input class="form-control input-sm" type="text" ref="permissionupdatepermission" />
-							<button @click="permissionupdate" class="btn btn-primary btn-sm">give permission to</button>
+							<label class="control-label">permissiongive role</label>
+							<input class="form-control input-sm" type="text" ref="permissionrole" />
+							<label class="control-label">permissiongive permission</label>
+							<input class="form-control input-sm" type="text" ref="permissionpermission" />
+							<button @click="permissiongive" class="btn btn-primary btn-sm">give permission</button>
+							<button @click="permissionrevoke" class="btn btn-primary btn-sm">revoke permission</button>
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div class="form-group">
+							<label class="control-label">rolegive user</label>
+							<input class="form-control input-sm" type="text" ref="roleuser" />
+							<label class="control-label">rolegive role</label>
+							<input class="form-control input-sm" type="text" ref="rolerole" />
+							<button @click="rolegive" class="btn btn-primary btn-sm">give role</button>
+							<button @click="roleremove" class="btn btn-primary btn-sm">remove role</button>
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div class="form-group">
+							<label class="control-label">user has roles show</label>
+							<input class="form-control input-sm" type="text" ref="roleshow"/>
+							<button @click="roleshow" class="btn btn-primary btn-sm">input user to show roles</button>
+						</div>
+					</div>
+					<div class="col-lg-3">
+						<div class="form-group">
+							<label class="control-label">role has permissions show</label>
+							<input class="form-control input-sm" type="text" ref="permissionshow"/>
+							<button @click="permissionshow" class="btn btn-primary btn-sm">input role to show permissions</button>
 						</div>
 					</div>
 				</div>
@@ -573,13 +598,13 @@ var vm_rule = new Vue({
 				_this.alert_message('ERROR', error.response.data.message);
 			})
 		},
-		permissionupdate: function () {
-			var rolename = this.$refs.permissionupdaterole.value;
-			var permissionname = this.$refs.permissionupdatepermission.value;
+		permissiongive: function () {
+			var rolename = this.$refs.permissionrole.value;
+			var permissionname = this.$refs.permissionpermission.value;
 			
 			if(rolename.length==0||permissionname.length==0){return false;}
 			var _this = this;
-			var url = "{{ route('admin.permission.update') }}";
+			var url = "{{ route('admin.permission.give') }}";
 			// alert(permissionname);return false;
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
@@ -594,6 +619,147 @@ var vm_rule = new Vue({
 					_this.alert_message('WARNING', 'Permission [' + permissionname + '] failed to update!');
 				} else {
 					_this.alert_message('SUCCESS', 'Permission [' + permissionname + '] updated successfully!');
+				}
+			})
+			.catch(function (error) {
+				_this.alert_message('ERROR', error.response.data.message);
+				_this.alert_message('ERROR', '已经存在！不要重复追加！');
+			})
+		},
+		permissionrevoke: function () {
+			var rolename = this.$refs.permissionrole.value;
+			var permissionname = this.$refs.permissionpermission.value;
+			
+			if(rolename.length==0||permissionname.length==0){return false;}
+			var _this = this;
+			var url = "{{ route('admin.permission.revoke') }}";
+			// alert(permissionname);return false;
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					rolename: rolename,
+					permissionname: permissionname
+				}
+			})
+			.then(function (response) {
+				// console.log(response);
+				if (typeof(response.data) == "undefined") {
+					_this.alert_message('WARNING', 'Permission [' + permissionname + '] failed to revoke!');
+				} else {
+					_this.alert_message('SUCCESS', 'Permission [' + permissionname + '] revoked successfully!');
+				}
+			})
+			.catch(function (error) {
+				_this.alert_message('ERROR', error.response.data.message);
+				_this.alert_message('ERROR', '已经存在！不要重复追加！');
+			})
+		},
+		rolegive: function () {
+			var username = this.$refs.roleuser.value;
+			// var rolename = this.$refs.rolerole.value;
+			// 提交为数组
+			var rolename = [];
+			rolename.push(this.$refs.rolerole.value);
+			
+			if(username.length==0||rolename.length==0){return false;}
+			var _this = this;
+			var url = "{{ route('admin.role.give') }}";
+			// alert(permissionname);return false;
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					username: username,
+					rolename: rolename
+				}
+			})
+			.then(function (response) {
+				// console.log(response);
+				if (typeof(response.data) == "undefined") {
+					_this.alert_message('WARNING', 'Role [' + rolename + '] failed to update!');
+				} else {
+					_this.alert_message('SUCCESS', 'Role [' + rolename + '] updated successfully!');
+				}
+			})
+			.catch(function (error) {
+				_this.alert_message('ERROR', error.response.data.message);
+				_this.alert_message('ERROR', '已经存在！不要重复追加！');
+			})
+		},
+		roleremove: function () {
+			var username = this.$refs.roleuser.value;
+			var rolename = this.$refs.rolerole.value;
+			// var rolename = [];
+			// rolename.push(this.$refs.rolerole.value);
+
+			if(username.length==0||rolename.length==0){return false;}
+			var _this = this;
+			var url = "{{ route('admin.role.remove') }}";
+			// alert(permissionname);return false;
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					username: username,
+					rolename: rolename
+				}
+			})
+			.then(function (response) {
+				// console.log(response);
+				if (typeof(response.data) == "undefined") {
+					_this.alert_message('WARNING', 'Role [' + rolename + '] failed to remove!');
+				} else {
+					_this.alert_message('SUCCESS', 'Role [' + rolename + '] removed successfully!');
+				}
+			})
+			.catch(function (error) {
+				_this.alert_message('ERROR', error.response.data.message);
+				_this.alert_message('ERROR', '已经存在！不要重复追加！');
+			})
+		},
+		roleshow: function () {
+			var user = this.$refs.roleshow.value;
+
+			if(user.length==0){return false;}
+			var _this = this;
+			var url = "{{ route('admin.role.show') }}";
+			// alert(permissionname);return false;
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					user: user
+				}
+			})
+			.then(function (response) {
+				// console.log(response);
+				if (typeof(response.data) == "undefined") {
+					_this.alert_message('WARNING', 'role [' + user + '] failed to revoke!');
+				} else {
+					_this.alert_message('SUCCESS', 'role [' + user + '] showed successfully!');
+				}
+			})
+			.catch(function (error) {
+				_this.alert_message('ERROR', error.response.data.message);
+				_this.alert_message('ERROR', '已经存在！不要重复追加！');
+			})
+		},
+		permissionshow: function () {
+			var roleid = this.$refs.permissionshow.value;
+
+			if(roleid.length==0){return false;}
+			var _this = this;
+			var url = "{{ route('admin.permission.show') }}";
+			// alert(permissionname);return false;
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					roleid: roleid
+				}
+			})
+			.then(function (response) {
+				// console.log(response);
+				if (typeof(response.data) == "undefined") {
+					_this.alert_message('WARNING', 'permission [' + role + '] failed to revoke!');
+				} else {
+					_this.alert_message('SUCCESS', 'permission [' + role + '] showed successfully!');
 				}
 			})
 			.catch(function (error) {

@@ -45,8 +45,21 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	Route::post('roleCreate', 'AdminController@roleCreate')->name('admin.role.create');
 	// 创建permission
 	Route::post('permissionCreate', 'AdminController@permissionCreate')->name('admin.permission.create');
+
 	// 赋予permission
-	Route::post('permissionUpdate', 'AdminController@permissionUpdate')->name('admin.permission.update');
+	Route::post('permissionGive', 'AdminController@permissionGive')->name('admin.permission.give');
+	// 移除permission
+	Route::post('permissionRevoke', 'AdminController@permissionRevoke')->name('admin.permission.revoke');
+
+	// 赋予role
+	Route::post('roleGive', 'AdminController@roleGive')->name('admin.role.give');
+	// 移除role
+	Route::post('roleRemove', 'AdminController@roleRemove')->name('admin.role.remove');
+
+	// 显示role
+	Route::get('roleShow', 'AdminController@roleShow')->name('admin.role.show');
+	// 显示permission
+	Route::get('permissionShow', 'AdminController@permissionShow')->name('admin.permission.show');
 	
 	// 修改config数据
 	Route::post('configChange', 'AdminController@configChange')->name('admin.config.change');

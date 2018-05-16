@@ -9,6 +9,7 @@ use App\Models\Config;
 use App\Models\User;
 use App\Models\Group;
 use Cookie;
+use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -270,7 +271,7 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function permissionUpdate(Request $request)
+    public function permissionGive(Request $request)
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 		
@@ -280,6 +281,113 @@ class AdminController extends Controller
 		$role = Role::findByName($rolename);
 		$result = $role->givePermissionTo($permissionname);
         return $result;
+    }
+
+
+    /**
+     * 移除permission
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionRevoke(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+        $rolename = $request->input('params.rolename');
+        $permissionname = $request->input('params.permissionname');
+
+		$role = Role::findByName($rolename);
+		$result = $role->revokePermissionTo($permissionname);
+        return $result;
+    }
+
+    /**
+     * 赋予role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleGive(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+        $username = $request->input('params.username');
+        $rolename = $request->input('params.rolename');
+
+		$user = User::where('name', $username)->first();
+		// 分配角色
+		// $user->assignRole('writer');
+		// You can also assign multiple roles at once
+		// $user->assignRole('writer', 'admin');
+		// or as an array
+		// $result = $user->assignRole(['writer', 'admin']);
+		$result = $user->assignRole($rolename);
+        return $result;
+    }
+
+    /**
+     * 移除role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleRemove(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+        $username = $request->input('params.username');
+        $rolename = $request->input('params.rolename');
+
+		$user = User::where('name', $username)->first();
+		
+		// 注意：removeRole似乎不接受数组
+		$result = $user->removeRole($rolename);
+        return $result;
+    }
+
+
+    /**
+     * 显示role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleShow(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		
+		// 请求的用户名
+        $username = $request->input('user');
+		$user = User::where('name', $username)->first();
+		// dd($user);
+		// $result = $user->permissions;
+		// $result = $user->getPermissionsViaRoles();
+		// $result = $user->getAllPermissions();
+		$roles = $user->getRoleNames();
+        return $roles;
+    }
+
+    /**
+     * 显示permission
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionShow(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		
+		// 请求的role名称
+        $roleid = $request->input('roleid');
+		// dd($roleid);
+		// $permission = Permission::where('name', $role)->get();
+		$permission = DB::table('role_has_permissions')
+			->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+			->where('role_id', $roleid)
+			->get();
+		dd($permission);
+        return $permission;
     }
 
 }
