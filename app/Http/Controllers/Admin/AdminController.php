@@ -379,14 +379,19 @@ class AdminController extends Controller
 		if (! $request->ajax()) { return null; }
 		
 		// 请求的role名称
-        $roleid = $request->input('roleid');
+        $role = $request->input('role');
 		// dd($roleid);
 		// $permission = Permission::where('name', $role)->get();
-		$permission = DB::table('role_has_permissions')
+		// $permission = DB::table('role_has_permissions')
+			// ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+			// ->where('role_id', $roleid)
+			// ->get();
+		$permission = DB::table('roles')
+			->join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.permission_id')
 			->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-			->where('role_id', $roleid)
+			->where('roles.name', $role)
 			->get();
-		dd($permission);
+		// dd($permission);
         return $permission;
     }
 

@@ -731,9 +731,9 @@ var vm_rule = new Vue({
 			.then(function (response) {
 				// console.log(response);
 				if (typeof(response.data) == "undefined") {
-					_this.alert_message('WARNING', 'role [' + user + '] failed to revoke!');
+					_this.alert_message('WARNING', '[' + user + '] role failed to read!');
 				} else {
-					_this.alert_message('SUCCESS', 'role [' + user + '] showed successfully!');
+					_this.alert_message('SUCCESS', '['+ user + '] has roles: [' + response.data + ']!');
 				}
 			})
 			.catch(function (error) {
@@ -742,24 +742,24 @@ var vm_rule = new Vue({
 			})
 		},
 		permissionshow: function () {
-			var roleid = this.$refs.permissionshow.value;
+			var role = this.$refs.permissionshow.value;
 
-			if(roleid.length==0){return false;}
+			if(role.length==0){return false;}
 			var _this = this;
 			var url = "{{ route('admin.permission.show') }}";
 			// alert(permissionname);return false;
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					roleid: roleid
+					role: role
 				}
 			})
 			.then(function (response) {
 				// console.log(response);
 				if (typeof(response.data) == "undefined") {
-					_this.alert_message('WARNING', 'permission [' + role + '] failed to revoke!');
+					_this.alert_message('WARNING', 'permission [' + role + '] failed to read!');
 				} else {
-					_this.alert_message('SUCCESS', 'permission [' + role + '] showed successfully!');
+					_this.alert_message('SUCCESS', '[' + role + '] permission is [' + response.data[0].name + '] !');
 				}
 			})
 			.catch(function (error) {
