@@ -24,22 +24,30 @@
 				</div>
 				<div class="panel-body">
 					<div class="row">				
-						<form id="form_group_query" action="{:U('Admin/Index/group_query')}" method="post">
+						<div class="col-lg-12">
 							<div class="col-lg-3">
 								<div class="form-group">
-									<input class="form-control input-sm" type="text" name="title" id="group_query_title" placeholder="用户组" />
+									<label>Create role</label><br>
+									<input class="form-control input-sm" type="text" name="title" id="group_query_title" placeholder="角色名称" />
+								</div>
+								<div class="form-group">
+									<button type="button" class="btn btn-primary btn-sm">新建角色</button>
 								</div>
 							</div>
-							<div class="col-lg-9">
-								<button type="submit" id="submit" class="btn btn-default btn-sm">查询</button>&nbsp;
-								<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">新建</button>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Select role(s) to delete</label><br>
+									<multi-select v-model="selected" :options="options" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
+								</div>
+								<div class="form-group">
+									<button type="button" class="btn btn-danger btn-sm" >删除角色</button>
+								</div>
 							</div>
-						</form>
-						
+						</div>
 						
 						
 						<div class="col-lg-12">
-							<br><div style="background-color:#c9e2b3;height:1px"></div><br>
+							<div style="background-color:#c9e2b3;height:1px"></div><br>
 							
 							<div class="col-lg-3">
 								<div class="form-group">
@@ -47,34 +55,38 @@
 									<multi-select v-model="selected" :options="options" :limit="1" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
 								</div>
 								<div class="form-group">
-									<label>Current user's role(s)</label><br>
-									<select id="select_slot2field_query_slot" class="form-control" size="16"></select>
-								</div>
-							</div>
-							<div class="col-lg-3">
-								<div class="form-group">
 									<label>Select role(s) to add</label><br>
 									<multi-select v-model="selected" :options="options" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
 								</div>
 								<div class="form-group">
-									<button type="button" class="btn btn-primary btn-sm" >添加角色</button>
+									<button type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
 								</div>
 								<div class="form-group">
 									<label>Select role(s) to remove</label><br>
 									<multi-select v-model="selected" :options="options" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
 								</div>
 								<div class="form-group">
-									<button type="button" class="btn btn-primary btn-sm" >移除角色</button>
+									<button type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
 								</div>
 							</div>
-
-							
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Current user's role(s)</label><br>
+									<select id="select_slot2field_query_slot" class="form-control" size="16"></select>
+								</div>
+							</div>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Select role to view users</label><br>
+									<multi-select v-model="selected" :options="options" :limit="1" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
+								</div>
+								<div class="form-group">
+									<label>User(s) using current role</label><br>
+									<select id="select_slot2field_query_slot" class="form-control" size="11"></select>
+								</div>
+							</div>
 							
 						</div>						
-						
-						
-						
-						
 						
 					</div>
 				</div>
