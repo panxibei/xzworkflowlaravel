@@ -238,6 +238,32 @@ class AdminController extends Controller
     }
 
     /**
+     * 列出role页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.role', $config);
+    }
+
+    /**
+     * 列出permission页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.permission', $config);
+    }
+
+    /**
      * 创建role
      *
      * @param  int  $id

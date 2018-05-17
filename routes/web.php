@@ -41,6 +41,11 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	// 获取rule数据信息
 	Route::get('ruleList', 'AdminController@ruleList')->name('admin.rule.list');
 	
+	// 显示role页面
+	Route::get('roleIndex', 'AdminController@roleIndex')->name('admin.role.index');
+	// 显示permission页面
+	Route::get('permissionIndex', 'AdminController@permissionIndex')->name('admin.permission.index');
+
 	// 创建role
 	Route::post('roleCreate', 'AdminController@roleCreate')->name('admin.role.create');
 	// 创建permission
