@@ -21,7 +21,7 @@ Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
 	Route::post('checklogin', 'LoginController@checklogin')->name('login.checklogin');
 });
 
-// admin模块
+// AdminController路由
 Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
 	// 显示config页面
 	Route::get('configIndex', 'AdminController@configIndex')->name('admin.config.index');
@@ -71,8 +71,16 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 	// logout
 	Route::get('logout', 'AdminController@logout')->name('admin.logout');
+	
+	
+});
+
+// RoleController路由
+Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+	Route::get('userList', 'RoleController@userList')->name('admin.role.userlist');
 
 });
+
 
 // 测试用
 Route::get('test', function(){
