@@ -81,8 +81,17 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 	// 列出所有用户
 	Route::get('userList', 'RoleController@userList')->name('admin.role.userlist');
 
+	// 列出所有角色
+	Route::get('roleList', 'RoleController@roleList')->name('admin.role.rolelist');
+
+	// 删除角色
+	Route::post('roleDelete', 'RoleController@roleDelete')->name('admin.role.roledelete');
+
 	// 列出当前用户拥有的角色
 	Route::get('userHasRole', 'RoleController@userHasRole')->name('admin.role.userhasrole');
+
+	// 列出当前用户可追加的角色
+	Route::get('userGiveRole', 'RoleController@userGiveRole')->name('admin.role.usergiverole');
 
 });
 

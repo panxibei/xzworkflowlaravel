@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 
 use App\Models\User;
 use DB;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -104,6 +105,45 @@ class RoleController extends Controller
     }
 
     /**
+     * 列出角色 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleList(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+
+		// 1.查出全部role的id
+		$role = Role::select('id')->get()->toArray();
+		$role_tmp = array_column($role, 'id'); //变成一维数组
+		// dd($role_tmp);
+
+		// 2.查出model_has_roles表中的role_id
+		$model_has_roles = DB::table('model_has_roles')
+			->select('role_id as id')->get()->toArray();
+		$model_has_roles_tmp = array_column($model_has_roles, 'id');
+
+		// 3.查出role_has_permissions表中的role_id
+		$role_has_permissions = DB::table('role_has_permissions')
+			->select('role_id as id')->get()->toArray();
+		$role_has_permissions_tmp = array_column($role_has_permissions, 'id');
+
+		// 4.合并前删除重复，model_has_roles和role_has_permissions两个表的结果
+		$role_used = array_merge($model_has_roles_tmp, $role_has_permissions_tmp);
+		$role_used_tmp = array_unique($role_used);
+
+		// 5.排除已被使用的role，剩余的既是没被使用的role的id
+		$unused_role_id = array_diff($role_tmp, $role_used_tmp);
+		
+		// 6.查询没被使用的role
+		$result = Role::whereIn('id', $unused_role_id)
+			->pluck('name', 'id')->toArray();
+
+		return $result;
+    }
+
+    /**
      * 列出用户拥有roles ajax
      *
      * @param  int  $id
@@ -117,13 +157,75 @@ class RoleController extends Controller
 		// dd($userid);
 		
 		// 获取当前用户拥有的角色
-		$role = DB::table('users')
+		$userhasrole = DB::table('users')
 			->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
 			->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
 			->where('users.id', $userid)
-			->pluck('roles.name', 'roles.id');
+			->pluck('roles.name', 'roles.id')->toArray();
+
+			$usernothasrole = DB::table('roles')
+			->select('id', 'name')
+			->whereNotIn('id', array_keys($userhasrole))
+			->get();
+
+		$usernothasroletmp = [];
+		foreach ($usernothasrole as $value) {
+			$usernothasroletmp = [$value->id => $value->name];
+		}
+		// dd($usernothasroletmp);
 		
-		// dd($role);
-		return $role;
+		$result['userhasrole'] = $userhasrole;
+		$result['usernothasrole'] = $usernothasroletmp;
+		// dd($result);
+		return $result;
     }
+
+    /**
+     * 删除角色 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleDelete(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$roleid = $request->input('params.rolename');
+		// dd($roleid);
+		// $roleid[] = '1';
+		// dd($roleid);
+		
+		// 判断是否在已被使用之列
+		// 1.查出model_has_roles表中的role_id
+		$model_has_roles = DB::table('model_has_roles')
+			->select('role_id as id')->get()->toArray();
+		$model_has_roles_tmp = array_column($model_has_roles, 'id');
+
+		// 2.查出role_has_permissions表中的role_id
+		$role_has_permissions = DB::table('role_has_permissions')
+			->select('role_id as id')->get()->toArray();
+		$role_has_permissions_tmp = array_column($role_has_permissions, 'id');
+
+		// 3.合并前删除重复，model_has_roles和role_has_permissions两个表的结果
+		$role_used = array_merge($model_has_roles_tmp, $role_has_permissions_tmp);
+		$role_used_tmp = array_unique($role_used);
+
+		// 4.判断是否在列
+		$flag = false;
+		foreach ($roleid as $value) {
+			if (in_array($value, $role_used_tmp)) {
+				$flag = true;
+				break;
+			}
+		}
+		// dd($flag);
+		// 如果在使用之列，则不允许删除
+		if ($flag) { return false; }
+		
+        // 如没被使用，则可以删除
+		$result = Role::whereIn('id', $roleid)->delete();
+		// dd($result);
+		return $result;
+    }
+	
 }
