@@ -77,7 +77,12 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 // RoleController路由
 Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+
+	// 列出所有用户
 	Route::get('userList', 'RoleController@userList')->name('admin.role.userlist');
+
+	// 列出当前用户拥有的角色
+	Route::get('userHasRole', 'RoleController@userHasRole')->name('admin.role.userhasrole');
 
 });
 

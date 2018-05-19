@@ -52,7 +52,7 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select User</label><br>
-									<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
+									<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
 								</div>
 								<div class="form-group">
 									<label>Select role(s) to add</label><br>
@@ -115,11 +115,11 @@ var vm_role = new Vue({
         options_selecteduser: [],
 		selected_currentuserroles: [],
         options_currentuserroles: [
-			{value: 1, label:'Option1'},
-			{value: 2, label:'Option2'},
-			{value: 3, label:'Option3333333333'},
-			{value: 4, label:'Option4'},
-			{value: 5, label:'Option5'}
+			{value: 1, label:'Option111111'},
+			{value: 2, label:'Option222222'},
+			{value: 3, label:'Option333333'},
+			{value: 4, label:'Option444444'},
+			{value: 5, label:'Option555555'}
 		],
 		selected: [],
         options: [
@@ -131,6 +131,7 @@ var vm_role = new Vue({
         ]
     },
 	methods: {
+		// 把laravel返回的结果转换成select能接受的格式
 		json2selectvalue: function (json) {
 			var arr = [];
 			for (var key in json) {
@@ -223,6 +224,32 @@ var vm_role = new Vue({
 					_this.notification_content = 'Role [' + rolename + '] created successfully!';
 					_this.notification_message();
 				}
+			})
+			.catch(function (error) {
+				// console.log(error);
+				// alert(error.response.data.message);
+				// _this.alert_message('ERROR', error.response.data.message);
+				_this.notification_type = 'warning';
+				_this.notification_title = 'Warning';
+				_this.notification_content = error.response.data.message;
+				_this.notification_message();
+			})
+		},
+		changeuser: function (userid) {
+			var _this = this;
+			var url = "{{ route('admin.role.userhasrole') }}";
+
+			if(userid.length==0){return false;}
+
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					userid: userid
+				}
+			})
+			.then(function (response) {
+				var json = response.data;
+				_this.options_currentuserroles = _this.json2selectvalue(json);
 			})
 			.catch(function (error) {
 				// console.log(error);
