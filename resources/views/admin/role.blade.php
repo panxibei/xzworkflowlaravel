@@ -43,6 +43,18 @@
 									<button @click="roledelete" type="button" class="btn btn-danger btn-sm" >删除角色</button>
 								</div>
 							</div>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Sync perimssion(s) to a role</label><br>
+									角色： <multi-select v-model="selected_selectroletodelete" :options="options_selectroletodelete" :limit="1" ref="roledeleteselect" filterable collapse-selected size="sm" placeholder="请选择角色..." />
+								</div>
+								<div class="form-group">
+									权限： <multi-select v-model="selected" :options="options" ref="" filterable collapse-selected size="sm" placeholder="请选择权限..." />
+								</div>
+								<div class="form-group">
+									<button @click="roledelete" type="button" class="btn btn-danger btn-sm" >删除角色</button>
+								</div>
+							</div>
 						</div>
 						
 						
@@ -78,6 +90,8 @@
 										</option>
 									</select>
 								</div>
+							</div>
+							<div class="col-lg-1">
 							</div>
 							<div class="col-lg-3">
 								<div class="form-group">
