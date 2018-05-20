@@ -154,7 +154,6 @@ class RoleController extends Controller
 		if (! $request->ajax()) { return null; }
 
 		$userid = $request->input('userid');
-		// dd($userid);
 		
 		// 获取当前用户拥有的角色
 		$userhasrole = DB::table('users')
@@ -163,21 +162,30 @@ class RoleController extends Controller
 			->where('users.id', $userid)
 			->pluck('roles.name', 'roles.id')->toArray();
 
-			$usernothasrole = DB::table('roles')
+		$tmp_array = DB::table('roles')
 			->select('id', 'name')
 			->whereNotIn('id', array_keys($userhasrole))
-			->get();
+			->get()->toArray();
+			$usernothasrole = array_column($tmp_array, 'name', 'id'); //变成一维数组
 
-		$usernothasroletmp = [];
-		foreach ($usernothasrole as $value) {
-			$usernothasroletmp = [$value->id => $value->name];
-		}
-		// dd($usernothasroletmp);
-		
 		$result['userhasrole'] = $userhasrole;
-		$result['usernothasrole'] = $usernothasroletmp;
-		// dd($result);
+		$result['usernothasrole'] = $usernothasrole;
+
 		return $result;
+    }
+
+    /**
+     * 创建role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleCreate(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+        $rolename = $request->input('params.rolename');
+		$role = Role::create(['name' => $rolename]);
+        return $role;
     }
 
     /**
@@ -227,5 +235,60 @@ class RoleController extends Controller
 		// dd($result);
 		return $result;
     }
-	
+
+    /**
+     * 用户赋予role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleGive(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+        $userid = $request->input('params.userid');
+        $roleid = $request->input('params.roleid');
+
+		$user = User::where('id', $userid)->first();
+
+		// 分配角色
+		// $user->assignRole('writer');
+		// You can also assign multiple roles at once
+		// $user->assignRole('writer', 'admin');
+		// or as an array
+		// $result = $user->assignRole(['writer', 'admin']);
+
+		$role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
+		$role = array_column($role_tmp, 'name'); //变成一维数组
+		
+		$result = $user->assignRole($role);
+        return $result;
+    }
+
+    /**
+     * 用户移除role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleRemove(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+        $userid = $request->input('params.userid');
+        $roleid = $request->input('params.roleid');
+
+		$user = User::where('id', $userid)->first();
+		
+		$role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
+		$role = array_column($role_tmp, 'name'); //变成一维数组
+
+		// 注意：removeRole似乎不接受数组
+		foreach ($role as $rolename) {
+			$result = $user->removeRole($rolename);
+		}
+
+        return $result;
+    }
+
 }

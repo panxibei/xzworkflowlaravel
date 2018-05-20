@@ -269,13 +269,13 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleCreate(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-        $rolename = $request->input('params.rolename');
-		$role = Role::create(['name' => $rolename]);
-        return $role;
-    }
+    // public function roleCreate(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+        // $rolename = $request->input('params.rolename');
+		// $role = Role::create(['name' => $rolename]);
+        // return $role;
+    // }
 
     /**
      * 创建permission
@@ -334,23 +334,23 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleGive(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+    // public function roleGive(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 		
-        $username = $request->input('params.username');
-        $rolename = $request->input('params.rolename');
+        // $username = $request->input('params.username');
+        // $rolename = $request->input('params.rolename');
 
-		$user = User::where('name', $username)->first();
+		// $user = User::where('name', $username)->first();
 		// 分配角色
 		// $user->assignRole('writer');
 		// You can also assign multiple roles at once
 		// $user->assignRole('writer', 'admin');
 		// or as an array
 		// $result = $user->assignRole(['writer', 'admin']);
-		$result = $user->assignRole($rolename);
-        return $result;
-    }
+		// $result = $user->assignRole($rolename);
+        // return $result;
+    // }
 
     /**
      * 移除role
@@ -358,19 +358,19 @@ class AdminController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleRemove(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+    // public function roleRemove(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 		
-        $username = $request->input('params.username');
-        $rolename = $request->input('params.rolename');
+        // $username = $request->input('params.username');
+        // $rolename = $request->input('params.rolename');
 
-		$user = User::where('name', $username)->first();
+		// $user = User::where('name', $username)->first();
 		
 		// 注意：removeRole似乎不接受数组
-		$result = $user->removeRole($rolename);
-        return $result;
-    }
+		// $result = $user->removeRole($rolename);
+        // return $result;
+    // }
 
 
     /**

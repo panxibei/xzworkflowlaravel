@@ -52,21 +52,21 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select User</label><br>
-									<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
+									<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" ref="currentuserselect" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
 								</div>
 								<div class="form-group">
 									<label>Select role(s) to add</label><br>
-									<multi-select v-model="selected_currentusernothasroles" :options="options_currentusernothasroles" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
+									<multi-select v-model="selected_currentusernothasroles" :options="options_currentusernothasroles" ref="rolegiveselect" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
 								</div>
 								<div class="form-group">
-									<button type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
+									<button @click="rolegive" type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
 								</div>
 								<div class="form-group">
 									<label>Select role(s) to remove</label><br>
-									<multi-select v-model="selected_currentuserroles" :options="options_currentuserroles" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
+									<multi-select v-model="selected_currentuserroles" :options="options_currentuserroles" ref="roleremoveselect" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
 								</div>
 								<div class="form-group">
-									<button type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
+									<button @click="roleremove" type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
 								</div>
 							</div>
 							<div class="col-lg-3">
@@ -227,6 +227,9 @@ var vm_role = new Vue({
 					_this.notification_title = 'Success';
 					_this.notification_content = 'Role [' + rolename + '] created successfully!';
 					_this.notification_message();
+
+					// 显示所有角色
+					_this.rolelist();
 				}
 			})
 			.catch(function (error) {
@@ -267,11 +270,15 @@ var vm_role = new Vue({
 					_this.notification_title = 'Error';
 					_this.notification_content = 'Role(s) failed to delete!';
 					_this.notification_message();
+					
 				} else {
 					_this.notification_type = 'success';
 					_this.notification_title = 'Success';
 					_this.notification_content = 'Role(s) deleted successfully!';
 					_this.notification_message();
+					
+					// 显示所有角色
+					_this.rolelist();
 				}
 			})
 			.catch(function (error) {
@@ -280,29 +287,17 @@ var vm_role = new Vue({
 				_this.notification_content = error.response.data.message;
 				_this.notification_message();
 			})
-			// 显示所有角色
-			var url = "{{ route('admin.role.rolelist') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-			})
-			.then(function (response) {
-				console.log(response);
-				var json = response.data;
-				_this.options_selectroletodelete = _this.json2selectvalue(json);
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
 		},
 		// 3.选择用户后显示当前用户拥有的角色
 		changeuser: function (userid) {
 			var _this = this;
 			var url = "{{ route('admin.role.userhasrole') }}";
 
+			_this.options_currentuserroles = [];
+			_this.selected_currentuserroles = [];
+			_this.options_currentusernothasroles = [];
+			_this.selected_currentusernothasroles = [];
 			if(userid.length==0){
-				_this.options_currentuserroles = [];
-				_this.options_currentusernothasroles = [];
 				return false;
 			}
 
@@ -315,6 +310,7 @@ var vm_role = new Vue({
 			.then(function (response) {
 				var json = response.data.userhasrole;
 				_this.options_currentuserroles = _this.json2selectvalue(json);
+
 				json = response.data.usernothasrole;
 				_this.options_currentusernothasroles = _this.json2selectvalue(json);
 			})
@@ -327,37 +323,107 @@ var vm_role = new Vue({
 		},
 		// 4.给用户赋予角色
 		rolegive: function () {
-			var username = this.$refs.roleuser.value;
-			// var rolename = this.$refs.rolerole.value;
-			// 提交为数组
-			var rolename = [];
-			rolename.push(this.$refs.rolerole.value);
+			var userid = this.$refs.currentuserselect.value;
+			var roleid = this.$refs.rolegiveselect.value;
 			
-			if(username.length==0||rolename.length==0){return false;}
+			if (userid.length == 0 || roleid.length == 0) { return false; }
 			var _this = this;
 			var url = "{{ route('admin.role.give') }}";
-			// alert(permissionname);return false;
+
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					username: username,
-					rolename: rolename
+					userid: userid,
+					roleid: roleid
 				}
 			})
 			.then(function (response) {
-				// console.log(response);
 				if (typeof(response.data) == "undefined") {
-					_this.alert_message('WARNING', 'Role [' + rolename + '] failed to update!');
+					_this.notification_type = 'danger';
+					_this.notification_title = 'Error';
+					_this.notification_content = 'Role(s) failed to give!';
+					_this.notification_message();
+					
 				} else {
-					_this.alert_message('SUCCESS', 'Role [' + rolename + '] updated successfully!');
+					_this.notification_type = 'success';
+					_this.notification_title = 'Success';
+					_this.notification_content = 'Role(s) gave successfully!';
+					_this.notification_message();
+					// 刷新
+					_this.changeuser(userid);
+					// 显示所有角色
+					_this.rolelist();
 				}
 			})
 			.catch(function (error) {
-				_this.alert_message('ERROR', error.response.data.message);
-				_this.alert_message('ERROR', '已经存在！不要重复追加！');
+				_this.notification_type = 'warning';
+				_this.notification_title = 'Warning';
+				_this.notification_content = error.response.data.message;
+				_this.notification_message();
+			})
+		},
+		// 5.从用户移除角色
+		roleremove: function () {
+			var userid = this.$refs.currentuserselect.value;
+			var roleid = this.$refs.roleremoveselect.value;
+			// 提交为数组
+			// var roleid = [];
+			// roleid.push(this.$refs.roleremoveselect.value);
+			// alert(roleid);return false;
+			if (userid.length == 0 || roleid.length == 0) { return false; }
+			var _this = this;
+			var url = "{{ route('admin.role.remove') }}";
+
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					userid: userid,
+					roleid: roleid
+				}
+			})
+			.then(function (response) {
+				if (typeof(response.data) == "undefined") {
+					_this.notification_type = 'danger';
+					_this.notification_title = 'Error';
+					_this.notification_content = 'Role(s) failed to remove!';
+					_this.notification_message();
+					
+				} else {
+					_this.notification_type = 'success';
+					_this.notification_title = 'Success';
+					_this.notification_content = 'Role(s) removed successfully!';
+					_this.notification_message();
+					// 刷新
+					_this.changeuser(userid);
+					// 显示所有角色
+					_this.rolelist();
+				}
+			})
+			.catch(function (error) {
+				_this.notification_type = 'warning';
+				_this.notification_title = 'Warning';
+				_this.notification_content = error.response.data.message;
+				_this.notification_message();
+			})
+		},		
+		// 6.显示所有角色
+		rolelist: function () {
+			var _this = this;
+			var url = "{{ route('admin.role.rolelist') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url, {
+			})
+			.then(function (response) {
+				console.log(response);
+				var json = response.data;
+				_this.options_selectroletodelete = _this.json2selectvalue(json);
+				_this.selected_selectroletodelete = [];
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
 			})
 		}
-		// 5.从用户移除角色
 
 	},
 	mounted: function(){
@@ -378,18 +444,7 @@ var vm_role = new Vue({
 			alert(error);
 		})
 		// 显示所有角色
-		var url = "{{ route('admin.role.rolelist') }}";
-		axios.get(url, {
-		})
-		.then(function (response) {
-			console.log(response);
-			var json = response.data;
-			_this.options_selectroletodelete = _this.json2selectvalue(json);
-		})
-		.catch(function (error) {
-			console.log(error);
-			alert(error);
-		})
+		_this.rolelist();
 
 	}
 });

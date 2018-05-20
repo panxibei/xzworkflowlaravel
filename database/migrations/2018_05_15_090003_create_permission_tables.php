@@ -20,7 +20,6 @@ class CreatePermissionTables extends Migration
             $table->string('name');
             $table->string('guard_name');
             $table->timestamps();
-			$table->softDeletes();
 			$table->engine = 'InnoDB';
         });
 
@@ -29,7 +28,6 @@ class CreatePermissionTables extends Migration
             $table->string('name');
             $table->string('guard_name');
             $table->timestamps();
-			$table->softDeletes();
 			$table->engine = 'InnoDB';
         });
 
@@ -45,7 +43,6 @@ class CreatePermissionTables extends Migration
             $table->primary(['permission_id', 'model_id', 'model_type']);
 
 			$table->timestamps();
-			$table->softDeletes();
 			$table->engine = 'InnoDB';
         });
 
@@ -61,7 +58,6 @@ class CreatePermissionTables extends Migration
             $table->primary(['role_id', 'model_id', 'model_type']);
 
 			$table->timestamps();
-			$table->softDeletes();
 			$table->engine = 'InnoDB';
         });
 
@@ -82,7 +78,6 @@ class CreatePermissionTables extends Migration
             $table->primary(['permission_id', 'role_id']);
 
 			$table->timestamps();
-			$table->softDeletes();
 			$table->engine = 'InnoDB';
 
             app('cache')->forget('spatie.permission.cache');
