@@ -84,6 +84,9 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 	// 列出所有角色
 	Route::get('roleList', 'RoleController@roleList')->name('admin.role.rolelist');
 
+	// 列出所有待删除的角色
+	Route::get('roleListDelete', 'RoleController@roleListDelete')->name('admin.role.rolelistdelete');
+
 	// 创建role
 	Route::post('roleCreate', 'RoleController@roleCreate')->name('admin.role.create');
 
@@ -100,6 +103,9 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 	Route::post('roleGive', 'RoleController@roleGive')->name('admin.role.give');
 	// 移除role
 	Route::post('roleRemove', 'RoleController@roleRemove')->name('admin.role.remove');
+
+	// 根据角色查看哪些用户
+	Route::get('roleToViewUser', 'RoleController@roleToViewUser')->name('admin.role.roletoviewuser');
 });
 
 

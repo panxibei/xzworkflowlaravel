@@ -82,11 +82,15 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select role to view users</label><br>
-									<multi-select v-model="selected" :options="options" :limit="1" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
+									<multi-select v-model="selected_roletoviewuser" :options="options_roletoviewuser" :limit="1" @change="changeroletoviewuser" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
 								</div>
 								<div class="form-group">
 									<label>User(s) using current role</label><br>
-									<select id="select_slot2field_query_slot" class="form-control" size="11"></select>
+									<select v-model="selected_roletoviewuserresult" class="form-control" size="11">
+										<option v-for="option in options_roletoviewuserresult" v-bind:value="option.value">
+											@{{ option.label }}
+										</option>
+									</select>
 								</div>
 							</div>
 							
@@ -123,6 +127,11 @@ var vm_role = new Vue({
 		// 当前用户没有拥有的角色
 		selected_currentusernothasroles: [],
         options_currentusernothasroles: [],
+		// 选择角色查看哪些用户使用
+		selected_roletoviewuser: [],
+        options_roletoviewuser: [],
+		selected_roletoviewuserresult: [],
+        options_roletoviewuserresult: [],
 		// select样例
 		selected: [],
         options: [
@@ -144,33 +153,6 @@ var vm_role = new Vue({
 				arr.push({ value: key, label: json[key] });
 			}
 			return arr;
-		},
-		rolelist: function(){
-			// var _this = this;
-			// var url = "{{ route('admin.group.list') }}";
-			// var perPage = 1; // 有待修改，将来使用配置项
-			
-			// if (page > last_page) {
-				// page = last_page;
-			// } else if (page < 1) {
-				// page = 1;
-			// }
-			// _this.gets.current_page = page;
-			// axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			// axios.get(url, {
-					// params: {
-						// perPage: perPage,
-						// page: page
-					// }
-				// })
-				// .then(function (response) {
-					// console.log(response);
-					// _this.gets = response.data;
-					// alert(_this.gets);
-				// })
-				// .catch(function (error) {
-					// console.log(error);
-				// })
 		},
 		alert_exit: function () {
 			this.$alert({
@@ -229,6 +211,7 @@ var vm_role = new Vue({
 					_this.notification_message();
 
 					// 显示所有角色
+					_this.rolelistdelete();
 					_this.rolelist();
 				}
 			})
@@ -278,6 +261,7 @@ var vm_role = new Vue({
 					_this.notification_message();
 					
 					// 显示所有角色
+					_this.rolelistdelete();
 					_this.rolelist();
 				}
 			})
@@ -352,6 +336,7 @@ var vm_role = new Vue({
 					// 刷新
 					_this.changeuser(userid);
 					// 显示所有角色
+					_this.rolelistdelete();
 					_this.rolelist();
 				}
 			})
@@ -396,6 +381,7 @@ var vm_role = new Vue({
 					// 刷新
 					_this.changeuser(userid);
 					// 显示所有角色
+					_this.rolelistdelete();
 					_this.rolelist();
 				}
 			})
@@ -406,15 +392,14 @@ var vm_role = new Vue({
 				_this.notification_message();
 			})
 		},		
-		// 6.显示所有角色
-		rolelist: function () {
+		// 6.显示所有待删除的角色
+		rolelistdelete: function () {
 			var _this = this;
-			var url = "{{ route('admin.role.rolelist') }}";
+			var url = "{{ route('admin.role.rolelistdelete') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url, {
 			})
 			.then(function (response) {
-				console.log(response);
 				var json = response.data;
 				_this.options_selectroletodelete = _this.json2selectvalue(json);
 				_this.selected_selectroletodelete = [];
@@ -423,8 +408,50 @@ var vm_role = new Vue({
 				console.log(error);
 				alert(error);
 			})
+		},
+		// 7.显示所有角色
+		rolelist: function () {
+			var _this = this;
+			var url = "{{ route('admin.role.rolelist') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url, {
+			})
+			.then(function (response) {
+				var json = response.data;
+				_this.options_roletoviewuser = _this.json2selectvalue(json);
+				_this.selected_roletoviewuser = [];
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		// 8.选择角色来查看哪些用户
+		changeroletoviewuser: function (roleid) {
+			// alert(roleid.length);return false;
+			var _this = this;
+			if (roleid.length == 0) {
+				_this.options_roletoviewuserresult = [];
+				_this.selected_roletoviewuserresult = [];
+				return false;
+			}
+			var url = "{{ route('admin.role.roletoviewuser') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url, {
+				params: {
+					roleid: roleid
+				}
+			})
+			.then(function (response) {
+				var json = response.data;
+				_this.options_roletoviewuserresult = _this.json2selectvalue(json);
+				_this.selected_roletoviewuserresult = [];
+			})
+			.catch(function (error) {
+				// console.log(error);
+				alert(error);
+			})
 		}
-
 	},
 	mounted: function(){
 		var _this = this;
@@ -444,6 +471,7 @@ var vm_role = new Vue({
 			alert(error);
 		})
 		// 显示所有角色
+		_this.rolelistdelete();
 		_this.rolelist();
 
 	}

@@ -105,12 +105,12 @@ class RoleController extends Controller
     }
 
     /**
-     * 列出角色 ajax
+     * 列出所有待删除的角色 ajax
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleList(Request $request)
+    public function roleListDelete(Request $request)
     {
 		if (! $request->ajax()) { return null; }
 
@@ -289,6 +289,43 @@ class RoleController extends Controller
 		}
 
         return $result;
+    }
+
+    /**
+     * 列出所有角色 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleList(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+
+		// 1.查出全部role的id
+		$role = Role::pluck('name', 'id')->toArray();
+
+		return $role;
+    }
+
+    /**
+     * 根据角色查看哪些用户 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleToViewUser(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		
+		$roleid = $request->input('roleid');
+
+		//
+		$user = DB::table('model_has_roles')
+			->join('users', 'model_has_roles.model_id', '=', 'users.id')
+			->where('role_id', $roleid)
+			->pluck('users.name', 'users.id')->toArray();
+
+		return $user;
     }
 
 }
