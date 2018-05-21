@@ -84,6 +84,9 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 	// 列出所有角色
 	Route::get('roleList', 'RoleController@roleList')->name('admin.role.rolelist');
 
+	// 列出所有权限
+	Route::get('permissionList', 'RoleController@permissionList')->name('admin.role.permissionlist');
+
 	// 列出所有待删除的角色
 	Route::get('roleListDelete', 'RoleController@roleListDelete')->name('admin.role.rolelistdelete');
 

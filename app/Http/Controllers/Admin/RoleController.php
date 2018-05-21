@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use DB;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class RoleController extends Controller
 {
@@ -300,11 +301,21 @@ class RoleController extends Controller
     public function roleList(Request $request)
     {
 		if (! $request->ajax()) { return null; }
-
-		// 1.查出全部role的id
 		$role = Role::pluck('name', 'id')->toArray();
-
 		return $role;
+    }
+
+    /**
+     * 列出所有权限 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionList(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		$permission = Permission::pluck('name', 'id')->toArray();
+		return $permission;
     }
 
     /**
