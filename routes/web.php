@@ -109,6 +109,9 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 
 	// 根据角色查看哪些用户
 	Route::get('roleToViewUser', 'RoleController@roleToViewUser')->name('admin.role.roletoviewuser');
+
+	// 权限同步到指定角色
+	Route::post('syncPermissionToRole', 'RoleController@syncPermissionToRole')->name('admin.role.syncpermissiontorole');
 });
 
 

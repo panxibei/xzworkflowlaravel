@@ -37,7 +37,7 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select role(s) to delete</label><br>
-									<multi-select v-model="selected_selectroletodelete" :options="options_selectroletodelete" ref="roledeleteselect" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
+									<multi-select v-model="selected_selectroletodelete" :options="options_selectroletodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
 								</div>
 								<div class="form-group">
 									<button @click="roledelete" type="button" class="btn btn-danger btn-sm" >删除角色</button>
@@ -64,18 +64,18 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select User</label><br>
-									<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" ref="currentuserselect" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
+									<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
 								</div>
 								<div class="form-group">
 									<label>Select role(s) to add</label><br>
-									<multi-select v-model="selected_currentusernothasroles" :options="options_currentusernothasroles" ref="rolegiveselect" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
+									<multi-select v-model="selected_currentusernothasroles" :options="options_currentusernothasroles" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
 								</div>
 								<div class="form-group">
 									<button @click="rolegive" type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
 								</div>
 								<div class="form-group">
 									<label>Select role(s) to remove</label><br>
-									<multi-select v-model="selected_currentuserroles" :options="options_currentuserroles" ref="roleremoveselect" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
+									<multi-select v-model="selected_currentuserroles" :options="options_currentuserroles" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
 								</div>
 								<div class="form-group">
 									<button @click="roleremove" type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
@@ -196,8 +196,8 @@ var vm_role = new Vue({
 		},
 		// 1.创建角色
 		rolecreate: function () {
-			var rolename = this.$refs.rolecreateinput.value;
 			var _this = this;
+			var rolename = _this.$refs.rolecreateinput.value;
 			var url = "{{ route('admin.role.create') }}";
 
 			if(rolename.length==0){
@@ -229,9 +229,8 @@ var vm_role = new Vue({
 					_this.notification_content = 'Role [' + rolename + '] created successfully!';
 					_this.notification_message();
 
-					// 显示所有角色
-					_this.rolelistdelete();
-					_this.rolelist();
+					// 刷新
+					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
@@ -247,7 +246,7 @@ var vm_role = new Vue({
 		// 2.删除角色
 		roledelete: function () {
 			var _this = this;
-			var rolename = this.$refs.roledeleteselect.value;
+			var rolename = _this.selected_selectroletodelete;
 			// alert(rolename);return false;
 			
 			if(rolename.length==0){
@@ -279,9 +278,8 @@ var vm_role = new Vue({
 					_this.notification_content = 'Role(s) deleted successfully!';
 					_this.notification_message();
 					
-					// 显示所有角色
-					_this.rolelistdelete();
-					_this.rolelist();
+					// 刷新
+					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
@@ -326,11 +324,11 @@ var vm_role = new Vue({
 		},
 		// 4.给用户赋予角色
 		rolegive: function () {
-			var userid = this.$refs.currentuserselect.value;
-			var roleid = this.$refs.rolegiveselect.value;
+			var _this = this;
+			var userid = _this.selected_selecteduser;
+			var roleid = _this.selected_currentusernothasroles;
 			
 			if (userid.length == 0 || roleid.length == 0) { return false; }
-			var _this = this;
 			var url = "{{ route('admin.role.give') }}";
 
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
@@ -353,10 +351,7 @@ var vm_role = new Vue({
 					_this.notification_content = 'Role(s) gave successfully!';
 					_this.notification_message();
 					// 刷新
-					_this.changeuser(userid);
-					// 显示所有角色
-					_this.rolelistdelete();
-					_this.rolelist();
+					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
@@ -368,14 +363,11 @@ var vm_role = new Vue({
 		},
 		// 5.从用户移除角色
 		roleremove: function () {
-			var userid = this.$refs.currentuserselect.value;
-			var roleid = this.$refs.roleremoveselect.value;
-			// 提交为数组
-			// var roleid = [];
-			// roleid.push(this.$refs.roleremoveselect.value);
-			// alert(roleid);return false;
-			if (userid.length == 0 || roleid.length == 0) { return false; }
 			var _this = this;
+			var userid = _this.selected_selecteduser;
+			var roleid = _this.selected_currentuserroles;
+
+			if (userid.length == 0 || roleid.length == 0) { return false; }
 			var url = "{{ route('admin.role.remove') }}";
 
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
@@ -398,10 +390,7 @@ var vm_role = new Vue({
 					_this.notification_content = 'Role(s) removed successfully!';
 					_this.notification_message();
 					// 刷新
-					_this.changeuser(userid);
-					// 显示所有角色
-					_this.rolelistdelete();
-					_this.rolelist();
+					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
@@ -466,7 +455,6 @@ var vm_role = new Vue({
 		},
 		// 9.选择角色来查看哪些用户
 		changeroletoviewuser: function (roleid) {
-			// alert(roleid.length);return false;
 			var _this = this;
 			if (roleid.length == 0) {
 				_this.options_roletoviewuserresult = [];
@@ -495,39 +483,33 @@ var vm_role = new Vue({
 			var _this = this;
 			var roleid = _this.selected_syncrole;
 			var permissionid = _this.selected_syncpermission;
-			alert(roleid);alert(permissionid);return false;
-			// 提交为数组
-			// var roleid = [];
-			// roleid.push(this.$refs.roleremoveselect.value);
-			// alert(roleid);return false;
-			if (userid.length == 0 || roleid.length == 0) { return false; }
+			// alert(roleid);alert(permissionid);return false;
+
+			if (roleid.length == 0 || permissionid.length == 0) { return false; }
 			
-			var url = "{{ route('admin.role.remove') }}";
+			var url = "{{ route('admin.role.syncpermissiontorole') }}";
 
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					userid: userid,
-					roleid: roleid
+					roleid: roleid,
+					permissionid: permissionid
 				}
 			})
 			.then(function (response) {
 				if (typeof(response.data) == "undefined") {
 					_this.notification_type = 'danger';
 					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to remove!';
+					_this.notification_content = 'Permission(s) failed to sync!';
 					_this.notification_message();
 					
 				} else {
 					_this.notification_type = 'success';
 					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) removed successfully!';
+					_this.notification_content = 'Permission(s) sync successfully!';
 					_this.notification_message();
 					// 刷新
-					_this.changeuser(userid);
-					// 显示所有角色
-					_this.rolelistdelete();
-					_this.rolelist();
+					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
@@ -536,6 +518,14 @@ var vm_role = new Vue({
 				_this.notification_content = error.response.data.message;
 				_this.notification_message();
 			})
+		},
+		// 每次操作后的各部分刷新
+		refreshview: function () {
+			var _this = this;
+			_this.changeuser(_this.selected_selecteduser);
+			_this.rolelistdelete();
+			_this.rolelist();
+			_this.permissionlist();
 		}
 	},
 	mounted: function(){

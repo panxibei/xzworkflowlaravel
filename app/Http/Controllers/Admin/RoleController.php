@@ -116,9 +116,9 @@ class RoleController extends Controller
 		if (! $request->ajax()) { return null; }
 
 		// 1.查出全部role的id
-		$role = Role::select('id')->get()->toArray();
-		$role_tmp = array_column($role, 'id'); //变成一维数组
-		// dd($role_tmp);
+		// $role = Role::select('id')->get()->toArray();
+		// $role_tmp = array_column($role, 'id'); //变成一维数组
+		$role_tmp = Role::select('id')->pluck('id')->toArray();
 
 		// 2.查出model_has_roles表中的role_id
 		$model_has_roles = DB::table('model_has_roles')
@@ -163,11 +163,15 @@ class RoleController extends Controller
 			->where('users.id', $userid)
 			->pluck('roles.name', 'roles.id')->toArray();
 
-		$tmp_array = DB::table('roles')
+		// $tmp_array = DB::table('roles')
+			// ->select('id', 'name')
+			// ->whereNotIn('id', array_keys($userhasrole))
+			// ->get()->toArray();
+			// $usernothasrole = array_column($tmp_array, 'name', 'id'); //变成一维数组
+		$usernothasrole = DB::table('roles')
 			->select('id', 'name')
 			->whereNotIn('id', array_keys($userhasrole))
-			->get()->toArray();
-			$usernothasrole = array_column($tmp_array, 'name', 'id'); //变成一维数组
+			->pluck('name', 'id')->toArray();
 
 		$result['userhasrole'] = $userhasrole;
 		$result['usernothasrole'] = $usernothasrole;
@@ -259,8 +263,9 @@ class RoleController extends Controller
 		// or as an array
 		// $result = $user->assignRole(['writer', 'admin']);
 
-		$role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
-		$role = array_column($role_tmp, 'name'); //变成一维数组
+		// $role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
+		// $role = array_column($role_tmp, 'name'); //变成一维数组
+		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 		
 		$result = $user->assignRole($role);
         return $result;
@@ -281,8 +286,9 @@ class RoleController extends Controller
 
 		$user = User::where('id', $userid)->first();
 		
-		$role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
-		$role = array_column($role_tmp, 'name'); //变成一维数组
+		// $role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
+		// $role = array_column($role_tmp, 'name'); //变成一维数组
+		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 
 		// 注意：removeRole似乎不接受数组
 		foreach ($role as $rolename) {
@@ -337,6 +343,31 @@ class RoleController extends Controller
 			->pluck('users.name', 'users.id')->toArray();
 
 		return $user;
+    }
+
+    /**
+     * 权限同步到指定角色 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function syncPermissionToRole(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+		$roleid = $request->input('params.roleid');
+		$permissionid = $request->input('params.permissionid');
+
+		// 1.查询role
+		$role = Role::where('id', $roleid)->first();
+
+		// 2.查询permission
+		$permissions = Permission::whereIn('id', $permissionid)
+			->pluck('name')->toArray();
+
+		$result = $role->syncPermissions($permissions);;
+
+		return $result;
     }
 
 }
