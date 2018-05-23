@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Models\Config;
 use App\Models\User;
 use DB;
 use Spatie\Permission\Models\Role;
@@ -86,6 +87,20 @@ class PermissionController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+	
+    /**
+     * 列出permission页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.permission', $config);
     }
 
     /**
@@ -251,6 +266,59 @@ class PermissionController extends Controller
 		$result['rolenothaspermission'] = $rolenothaspermission;
 
 		return $result;
-    }	
-	
+    }
+
+    /**
+     * 列出所有待删除的权限 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionListDelete(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+
+		// 1.查出全部permission的id
+		// $role = Role::select('id')->get()->toArray();
+		// $role_tmp = array_column($role, 'id'); //变成一维数组
+		$permission_tmp = Permission::select('id')->pluck('id')->toArray();
+
+		// 2.查出model_has_roles表中的role_id
+		$model_has_permissions = DB::table('model_has_permissions')
+			->select('permission_id as id')->pluck('id')->toArray();
+		// $model_has_roles_tmp = array_column($model_has_permissions, 'id');
+
+		// 3.查出role_has_permissions表中的role_id
+		$role_has_permissions = DB::table('role_has_permissions')
+			->select('permission_id as id')->pluck('id')->toArray();
+		// $role_has_permissions_tmp = array_column($role_has_permissions, 'id');
+
+		// 4.合并前删除重复，model_has_roles和role_has_permissions两个表的结果
+		$permission_used = array_merge($model_has_permissions, $role_has_permissions);
+		$permission_used_tmp = array_unique($permission_used);
+
+		// 5.排除已被使用的role，剩余的既是没被使用的role的id
+		$unused_permission_id = array_diff($permission_tmp, $permission_used_tmp);
+		
+		// 6.查询没被使用的role
+		$result = Permission::whereIn('id', $unused_permission_id)
+			->pluck('name', 'id')->toArray();
+
+		return $result;
+    }
+
+    /**
+     * 列出所有权限 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionList(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		$permission = Permission::pluck('name', 'id')->toArray();
+		return $permission;
+    }
+
+
 }

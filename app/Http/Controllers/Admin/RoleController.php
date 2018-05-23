@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Models\Config;
 use App\Models\User;
 use DB;
 use Spatie\Permission\Models\Role;
@@ -88,6 +89,18 @@ class RoleController extends Controller
         //
     }
 	
+    /**
+     * 列出role页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.role', $config);
+    }
 
     /**
      * 列出用户 ajax

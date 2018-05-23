@@ -9,7 +9,7 @@
 
 @section('my_body')
 @parent
-<div id="role_list" v-cloak>
+<div id="permission_list" v-cloak>
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
@@ -45,8 +45,8 @@
 											<td><div>@{{ val.id }}</div></td>
 											<td><div>@{{ val.name }}</div></td>
 											<td><div>@{{ val.guard_name }}</div></td>
-											<td><div>@{{ val.created_at }}</div></td>
-											<td><div>@{{ val.updated_at }}</div></td>
+											<td><div>@{{ val.created_at || '未知' }}</div></td>
+											<td><div>@{{ val.updated_at || '未知'}}</div></td>
 											<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
 											&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
 										</tr>
@@ -102,12 +102,12 @@
 									<input class="form-control input-sm" type="text" ref="permissioncreateinput" placeholder="角色名称" />
 								</div>
 								<div class="form-group">
-									<button @click="rolecreate" type="button" class="btn btn-primary btn-sm">新建角色</button>
+									<button @click="permissioncreate" type="button" class="btn btn-primary btn-sm">新建角色</button>
 								</div>
 							</div>
-							<div class="col-lg-3">
+							<div class="col-lg-6">
 								<div class="form-group">
-									<label>Select perimssion(s) to delete</label><br>
+									<label>Select permission(s) to delete</label><br>
 									<multi-select v-model="selected_selectpermissiontodelete" :options="options_selectpermissiontodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
 								</div>
 								<div class="form-group">
@@ -155,12 +155,12 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select role to view users</label><br>
-									<multi-select v-model="selected_roletoviewuser" :options="options_roletoviewuser" :limit="1" @change="changeroletoviewuser" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
+									<multi-select v-model="selected_permissiontoviewrole" :options="options_permissiontoviewrole" :limit="1" @change="changepermissiontoviewrole" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
 								</div>
 								<div class="form-group">
 									<label>User(s) using current role</label><br>
-									<select v-model="selected_roletoviewuserresult" class="form-control" size="11">
-										<option v-for="option in options_roletoviewuserresult" v-bind:value="option.value">
+									<select v-model="selected_permissiontoviewroleresult" class="form-control" size="11">
+										<option v-for="option in options_permissiontoviewroleresult" v-bind:value="option.value">
 											@{{ option.label }}
 										</option>
 									</select>
@@ -181,7 +181,7 @@
 @parent
 <script>
 var vm_role = new Vue({
-    el: '#role_list',
+    el: '#permission_list',
     data: {
 		notification_type: '',
 		notification_title: '',
@@ -199,16 +199,16 @@ var vm_role = new Vue({
 		// 当前角色没有拥有的权限
 		selected_currentrolenothaspermissions: [],
         options_currentrolenothaspermissions: [],
-		// 选择角色查看哪些用户使用
-		selected_roletoviewuser: [],
-        options_roletoviewuser: [],
-		selected_roletoviewuserresult: [],
-        options_roletoviewuserresult: [],
+		// 选择权限查看哪些角色使用
+		selected_permissiontoviewrole: [],
+        options_permissiontoviewrole: [],
+		selected_permissiontoviewroleresult: [],
+        options_permissiontoviewroleresult: [],
 		// 同步哪些权限到指定角色
-		selected_syncrole: [],
-        options_syncrole: [],
 		selected_syncpermission: [],
         options_syncpermission: [],
+		selected_syncrole: [],
+        options_syncrole: [],
 		// select样例
 		selected: [],
         options: [
@@ -345,7 +345,7 @@ var vm_role = new Vue({
 		// 3.选择角色后显示拥有的权限
 		changerole: function (roleid) {
 			var _this = this;
-			var url = "{{ route('admin.role.rolehaspermission') }}";
+			var url = "{{ route('admin.permission.rolehaspermission') }}";
 
 			_this.options_currentrolepermissions = [];
 			_this.selected_currentrolepermissions = [];
@@ -453,10 +453,10 @@ var vm_role = new Vue({
 				_this.notification_message();
 			})
 		},		
-		// 6.显示所有待删除的角色
-		rolelistdelete: function () {
+		// 6.显示所有待删除的权限
+		permissionlistdelete: function () {
 			var _this = this;
-			var url = "{{ route('admin.role.rolelistdelete') }}";
+			var url = "{{ route('admin.permission.permissionlistdelete') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url, {
 			})
@@ -470,7 +470,26 @@ var vm_role = new Vue({
 				alert(error);
 			})
 		},
-		// 7.显示所有角色
+		// 7.显示所有权限
+		permissionlist: function () {
+			var _this = this;
+			var url = "{{ route('admin.permission.permissionlist') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url, {
+			})
+			.then(function (response) {
+				var json = response.data;
+				_this.options_permissiontoviewrole = _this.json2selectvalue(json);
+				_this.selected_permissiontoviewrole = [];
+				_this.options_syncpermission = _this.options_permissiontoviewrole;
+				_this.selected_syncpermission = [];
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		// 8.显示所有角色
 		rolelist: function () {
 			var _this = this;
 			var url = "{{ route('admin.role.rolelist') }}";
@@ -479,52 +498,33 @@ var vm_role = new Vue({
 			})
 			.then(function (response) {
 				var json = response.data;
-				_this.options_roletoviewuser = _this.json2selectvalue(json);
-				_this.selected_roletoviewuser = [];
-				_this.options_syncrole = _this.options_roletoviewuser;
-				_this.selected_syncrole = [];
+				_this.options_selectedrole = _this.json2selectvalue(json);
+				_this.selected_selectedrole = [];
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
 			})
 		},
-		// 8.显示所有权限
-		permissionlist: function () {
+		// 9.选择权限来查看哪些角色
+		changepermissiontoviewrole: function (permissionid) {
 			var _this = this;
-			var url = "{{ route('admin.role.permissionlist') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-			})
-			.then(function (response) {
-				var json = response.data;
-				_this.options_syncpermission = _this.json2selectvalue(json);
-				_this.selected_syncpermission = [];
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		// 9.选择角色来查看哪些用户
-		changeroletoviewuser: function (roleid) {
-			var _this = this;
-			if (roleid.length == 0) {
-				_this.options_roletoviewuserresult = [];
-				_this.selected_roletoviewuserresult = [];
+			if (permissionid.length == 0) {
+				_this.options_permissiontoviewroleresult = [];
+				_this.selected_permissiontoviewroleresult = [];
 				return false;
 			}
-			var url = "{{ route('admin.role.roletoviewuser') }}";
+			var url = "{{ route('admin.permission.permissiontoviewrole') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url, {
 				params: {
-					roleid: roleid
+					permissionid: permissionid
 				}
 			})
 			.then(function (response) {
 				var json = response.data;
-				_this.options_roletoviewuserresult = _this.json2selectvalue(json);
-				_this.selected_roletoviewuserresult = [];
+				_this.options_permissiontoviewroleresult = _this.json2selectvalue(json);
+				_this.selected_permissiontoviewroleresult = [];
 			})
 			.catch(function (error) {
 				// console.log(error);
@@ -535,8 +535,8 @@ var vm_role = new Vue({
 		refreshview: function () {
 			var _this = this;
 			_this.changerole(_this.selected_selectedrole);
-			_this.rolelistdelete();
-			_this.rolelist();
+			_this.permissionlistdelete();
+			_this.permissionlist();
 			_this.permissionlist();
 		},
 		// 12.角色列表
@@ -580,19 +580,19 @@ var vm_role = new Vue({
 		axios.get(url, {
 		})
 		.then(function (response) {
-			console.log(response);
+			// console.log(response);
 			var json = response.data;
 			_this.options_selectedrole = _this.json2selectvalue(json);
 		})
 		.catch(function (error) {
-			console.log(error);
+			// console.log(error);
 			alert(error);
 		})
 		// 显示所有角色
-		_this.perimssiongets(1, 1); // perPage: 1, page: 1
-		_this.perimssionlistdelete();
-		_this.perimssionlist();
-		// _this.rolelist();
+		_this.permissiongets(1, 1); // perPage: 1, page: 1
+		_this.permissionlistdelete();
+		_this.permissionlist();
+		_this.rolelist();
 	}
 });
 </script>

@@ -41,10 +41,6 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	// 获取rule数据信息
 	Route::get('ruleList', 'AdminController@ruleList')->name('admin.rule.list');
 	
-	// 显示role页面
-	Route::get('roleIndex', 'AdminController@roleIndex')->name('admin.role.index');
-	// 显示permission页面
-	Route::get('permissionIndex', 'AdminController@permissionIndex')->name('admin.permission.index');
 
 	// 创建role
 	// Route::post('roleCreate', 'AdminController@roleCreate')->name('admin.role.create');
@@ -77,6 +73,9 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 // RoleController路由
 Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+
+	// 显示role页面
+	Route::get('roleIndex', 'RoleController@roleIndex')->name('admin.role.index');
 
 	// 列出所有用户
 	Route::get('userList', 'RoleController@userList')->name('admin.role.userlist');
@@ -120,6 +119,9 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 // PermissionController路由
 Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
 
+	// 显示permission页面
+	Route::get('permissionIndex', 'PermissionController@permissionIndex')->name('admin.permission.index');
+
 	// 角色列表
 	Route::get('permissionGets', 'PermissionController@permissionGets')->name('admin.permission.permissiongets');
 
@@ -135,7 +137,17 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>'jwtau
 	Route::post('permissionRemove', 'PermissionController@permissionRemove')->name('admin.permission.remove');
 
 	// 列出当前角色拥有的权限
-	Route::get('roleHasPermission', 'PermissionController@roleHasPermission')->name('admin.role.rolehaspermission');
+	Route::get('roleHasPermission', 'PermissionController@roleHasPermission')->name('admin.permission.rolehaspermission');
+
+	// 列出所有待删除的权限
+	Route::get('permissionListDelete', 'PermissionController@permissionListDelete')->name('admin.permission.permissionlistdelete');
+
+	// 列出所有权限
+	Route::get('permissionList', 'PermissionController@permissionList')->name('admin.permission.permissionlist');
+
+	// 根据权限查看哪些角色
+	Route::get('permissionToViewRole', 'RoleController@permissionToViewRole')->name('admin.permission.permissiontoviewrole');
+
 	
 });
 
