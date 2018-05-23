@@ -286,8 +286,6 @@ class RoleController extends Controller
 
 		$user = User::where('id', $userid)->first();
 		
-		// $role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
-		// $role = array_column($role_tmp, 'name'); //变成一维数组
 		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 
 		// 注意：removeRole似乎不接受数组
@@ -368,6 +366,27 @@ class RoleController extends Controller
 		$result = $role->syncPermissions($permissions);;
 
 		return $result;
+    }
+
+    /**
+     * 角色列表 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleGets(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+
+        // 获取角色信息
+		$perPage = $request->input('perPage');
+		$page = $request->input('page');
+		if (null == $page) $page = 1;
+
+		$role = Role::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+			->paginate($perPage, ['*'], 'page', $page);
+
+		return $role;
     }
 
 }

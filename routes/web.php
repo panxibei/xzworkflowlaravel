@@ -112,8 +112,32 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 
 	// 权限同步到指定角色
 	Route::post('syncPermissionToRole', 'RoleController@syncPermissionToRole')->name('admin.role.syncpermissiontorole');
+
+	// 角色列表
+	Route::get('roleGets', 'RoleController@roleGets')->name('admin.role.rolegets');
 });
 
+// PermissionController路由
+Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+
+	// 角色列表
+	Route::get('permissionGets', 'PermissionController@permissionGets')->name('admin.permission.permissiongets');
+
+	// 创建permission
+	Route::post('permissionCreate', 'PermissionController@permissionCreate')->name('admin.permission.create');
+
+	// 删除permission
+	Route::post('permissionDelete', 'PermissionController@permissionDelete')->name('admin.permission.permissiondelete');
+
+	// 赋予permission
+	Route::post('permissionGive', 'PermissionController@permissionGive')->name('admin.permission.give');
+	// 移除permission
+	Route::post('permissionRemove', 'PermissionController@permissionRemove')->name('admin.permission.remove');
+
+	// 列出当前角色拥有的权限
+	Route::get('roleHasPermission', 'PermissionController@roleHasPermission')->name('admin.role.rolehaspermission');
+	
+});
 
 // 测试用
 Route::get('test', function(){
