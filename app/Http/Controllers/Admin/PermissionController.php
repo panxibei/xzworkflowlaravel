@@ -118,6 +118,9 @@ class PermissionController extends Controller
 		$page = $request->input('page');
 		if (null == $page) $page = 1;
 
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
 		$permission = Permission::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
 			->paginate($perPage, ['*'], 'page', $page);
 
@@ -134,7 +137,11 @@ class PermissionController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
         $permissionname = $request->input('params.permissionname');
-		$permission = Role::create(['name' => $permissionname]);
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+		$permission = Permission::create(['name' => $permissionname]);
+
         return $permission;
     }
 
@@ -149,7 +156,9 @@ class PermissionController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
 		$permissionid = $request->input('params.permissionname');
-		// dd($permissionid);
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 		
 		// 判断是否在已被使用之列
 		// 1.查出model_has_permissions表中的permission_id
@@ -197,8 +206,10 @@ class PermissionController extends Controller
         $roleid = $request->input('params.roleid');
         $permissionid = $request->input('params.permissionid');
 
-		$role = Role::where('id', $roleid)->first();
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 
+		$role = Role::where('id', $roleid)->first();
 		$permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
 		
 		// $role->givePermissionTo('edit articles');
@@ -222,8 +233,10 @@ class PermissionController extends Controller
         $roleid = $request->input('params.roleid');
         $permissionid = $request->input('params.permissionid');
 
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
 		$role = Role::where('id', $roleid)->first();
-		
 		$permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
 
 		// 注意：revokePermissionTo似乎不接受数组
@@ -246,6 +259,9 @@ class PermissionController extends Controller
 		if (! $request->ajax()) { return null; }
 
 		$roleid = $request->input('roleid');
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 		
 		// 获取当前角色拥有的权限
 		// $rolehaspermission = DB::table('users')
@@ -277,6 +293,9 @@ class PermissionController extends Controller
     public function permissionListDelete(Request $request)
     {
 		if (! $request->ajax()) { return null; }
+		
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 
 		// 1.查出全部permission的id
 		// $role = Role::select('id')->get()->toArray();
@@ -316,9 +335,58 @@ class PermissionController extends Controller
     public function permissionList(Request $request)
     {
 		if (! $request->ajax()) { return null; }
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 		$permission = Permission::pluck('name', 'id')->toArray();
 		return $permission;
     }
 
+    /**
+     * 根据权限查看哪些角色 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionToViewRole(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		
+		$permissionid = $request->input('permissionid');
+
+		//
+		$role = Role::join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
+			->where('role_has_permissions.permission_id', $permissionid)
+			->pluck('roles.name', 'roles.id')->toArray();
+
+		return $role;
+    }
+
+    /**
+     * 角色同步到指定权限 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function syncRoleToPermission(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		
+		$permissionid = $request->input('params.permissionid');
+		$roleid = $request->input('params.roleid');
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
+		// 1.查询permission
+		$permission = Permission::where('id', $permissionid)->first();
+
+		// 2.查询role
+		$roles = Role::whereIn('id', $roleid)
+			->pluck('name')->toArray();
+
+		$result = $permission->syncRoles($roles);
+
+		return $result;
+    }
 
 }

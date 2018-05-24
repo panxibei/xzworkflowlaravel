@@ -123,7 +123,7 @@
 									权限： <multi-select v-model="selected_syncpermission" :options="options_syncpermission" filterable collapse-selected size="sm" placeholder="请选择权限..." />
 								</div>
 								<div class="form-group">
-									<button @click="syncpermissiontorole" type="button" class="btn btn-primary btn-sm" >同步权限</button>
+									<button @click="syncpermissiontorole" type="button" class="btn btn-primary btn-sm" >同步权限到角色</button>
 								</div>
 							</div>
 						</div>

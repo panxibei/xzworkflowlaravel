@@ -99,19 +99,31 @@
 							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Create permission</label><br>
-									<input class="form-control input-sm" type="text" ref="permissioncreateinput" placeholder="角色名称" />
+									<input class="form-control input-sm" type="text" ref="permissioncreateinput" placeholder="权限名称" />
 								</div>
 								<div class="form-group">
-									<button @click="permissioncreate" type="button" class="btn btn-primary btn-sm">新建角色</button>
+									<button @click="permissioncreate" type="button" class="btn btn-primary btn-sm">新建权限</button>
 								</div>
 							</div>
-							<div class="col-lg-6">
+							<div class="col-lg-3">
 								<div class="form-group">
 									<label>Select permission(s) to delete</label><br>
-									<multi-select v-model="selected_selectpermissiontodelete" :options="options_selectpermissiontodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
+									<multi-select v-model="selected_selectpermissiontodelete" :options="options_selectpermissiontodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的权限名称..." />
 								</div>
 								<div class="form-group">
-									<button @click="permissiondelete" type="button" class="btn btn-danger btn-sm" >删除角色</button>
+									<button @click="permissiondelete" type="button" class="btn btn-danger btn-sm" >删除权限</button>
+								</div>
+							</div>
+							<div class="col-lg-3">
+								<div class="form-group">
+									<label>Sync perimssion(s) to a role</label><br>
+									权限： <multi-select v-model="selected_syncpermission" :options="options_syncpermission" :limit="1" filterable collapse-selected size="sm" placeholder="请选择权限..." />
+								</div>
+								<div class="form-group">
+									角色： <multi-select v-model="selected_syncrole" :options="options_syncrole" filterable collapse-selected size="sm" placeholder="请选择角色..." />
+								</div>
+								<div class="form-group">
+									<button @click="syncroletopermission" type="button" class="btn btn-primary btn-sm" >同步角色至权限</button>
 								</div>
 							</div>
 						</div>
@@ -152,13 +164,13 @@
 							</div>
 							<div class="col-lg-1">
 							</div>
-							<div class="col-lg-3">
+							<div class="col-lg-4">
 								<div class="form-group">
-									<label>Select role to view users</label><br>
+									<label>Select permission to view roles</label><br>
 									<multi-select v-model="selected_permissiontoviewrole" :options="options_permissiontoviewrole" :limit="1" @change="changepermissiontoviewrole" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
 								</div>
 								<div class="form-group">
-									<label>User(s) using current role</label><br>
+									<label>Role(s) using current permission</label><br>
 									<select v-model="selected_permissiontoviewroleresult" class="form-control" size="11">
 										<option v-for="option in options_permissiontoviewroleresult" v-bind:value="option.value">
 											@{{ option.label }}
@@ -224,9 +236,6 @@ var vm_role = new Vue({
 		json2selectvalue: function (json) {
 			var arr = [];
 			for (var key in json) {
-				// alert(key);
-				// alert(json[key]);
-				// arr.push({ obj.['value'] = key, obj.['label'] = json[key] });
 				arr.push({ value: key, label: json[key] });
 			}
 			return arr;
@@ -252,10 +261,11 @@ var vm_role = new Vue({
 				content: this.notification_content
 			})
 		},
-		// 1.创建权限
+		// 1.创建权限 ok
 		permissioncreate: function () {
 			var _this = this;
 			var permissionname = _this.$refs.permissioncreateinput.value;
+
 			var url = "{{ route('admin.permission.create') }}";
 
 			if(permissionname.length==0){
@@ -296,11 +306,11 @@ var vm_role = new Vue({
 				_this.notification_message();
 			})
 		},
-		// 2.删除权限
+		// 2.删除权限 ok
 		permissiondelete: function () {
 			var _this = this;
 			var permissionname = _this.selected_selectpermissiontodelete;
-			// alert(rolename);return false;
+			// alert(permissionname);return false;
 			
 			if(permissionname.length==0){
 				_this.notification_type = 'danger';
@@ -322,13 +332,12 @@ var vm_role = new Vue({
 				if (typeof(response.data) == "undefined") {
 					_this.notification_type = 'danger';
 					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to delete!';
+					_this.notification_content = 'Permission(s) failed to delete!';
 					_this.notification_message();
-					
 				} else {
 					_this.notification_type = 'success';
 					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) deleted successfully!';
+					_this.notification_content = 'Permission(s) deleted successfully!';
 					_this.notification_message();
 					
 					// 刷新
@@ -362,10 +371,10 @@ var vm_role = new Vue({
 				}
 			})
 			.then(function (response) {
-				var json = response.data.userhasrole;
+				var json = response.data.rolehaspermission;
 				_this.options_currentrolepermissions = _this.json2selectvalue(json);
 
-				json = response.data.usernothasrole;
+				json = response.data.rolenothaspermission;
 				_this.options_currentrolenothaspermissions = _this.json2selectvalue(json);
 			})
 			.catch(function (error) {
@@ -375,7 +384,7 @@ var vm_role = new Vue({
 				_this.notification_message();
 			})
 		},
-		// 4.给角色赋予权限
+		// 4.给角色赋予权限 ok
 		permissiongive: function () {
 			var _this = this;
 			var roleid = _this.selected_selectedrole;
@@ -414,7 +423,7 @@ var vm_role = new Vue({
 				_this.notification_message();
 			})
 		},
-		// 5.从用户移除角色
+		// 5.从用户移除角色 ok
 		permissionremove: function () {
 			var _this = this;
 			var roleid = _this.selected_selectedrole;
@@ -434,13 +443,13 @@ var vm_role = new Vue({
 				if (typeof(response.data) == "undefined") {
 					_this.notification_type = 'danger';
 					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to remove!';
+					_this.notification_content = 'Permission(s) failed to remove!';
 					_this.notification_message();
 					
 				} else {
 					_this.notification_type = 'success';
 					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) removed successfully!';
+					_this.notification_content = 'Permission(s) removed successfully!';
 					_this.notification_message();
 					// 刷新
 					_this.refreshview();
@@ -453,7 +462,7 @@ var vm_role = new Vue({
 				_this.notification_message();
 			})
 		},		
-		// 6.显示所有待删除的权限
+		// 6.显示所有待删除的权限 ok
 		permissionlistdelete: function () {
 			var _this = this;
 			var url = "{{ route('admin.permission.permissionlistdelete') }}";
@@ -470,7 +479,7 @@ var vm_role = new Vue({
 				alert(error);
 			})
 		},
-		// 7.显示所有权限
+		// 7.显示所有权限 ok
 		permissionlist: function () {
 			var _this = this;
 			var url = "{{ route('admin.permission.permissionlist') }}";
@@ -489,7 +498,7 @@ var vm_role = new Vue({
 				alert(error);
 			})
 		},
-		// 8.显示所有角色
+		// 8.显示所有角色 ok
 		rolelist: function () {
 			var _this = this;
 			var url = "{{ route('admin.role.rolelist') }}";
@@ -500,13 +509,15 @@ var vm_role = new Vue({
 				var json = response.data;
 				_this.options_selectedrole = _this.json2selectvalue(json);
 				_this.selected_selectedrole = [];
+				_this.options_syncrole = _this.options_selectedrole;
+				_this.selected_syncrole = [];
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
 			})
 		},
-		// 9.选择权限来查看哪些角色
+		// 9.选择权限来查看哪些角色 ok
 		changepermissiontoviewrole: function (permissionid) {
 			var _this = this;
 			if (permissionid.length == 0) {
@@ -531,13 +542,54 @@ var vm_role = new Vue({
 				alert(error);
 			})
 		},
+		// 10.同步权限到指定角色
+		syncroletopermission: function () {
+			var _this = this;
+			var permissionid = _this.selected_syncpermission;
+			var roleid = _this.selected_syncrole;
+			// alert(roleid);alert(permissionid);return false;
+
+			if (roleid.length == 0 || permissionid.length == 0) { return false; }
+			
+			var url = "{{ route('admin.permission.syncroletopermission') }}";
+
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					permissionid: permissionid,
+					roleid: roleid
+				}
+			})
+			.then(function (response) {
+				if (typeof(response.data) == "undefined") {
+					_this.notification_type = 'danger';
+					_this.notification_title = 'Error';
+					_this.notification_content = 'Permission(s) failed to sync!';
+					_this.notification_message();
+					
+				} else {
+					_this.notification_type = 'success';
+					_this.notification_title = 'Success';
+					_this.notification_content = 'Permission(s) sync successfully!';
+					_this.notification_message();
+					// 刷新
+					_this.refreshview();
+				}
+			})
+			.catch(function (error) {
+				_this.notification_type = 'warning';
+				_this.notification_title = 'Warning';
+				_this.notification_content = error.response.data.message;
+				_this.notification_message();
+			})
+		},
 		// 11.每次操作后的各部分刷新
 		refreshview: function () {
 			var _this = this;
 			_this.changerole(_this.selected_selectedrole);
 			_this.permissionlistdelete();
 			_this.permissionlist();
-			_this.permissionlist();
+			_this.rolelist();
 		},
 		// 12.角色列表
 		permissiongets: function(page, last_page){
@@ -574,21 +626,7 @@ var vm_role = new Vue({
 	mounted: function(){
 		var _this = this;
 
-		// 显示所有用户
-		var url = "{{ route('admin.role.userlist') }}";
-		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-		axios.get(url, {
-		})
-		.then(function (response) {
-			// console.log(response);
-			var json = response.data;
-			_this.options_selectedrole = _this.json2selectvalue(json);
-		})
-		.catch(function (error) {
-			// console.log(error);
-			alert(error);
-		})
-		// 显示所有角色
+		// 显示所有
 		_this.permissiongets(1, 1); // perPage: 1, page: 1
 		_this.permissionlistdelete();
 		_this.permissionlist();

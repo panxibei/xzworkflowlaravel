@@ -265,19 +265,6 @@ class AdminController extends Controller
         // return $role;
     // }
 
-    /**
-     * 创建permission
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function permissionCreate(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-        $permissionname = $request->input('params.permissionname');
-		$permission = Permission::create(['name' => $permissionname]);
-        return $permission;
-    }
 
     /**
      * 赋予permission

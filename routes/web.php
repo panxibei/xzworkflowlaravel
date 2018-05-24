@@ -45,7 +45,7 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	// 创建role
 	// Route::post('roleCreate', 'AdminController@roleCreate')->name('admin.role.create');
 	// 创建permission
-	Route::post('permissionCreate', 'AdminController@permissionCreate')->name('admin.permission.create');
+	// Route::post('permissionCreate', 'AdminController@permissionCreate')->name('admin.permission.create');
 
 	// 赋予permission
 	Route::post('permissionGive', 'AdminController@permissionGive')->name('admin.permission.give');
@@ -146,9 +146,11 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>'jwtau
 	Route::get('permissionList', 'PermissionController@permissionList')->name('admin.permission.permissionlist');
 
 	// 根据权限查看哪些角色
-	Route::get('permissionToViewRole', 'RoleController@permissionToViewRole')->name('admin.permission.permissiontoviewrole');
+	Route::get('permissionToViewRole', 'PermissionController@permissionToViewRole')->name('admin.permission.permissiontoviewrole');
 
-	
+	// 角色同步到指定权限
+	Route::post('syncRoleToPermission', 'PermissionController@syncRoleToPermission')->name('admin.permission.syncroletopermission');
+
 });
 
 // 测试用

@@ -128,6 +128,9 @@ class RoleController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
 		// 1.查出全部role的id
 		// $role = Role::select('id')->get()->toArray();
 		// $role_tmp = array_column($role, 'id'); //变成一维数组
@@ -202,6 +205,8 @@ class RoleController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
         $rolename = $request->input('params.rolename');
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 		$role = Role::create(['name' => $rolename]);
         return $role;
     }
@@ -217,9 +222,9 @@ class RoleController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
 		$roleid = $request->input('params.rolename');
-		// dd($roleid);
-		// $roleid[] = '1';
-		// dd($roleid);
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 		
 		// 判断是否在已被使用之列
 		// 1.查出model_has_roles表中的role_id
@@ -267,17 +272,10 @@ class RoleController extends Controller
         $userid = $request->input('params.userid');
         $roleid = $request->input('params.roleid');
 
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
 		$user = User::where('id', $userid)->first();
-
-		// 分配角色
-		// $user->assignRole('writer');
-		// You can also assign multiple roles at once
-		// $user->assignRole('writer', 'admin');
-		// or as an array
-		// $result = $user->assignRole(['writer', 'admin']);
-
-		// $role_tmp = Role::whereIn('id', $roleid)->get()->toArray();
-		// $role = array_column($role_tmp, 'name'); //变成一维数组
 		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 		
 		$result = $user->assignRole($role);
@@ -297,8 +295,10 @@ class RoleController extends Controller
         $userid = $request->input('params.userid');
         $roleid = $request->input('params.roleid');
 
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
 		$user = User::where('id', $userid)->first();
-		
 		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 
 		// 注意：removeRole似乎不接受数组
@@ -318,6 +318,8 @@ class RoleController extends Controller
     public function roleList(Request $request)
     {
 		if (! $request->ajax()) { return null; }
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 		$role = Role::pluck('name', 'id')->toArray();
 		return $role;
     }
@@ -369,6 +371,9 @@ class RoleController extends Controller
 		$roleid = $request->input('params.roleid');
 		$permissionid = $request->input('params.permissionid');
 
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
 		// 1.查询role
 		$role = Role::where('id', $roleid)->first();
 
@@ -376,7 +381,7 @@ class RoleController extends Controller
 		$permissions = Permission::whereIn('id', $permissionid)
 			->pluck('name')->toArray();
 
-		$result = $role->syncPermissions($permissions);;
+		$result = $role->syncPermissions($permissions);
 
 		return $result;
     }
@@ -395,6 +400,9 @@ class RoleController extends Controller
 		$perPage = $request->input('perPage');
 		$page = $request->input('page');
 		if (null == $page) $page = 1;
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
 
 		$role = Role::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
 			->paginate($perPage, ['*'], 'page', $page);
