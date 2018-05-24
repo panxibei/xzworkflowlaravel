@@ -151,7 +151,7 @@ class AdminController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
 		$up2data = $request->all();
-		$res = Config::where('cfg_id', $up2data['cfg_id'])->update(['cfg_value'=>$up2data['cfg_value']]);
+		$res = Config::where('cfg_name', $up2data['cfg_name'])->update(['cfg_value'=>$up2data['cfg_value']]);
 		return $res;
     }
 
@@ -236,116 +236,6 @@ class AdminController extends Controller
 		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
         return view('admin.rule', $config);
     }
-
-
-    /**
-     * 列出permission页面
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function permissionIndex()
-    {
-        // 获取配置值
-		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-        return view('admin.permission', $config);
-    }
-
-    /**
-     * 创建role
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    // public function roleCreate(Request $request)
-    // {
-		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-        // $rolename = $request->input('params.rolename');
-		// $role = Role::create(['name' => $rolename]);
-        // return $role;
-    // }
-
-
-    /**
-     * 赋予permission
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function permissionGive(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-		
-        $rolename = $request->input('params.rolename');
-        $permissionname = $request->input('params.permissionname');
-
-		$role = Role::findByName($rolename);
-		$result = $role->givePermissionTo($permissionname);
-        return $result;
-    }
-
-
-    /**
-     * 移除permission
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function permissionRevoke(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-		
-        $rolename = $request->input('params.rolename');
-        $permissionname = $request->input('params.permissionname');
-
-		$role = Role::findByName($rolename);
-		$result = $role->revokePermissionTo($permissionname);
-        return $result;
-    }
-
-    /**
-     * 赋予role
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    // public function roleGive(Request $request)
-    // {
-		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-		
-        // $username = $request->input('params.username');
-        // $rolename = $request->input('params.rolename');
-
-		// $user = User::where('name', $username)->first();
-		// 分配角色
-		// $user->assignRole('writer');
-		// You can also assign multiple roles at once
-		// $user->assignRole('writer', 'admin');
-		// or as an array
-		// $result = $user->assignRole(['writer', 'admin']);
-		// $result = $user->assignRole($rolename);
-        // return $result;
-    // }
-
-    /**
-     * 移除role
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    // public function roleRemove(Request $request)
-    // {
-		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-		
-        // $username = $request->input('params.username');
-        // $rolename = $request->input('params.rolename');
-
-		// $user = User::where('name', $username)->first();
-		
-		// 注意：removeRole似乎不接受数组
-		// $result = $user->removeRole($rolename);
-        // return $result;
-    // }
 
 
     /**

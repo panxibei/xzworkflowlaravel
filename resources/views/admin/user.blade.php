@@ -4,263 +4,6 @@
 
 @section('my_js')
 <script type="text/javascript">
-/*
-	$(function(){
-		// 一打开就默认显示所有用户列表
-		$.cookie('cookie_wf_user_account','');
-		user_query(1); //调用user_query函数（下面），默认为页数为1即首页
-	
-		// 一打开就加载所有组信息
-		$.get("{:U('Admin/Index/get_group')}",function(jdata){
-			$("#user_add_group").append('<option value=""></option>');
-			var select_value;
-			$.each(jdata.all_group,function(i,val){
-				select_value='<option value="'+val.id+'" title="'+val.title+'">'+val.title+'</option>';
-				$("#user_add_group").append(select_value);
-			});
-		});
-	
-		//用户添加
-		$('form#form_user_add').on('submit',function(e){
-			e.preventDefault();
-			var user_account = $("#user_add_account").val();
-			var user_password = $("#user_add_password").val();
-			var user_group = $("#user_add_group").val();
-			var user_email = $("#user_add_email").val();
-			var user_mobile = $("#user_add_mobile").val();
-			var user_status = $("#user_add_status").prop("checked")?1:0;
-			if(user_group.length==0||user_email.length==0||user_mobile.length==0){
-				alert('内容不能为空');return false;
-			}
-			var user_hash = $("form#form_user_add input[name='{$Think.config.token_name}']").val();
-			var url = "{:U('Admin/Index/user_add')}";
-			//必须要传到$_POST['__hash__']中，如：$_POST[C('TOKEN_NAME')] = $_POST['user_hash'];
-			$.post(url,{user_account:user_account,user_password:user_password,user_group:user_group,user_email:user_email,user_mobile:user_mobile,user_status:user_status,{$Think.config.token_name}:user_hash},function(jdata){
-				if(jdata.ajax_status==0){
-					BootstrapDialog.show({
-						type:BootstrapDialog.TYPE_SUCCESS,
-						message:'用户添加成功！',
-						onshown:function(dialogRef){
-							setTimeout(function(){
-								dialogRef.close();
-							}, 500);
-						},
-						onhidden: function(dialogRef){
-							window.location.reload();
-						}});
-				} else {
-					BootstrapDialog.show({message:'用户添加失败！'+'<br>原因：'+jdata.ajax_msg});
-				}
-				$("form#form_user_add input[name='{$Think.config.token_name}']").val(jdata.ajax_token);
-				return false;
-			});
-		});
-
-		//用户删除（动态）
-		$("div").on('click','button[id^=user_del]',function(){
-			var id = $(this).attr('value');
-			var user_edit_account = $('#user_edit_account'+id).html();
-			BootstrapDialog.show({
-				title: 'WARNING',
-				message: '警告！确定要删除用户 <b>' + user_edit_account + '</b> 吗？',
-				type: BootstrapDialog.TYPE_WARNING,
-				draggable: true,
-				buttons: [{
-					icon: 'glyphicon glyphicon-trash',
-					label: 'Drop the user',
-					cssClass: 'btn-warning',
-					autospin: true,
-					action: function(dialogRef){
-						dialogRef.enableButtons(false);
-						dialogRef.setClosable(false);
-						//dialogRef.getModalBody().html('Dialog closes in 5 seconds.');
-						setTimeout(function(){
-							$.get("{:U('Admin/Index/user_del')}",{id:id}, function(jdata){
-								if(jdata.ajax_status == 0){
-									BootstrapDialog.show({
-										type:BootstrapDialog.TYPE_SUCCESS,
-										message:'删除用户成功！',
-										onshown:function(dialogRef){
-											setTimeout(function(){
-												dialogRef.close();
-											}, 500);
-										},
-										onhidden: function(dialogRef){
-											window.location.reload();
-										}});
-								} else {
-									BootstrapDialog.show({message:'删除用户失败！'+'<br>原因：'+jdata.ajax_msg});
-								}
-							});
-							dialogRef.close();
-							return false;
-						}, 1000);
-					}
-				}, {
-					label: 'Close',
-					action: function(dialogRef){
-						dialogRef.close();
-					}
-				}]
-			});			
-			return false;				
-		});
-
-		//用户编辑显示（动态）
-		$("div").on('click','button[id^=user_edit]',function(){
-			var id=$(this).attr('value'); //.substr(9);
-			$.get("{:U('Admin/Index/user_edit')}",{id:id},function(jdata){
-				if(jdata.ajax_status==0){
-					$("#user_edit_id").val(jdata['ajax_data']['id']);
-					$("#user_edit_account").val(jdata['ajax_data']['account']);
-					$("#user_edit_group_id").empty(); //清空下拉列表
-					var select_value="<option value="+jdata['ajax_data']['current_group']['group_id']+">"+jdata['ajax_data']['current_group']['title']+"</option>";
-					$("#user_edit_group_id").prepend(select_value); // 2.为Select插入一个Option(第一个位置) 
-					$("#user_edit_group_id").append("<option value='' disabled>---- 请选择所属组 ----</option>");
-					$.each(jdata.ajax_data.all_group,function(i,val){
-						var select_value='<option value="'+val.id+'" title="'+val.title+'">'+val.title+'</option>';
-						$("#user_edit_group_id").append(select_value);
-					});
-					$("#user_edit_login_time").val(date('Y-m-d H:i:s',jdata.ajax_data.login_time));
-					//$("#user_edit_login_ip").val(jdata['ajax_data']['login_ip']);
-					//$("#user_edit_login_count").val(jdata['ajax_data']['login_count']);
-					//$("#user_edit_create_time").val(date('Y-m-d H:i:s',jdata['ajax_data']['create_time']));
-					$("#user_edit_email").val(jdata.ajax_data.email);
-					$("#user_edit_mobile").val(jdata.ajax_data.mobile);
-					jdata.ajax_data.status==1?$("#user_edit_status").prop("checked",true):$("#user_edit_status").prop("checked",false);
-				} else {
-					BootstrapDialog.show({message:'查询用户失败！'+'<br>原因：'+jdata.ajax_msg});
-				}
-			});
-			return true;
-		});
-		
-		//用户更新
-		$('#form_user_update').on('submit',function(e){
-			e.preventDefault();
-			var user_id = $("#user_edit_id").val();
-			var user_password = $("#user_edit_password").val();
-			var user_email = $("#user_edit_email").val();
-			var user_mobile = $("#user_edit_mobile").val();
-			var user_status = $("#user_edit_status").prop("checked")?1:0;
-			var user_group = $('#user_edit_group_id').val();
-			if(user_email.length==0||user_mobile.length==0){
-				alert('内容不能为空');return false;
-			}
-			var user_hash = $("form#form_user_update input[name='{$Think.config.token_name}']").val();
-			var url = "{:U('Admin/Index/user_update')}";
-			$.post(url,{user_id:user_id,user_password:user_password,user_email:user_email,user_mobile:user_mobile,user_status:user_status,user_group:user_group,{$Think.config.token_name}:user_hash},function(jdata){
-				if(jdata.ajax_status==0){
-					BootstrapDialog.show({
-						type:BootstrapDialog.TYPE_SUCCESS,
-						message:'用户更新成功！',
-						onshown:function(dialogRef){
-							setTimeout(function(){
-								dialogRef.close();
-							}, 500);
-						},
-						onhidden: function(dialogRef){
-							window.location.reload();
-						}});
-				}else{
-					BootstrapDialog.show({message:'用户更新失败！'+'<br>原因：'+jdata.ajax_msg});
-				}
-				$("form#form_user_update input[name='{$Think.config.token_name}']").val(jdata.ajax_token);
-				return false;
-			});
-		});
-		
-		//用户查询
-		$('#button_user_query').on('click',function(){
-			var user_account = $("#user_query_account").val();
-			//alert(user_account);
-			//把要查询的项目都存放到cookie中，查询条件到ajax的控制器中组合即可
-			//$.cookie('xxx','xxx');
-			$.cookie('cookie_wf_user_account',user_account);
-			user_query(1); //调用user_query函数（下面），默认为页数为1即首页
-		});
-		
-		//用户信息excel导出
-		$('button#user_excel_export').on('click',function(){
-			var url = "{:U('Admin/Index/user_excel_export')}";
-			location.href = url;
-		});
-		
-		//user每页显示多少记录的选择
-		$("div").on('click','a[id^=page_]',function(){
-			var per_page = $(this).attr('value');
-			//var config_file = 'listrow_user.php';
-			//var customized = '{"LISTROWS_USER":'+per_page+'}';
-			var config_item='cfg_listrows_user';
-
-			$.post("{:U('Admin/Index/config_update_from_db')}",{config_item:config_item,config_value:per_page},function(jdata){
-				if(jdata.ajax_status==0){
-					BootstrapDialog.show({
-						type:BootstrapDialog.TYPE_SUCCESS,
-						message:'更新配置成功！',
-						onshown:function(dialogRef){
-							setTimeout(function(){
-								dialogRef.close();
-							}, 500);
-						},
-						onhidden: function(dialogRef){
-							window.location.reload();
-					}});
-				} else {
-					BootstrapDialog.show({message:'更新配置失败！'+'<br>原因：'+jdata.ajax_msg});
-				}
-			});
-			return false;
-		});
-	});
-
-	function user_query(page_id = 1){    //news函数名 一定要和action中的第三个参数一致上面有
-		var page_id = page_id;
-		var url = "{:U('Admin/Index/user_query')}";
-		$.get(url,{'p':page_id},function(jdata){
-			//session失效时ajax提交后无法正常获取jdata返回时用下面方法处理
-			if(typeof(jdata.ajax_status)!='number'){
-				alert('会话超时，请重新登录！');
-				window.location.href = "{:U('Home/Index/login')}";
-				return false;
-			}
-			if(jdata.ajax_status==0){
-				$("#tbody_user_query").html('');
-				var query_value;
-				$.each(jdata.ajax_data,function(i,val){
-					query_value=
-					'<tr><td><div>'+val.id+'</div></td>'+
-					'<td><div id="user_edit_account'+val.id+'">'+val.account+'</div></td>'+
-					'<td><div>'+val.group+'</div></td>'+
-					'<td><div>'+val.login_ip+'</div></td>'+
-					'<td><div>'+val.login_count+'</div></td>'+
-					'<td><div>'+date('Y-m-d H:i:s',val.login_time)+'</div></td>'+
-					'<td><div>'+(val.status==1?"启用":"禁用")+'</div></td>'+
-					'<td><div>'+date('Y-m-d H:i:s',val.create_time)+'</div></td>'+
-					'<td><div><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal_user_edit" id="user_edit'+val.id+'" value="'+val.id+'"><i class="fa fa-edit fa-fw"></i></button>'+
-					'&nbsp;<button class="btn btn-danger btn-xs" id="user_del'+val.id+'" value="'+val.id+'"><i class="fa fa-times fa-fw"></i></button></td></tr>';
-					
-					$("#tbody_user_query").append(query_value);
-				});
-				var other_value=jdata.ajax_listrows-jdata.ajax_data.length;
-				if(other_value>0){
-					for(var j=0;j<other_value;j++){
-						query_value='<tr><td colspan=9>&nbsp;<br>&nbsp;</td></tr>';
-					}
-					$("#tbody_user_query").append(query_value);
-				}
-				
-				// 分页 
-				//query_value = '<div class="page">' + jdata['ajax_page'] + '</div>';
-				query_value='<tr><td colspan=9><div><nav><ul class="pagination pagination-sm">'+jdata.ajax_page+'</ul></nav></div></td></tr>';
-				$("#div_user_query").html('').append(query_value);
-			
-			}else{
-				alert('查询失败！');
-			}
-		});
-	}
-*/
 </script>
 @endsection
 
@@ -393,9 +136,10 @@
 											<div class="btn-group">
 											<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
 											<ul class="dropdown-menu">
-											<li><a><small>5条记录</small></a></li>
-											<li><a><small>10条记录</small></a></li>
-											<li><a><small>20条记录</small></a></li>
+											<li><a @click="configperpageforuser(2)" href="javascript:;"><small>2条记录</small></a></li>
+											<li><a @click="configperpageforuser(5)" href="javascript:;"><small>5条记录</small></a></li>
+											<li><a @click="configperpageforuser(10)" href="javascript:;"><small>10条记录</small></a></li>
+											<li><a @click="configperpageforuser(20)" href="javascript:;"><small>20条记录</small></a></li>
 											</ul>
 											</div>
 										</ul>
@@ -540,13 +284,14 @@
 var vm_user = new Vue({
     el: '#user_list',
     data: {
-		gets: {}
+		gets: {},
+		perpage: {{ $PERPAGE_RECORDS_FOR_USER }}
     },
 	methods: {
-		"userlist": function(page, last_page){
+		userlist: function(page, last_page){
 			var _this = this;
 			var url = "{{ route('admin.user.list') }}";
-			var perPage = 1; // 有待修改，将来使用配置项
+			// var perPage = 1; // 有待修改，将来使用配置项
 			
 			if (page > last_page) {
 				page = last_page;
@@ -557,10 +302,9 @@ var vm_user = new Vue({
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					perPage: perPage,
+					perPage: _this.perpage,
 					page: page
-				},
-				headers: {'X-Requested-With': 'XMLHttpRequest'}
+				}
 			})
 			.then(function (response) {
 				// console.log(response);
@@ -595,25 +339,31 @@ var vm_user = new Vue({
 				// },1000);
 			})
 		},
+		configperpageforuser: function (value) {
+			var _this = this;
+			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				cfg_name: 'PERPAGE_RECORDS_FOR_USER',
+				cfg_value: value
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.perpage = value;
+					_this.userlist(1, 1);
+				} else {
+					alert('failed');
+				}
+			})
+			.catch(function (error) {
+				alert('failed');
+				// console.log(error);
+			})
+		}
 	},
 	mounted: function(){
 		var _this = this;
-		var url = "{{ route('admin.user.list') }}";
-		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-		axios.get(url, {
-				params: {
-					perPage: 1,
-					page: 1
-				}
-			})
-			.then(function (response) {
-				//console.log(response);
-				_this.gets = response.data;
-				// alert(_this.gets);
-			})
-			.catch(function (error) {
-				console.log(error);
-			})
+		_this.userlist(1, 1);
 	}
 });
 </script>

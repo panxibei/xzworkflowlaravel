@@ -75,11 +75,12 @@
 															</div>
 
 														<div class="btn-group">
-														<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
+														<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
 														<ul class="dropdown-menu">
-														<li><a><small>5条记录</small></a></li>
-														<li><a><small>10条记录</small></a></li>
-														<li><a><small>20条记录</small></a></li>
+														<li><a @click="configperpageforpermission(2)" href="javascript:;"><small>2条记录</small></a></li>
+														<li><a @click="configperpageforpermission(5)" href="javascript:;"><small>5条记录</small></a></li>
+														<li><a @click="configperpageforpermission(10)" href="javascript:;"><small>10条记录</small></a></li>
+														<li><a @click="configperpageforpermission(20)" href="javascript:;"><small>20条记录</small></a></li>
 														</ul>
 														</div>
 													</ul>
@@ -199,6 +200,7 @@ var vm_role = new Vue({
 		notification_title: '',
 		notification_content: '',
 		gets: {},
+		perpage: {{ $PERPAGE_RECORDS_FOR_PERMISSION }},
 		// 选择角色
 		selected_selectedrole: [],
         options_selectedrole: [],
@@ -595,7 +597,7 @@ var vm_role = new Vue({
 		permissiongets: function(page, last_page){
 			var _this = this;
 			var url = "{{ route('admin.permission.permissiongets') }}";
-			var perPage = 1; // 有待修改，将来使用配置项
+			// var perPage = 1; // 有待修改，将来使用配置项
 			
 			if (page > last_page) {
 				page = last_page;
@@ -606,7 +608,7 @@ var vm_role = new Vue({
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					perPage: perPage,
+					perPage: _this.perpage,
 					page: page
 				}
 			})
@@ -621,13 +623,36 @@ var vm_role = new Vue({
 				console.log(error);
 				alert(error);
 			})
+		},
+		configperpageforpermission: function (value) {
+			var _this = this;
+			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				// cfg_id: event.target.id,
+				cfg_name: 'PERPAGE_RECORDS_FOR_PERMISSION',
+				cfg_value: value
+			})
+			.then(function (response) {
+				if (response.data) {
+					// alert('success');
+					_this.perpage = value;
+					_this.permissiongets(1, 1);
+				} else {
+					alert('failed');
+				}
+			})
+			.catch(function (error) {
+				alert('failed');
+				// console.log(error);
+			})
 		}
 	},
 	mounted: function(){
 		var _this = this;
 
 		// 显示所有
-		_this.permissiongets(1, 1); // perPage: 1, page: 1
+		_this.permissiongets(1, 1); // page: 1, last_page: 1
 		_this.permissionlistdelete();
 		_this.permissionlist();
 		_this.rolelist();

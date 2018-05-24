@@ -62,7 +62,7 @@
 							<div class="form-group">
 								<label>@{{ val.cfg_name }}</label>
 								<!--<input v-model="val.cfg_value" class="form-control" placeholder="暂无配置值" >-->
-								<input v-bind:id="val.cfg_id" v-bind:value="val.cfg_value" v-on:change="configchange" class="form-control" placeholder="暂无配置值" >
+								<input v-bind:id="val.cfg_name" v-bind:value="val.cfg_value" v-on:change="configchange" class="form-control" placeholder="暂无配置值" >
 								<p class="help-block">&nbsp;@{{ val.cfg_description }}</p>
 							</div>
 						</div>
@@ -100,7 +100,7 @@ var vm_config = new Vue({
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
-					cfg_id: event.target.id,
+					cfg_name: event.target.id,
 					cfg_value: event.target.value
 				})
 				.then(function (response) {

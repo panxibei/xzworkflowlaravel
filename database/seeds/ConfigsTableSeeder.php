@@ -51,6 +51,36 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            3 => 
+            array (
+                'cfg_id' => 4,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_USER',
+                'cfg_value' => '1',
+				'cfg_description' => '用户页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            4 => 
+            array (
+                'cfg_id' => 5,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_ROLE',
+                'cfg_value' => '1',
+				'cfg_description' => '角色页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            5 => 
+            array (
+                'cfg_id' => 6,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_PERMISSION',
+                'cfg_value' => '1',
+				'cfg_description' => '权限页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }

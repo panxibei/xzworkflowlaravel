@@ -41,22 +41,6 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	// 获取rule数据信息
 	Route::get('ruleList', 'AdminController@ruleList')->name('admin.rule.list');
 	
-
-	// 创建role
-	// Route::post('roleCreate', 'AdminController@roleCreate')->name('admin.role.create');
-	// 创建permission
-	// Route::post('permissionCreate', 'AdminController@permissionCreate')->name('admin.permission.create');
-
-	// 赋予permission
-	Route::post('permissionGive', 'AdminController@permissionGive')->name('admin.permission.give');
-	// 移除permission
-	Route::post('permissionRevoke', 'AdminController@permissionRevoke')->name('admin.permission.revoke');
-
-	// 赋予role
-	// Route::post('roleGive', 'AdminController@roleGive')->name('admin.role.give');
-	// 移除role
-	// Route::post('roleRemove', 'AdminController@roleRemove')->name('admin.role.remove');
-
 	// 显示role
 	Route::get('roleShow', 'AdminController@roleShow')->name('admin.role.show');
 	// 显示permission
@@ -67,8 +51,7 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 	// logout
 	Route::get('logout', 'AdminController@logout')->name('admin.logout');
-	
-	
+
 });
 
 // RoleController路由
