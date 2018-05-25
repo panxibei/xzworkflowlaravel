@@ -128,24 +128,31 @@ class UserController extends Controller
 
 		$tmp = $request->only('user.id', 'user.name', 'user.email', 'user.password');
 		$updateuser = $tmp['user'];
-// dd(strlen($updateuser['password']));
-// dd($updateuser['email']);
+// dump(isset($updateuser['password']));
+// dd($updateuser);
 
-		// 如果password为空，则不更新密码
-		if (strlen($updateuser['password'])) {
-			$result = User::where('id', $updateuser['id'])
-				->update([
-					'name'=>$updateuser['name'],
-					'email'=>$updateuser['email'],
-					'password'=>bcrypt($updateuser['password'])
-				]);
-		} else {
-			$result = User::where('id', $updateuser['id'])
-				->update([
-					'name'=>$updateuser['name'],
-					'email'=>$updateuser['email']
-				]);
+		try	{
+			// 如果password为空，则不更新密码
+			if (isset($updateuser['password'])) {
+				$result = User::where('id', $updateuser['id'])
+					->update([
+						'name'=>$updateuser['name'],
+						'email'=>$updateuser['email'],
+						'password'=>bcrypt($updateuser['password'])
+					]);
+			} else {
+				$result = User::where('id', $updateuser['id'])
+					->update([
+						'name'=>$updateuser['name'],
+						'email'=>$updateuser['email']
+					]);
+			}
 		}
+		catch (Exception $e) {//捕获异常
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+		
 // dd($result);
 		return $result;
     }

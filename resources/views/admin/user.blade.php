@@ -167,7 +167,7 @@
 	<div class="container">
 		<div class="row">
 			<div  class="col-lg-3">
-				<input :value="currentuser.id" type="hidden" class="form-control input-sm">
+				<input v-model="currentuser.id" type="hidden" class="form-control input-sm">
 				<div class="form-group">
 					<label>账号</label>
 					<input v-model="currentuser.name" type="text" class="form-control input-sm">
@@ -178,6 +178,7 @@
 				</div>
 				<div class="form-group">
 					<label>Password</label>
+					<!--<input :value="currentuser.password" type="text" class="form-control input-sm">-->
 					<input v-model="currentuser.password" type="text" class="form-control input-sm">
 				</div>
 			</div>
@@ -352,6 +353,12 @@ var vm_user = new Vue({
 		edituser: function () {
 			var _this = this;
 			var user = _this.currentuser;
+			// var user = new Object();
+			// user.id = _this.$refs.currentuser_id.value;
+			// user.name = _this.$refs.currentuser_name.value;
+			// user.email = _this.$refs.currentuser_email.value;
+			// user.password = _this.$refs.currentuser_password.value;
+			// console.log(user);
 			// alert(user);return false;
 			if (user.length == 0) {return false;}
 			// user['password'] = _this.currentuserpassword;
@@ -362,16 +369,15 @@ var vm_user = new Vue({
 			})
 			.then(function (response) {
 				if (response.data) {
+					_this.open_edituser = false;
 					_this.$notify('User updated successfully!');
-					// _this.currentuser = [];
-					// _this.currentuserpassword = '';
-					// _this.userlist(1, 1);
+					_this.currentuser.password = '';
 				} else {
 					_this.$notify('User updated failed!');
 				}
 			})
 			.catch(function (error) {
-				_this.$notify(error);
+				_this.$notify('Error! User updated failed!');
 				// console.log(error);
 			})
 		},
