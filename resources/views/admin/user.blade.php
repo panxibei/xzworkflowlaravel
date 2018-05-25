@@ -9,6 +9,7 @@
 
 @section('my_body')
 @parent
+<div id="user_list">
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
@@ -27,7 +28,8 @@
 							<div class="form-group">
 								<button type="button" id="button_user_query_open" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapse_user_query" aria-expanded="false" aria-controls="collapse_user_query">打开查询</button>&nbsp;
 								<button type="button" id="user_excel_export" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> 导出</button>&nbsp;
-								<button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#myModal">新 建</button>&nbsp;
+								<button @click="open_createuser=true" type="button" class="btn btn-default btn-sm">新 建</button>&nbsp;
+								<btn type="default" @click="open_createuser=true">Create User</btn>
 								
 								
 								
@@ -81,13 +83,13 @@
 						
 						<div class="col-lg-12">
 							<br><div style="background-color:#c9e2b3;height:1px"></div>
-							<div id="user_list" class="table-responsive" v-cloak>
+							<div class="table-responsive" v-cloak>
 								<table class="table table-condensed">
 									<thead>
 										<tr>
 											<th>ID</th>
 											<th>用户名</th>
-											<th>用户组</th>
+											<th>Email</th>
 											<th>最近登录IP</th>
 											<th>登录次数</th>
 											<th>最近登录时间</th>
@@ -100,15 +102,16 @@
 				
 										<tr v-for="val in gets.data">
 											<td><div>@{{ val.id }}</div></td>
-											<td><div v-bind:id="'user_edit_account' + val.id">@{{ val.name }}</div></td>
-											<td><div>@{{ val.group }}</div></td>
+											<td><div v-bind:id="val.id">@{{ val.name }}</div></td>
+											<td><div>@{{ val.email }}</div></td>
 											<td><div>@{{ val.login_ip }}</div></td>
 											<td><div>@{{ val.login_counts }}</div></td>
 											<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
 											<td><div>@{{ val.delete_at ? "禁用" : "启用" }}</div></td>
 											<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
-											<td><div><button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#myModal_user_edit" v-bind:id="'user_edit' + val.id" v-bind:value="val.id"><i class="fa fa-edit fa-fw"></i></button>
-											&nbsp;<button class="btn btn-danger btn-xs" v-bind:id="'user_del' + val.id" v-bind:value="val.id"><i class="fa fa-times fa-fw"></i></button></div></td>
+											<td><div>
+											&nbsp;<btn type="primary" size="xs" @click="open_edituser=true;currentuser=val"><i class="fa fa-edit fa-fw"></i></btn>
+											&nbsp;<btn type="danger" size="xs" @click="deleteuser;currentuser=val"><i class="fa fa-times fa-fw"></i></btn></div></td>
 										</tr>
 
 									</tbody>
@@ -158,123 +161,61 @@
 </div>
 
 <!-- Modal user edit -->
-<form id="form_user_update" action="{:U('Admin/Index/user_update')}" method="post">
-	<div class="modal fade" id="myModal_user_edit" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-	  <div class="modal-dialog" role="document">
-		<div class="modal-content">
-		  <div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title" id="myModalLabel">编辑用户</h4>
-		  </div>
-		  <div class="modal-body">
-			  <div class="container">
-				<div class="row">
-					<div class="col-lg-3">
-						<!-- <div class="form-group"> -->
-							<!-- <label>ID</label> -->
-							<!-- <input type="text" id="user_edit_id" class="form-control input-sm"> -->
-							<span hidden="hidden"><input type="text" id="user_edit_id"></span>
-						<!-- </div> -->
-						<div class="form-group">
-							<label>最近登录时间</label>
-							<input type="text" id="user_edit_login_time" class="form-control input-sm">
-						</div>
-						<!-- <div class="form-group"> -->
-							<!-- <label>最近登录IP</label> -->
-							<!-- <input type="text" id="user_edit_login_ip" class="form-control input-sm"> -->
-						<!-- </div> -->
-						<!-- <div class="form-group"> -->
-							<!-- <label>登录次数</label> -->
-							<!-- <input type="text" id="user_edit_login_count" class="form-control input-sm"> -->
-						<!-- </div> -->
-						<div class="form-group">
-							<label>密码</label>
-							<input type="text" id="user_edit_password" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>Email</label>
-							<input type="text" id="user_edit_email" class="form-control input-sm">
-						</div>
-					</div>
-					<div class="col-lg-3">
-						<div class="form-group">
-							<label>用户名</label>
-							<input type="text" id="user_edit_account" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>用户组</label>
-							<select name="group" id="user_edit_group_id" class="form-control input-sm"></select>
-						</div>
-						<div class="form-group">
-							<label>手机号</label>
-							<input type="text" id="user_edit_mobile" class="form-control input-sm">
-						</div>
-					</div>
+<modal v-model="open_edituser" @hide="callback_edituser" size="sm">
+	<span slot="title"><i class="fa fa-user fa-fw"></i> Edit User</span>
+
+	<div class="container">
+		<div class="row">
+			<div  class="col-lg-3">
+				<input :value="currentuser.id" type="hidden" class="form-control input-sm">
+				<div class="form-group">
+					<label>账号</label>
+					<input v-model="currentuser.name" type="text" class="form-control input-sm">
+				</div>
+				<div class="form-group">
+					<label>Email</label>
+					<input v-model="currentuser.email" type="text" class="form-control input-sm">
+				</div>
+				<div class="form-group">
+					<label>Password</label>
+					<input v-model="currentuser.password" type="text" class="form-control input-sm">
 				</div>
 			</div>
-		  </div>
-		  <div class="modal-footer">
-			<label><input id="user_edit_status" type="checkbox">启用</label>&nbsp;&nbsp;
-			<button type="submit" id="user_add_or_update" class="btn btn-primary btn-sm"><span class="glyphicon glyphicon-edit"></span> 更 新</button>
-			<button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Close</button>
-		  </div>
 		</div>
-	  </div>
-	</div>{__TOKEN__}
-</form>
+	</div>
+
+	<div slot="footer">
+		<btn @click="open_edituser=false">Cancel</btn>
+		<btn @click="edituser" type="primary">Update</btn>
+	</div>	
+</modal>
 
 <!-- Modal create user-->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-	<div class="modal-content">
-		<form id="form_user_add" method="post">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-			<h4 class="modal-title" id="myModalLabel">新建用户</h4>
-		</div>
-		<div class="modal-body">
-			<div class="container">
-				<div class="row">
-					<div  class="col-lg-3">
-						<div class="form-group">
-							<label>账号</label>
-							<input id="user_add_account" type="text" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>密码</label>
-							<input id="user_add_password" type="text" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>用户组</label>
-							<select id="user_add_group" class="form-control input-sm"></select>
-						</div>
-					</div>
-					<div  class="col-lg-3">
-						<div class="form-group">
-							<label>Email</label>
-							<input id="user_add_email" type="text" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>手机号</label>
-							<input id="user_add_mobile" type="text" class="form-control input-sm">
-						</div>
-						<div class="checkbox">
-							<label><input id="user_add_status" type="checkbox" checked="checked" value=""><b>启用</b></label>
-						</div>
-					</div>
+<modal v-model="open_createuser" @hide="callback_createuser" size="sm">
+	<span slot="title"><i class="fa fa-user fa-fw"></i> Create User</span>
+
+	<div class="container">
+		<div class="row">
+			<div  class="col-lg-3">
+				<div class="form-group">
+					<label>账号</label>
+					<input v-model="createuser_name" type="text" class="form-control input-sm">
+				</div>
+				<div class="form-group">
+					<label>Email</label>
+					<input v-model="createuser_email" type="text" class="form-control input-sm">
 				</div>
 			</div>
-			<div class="modal-footer">
-				<button type="submit" id="button_rule_add" class="btn btn-primary"><span class="glyphicon glyphicon-asterisk"></span> 新建</button>
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			</div>
 		</div>
-		{__TOKEN__}
-		</form>
 	</div>
-  </div>
-</div>
 
+	<div slot="footer">
+		<btn @click="open_createuser=false">Cancel</btn>
+		<btn @click="createuser" type="primary">Create User</btn>
+	</div>	
+</modal>
+
+</div>
 @endsection
 
 @section('my_footer')
@@ -285,7 +226,22 @@ var vm_user = new Vue({
     el: '#user_list',
     data: {
 		gets: {},
-		perpage: {{ $PERPAGE_RECORDS_FOR_USER }}
+		perpage: {{ $PERPAGE_RECORDS_FOR_USER }},
+		currentuser: {
+			id: '',
+			name: '',
+			email: '',
+			password: ''
+		},
+		// currentuserpassword: '',
+		// 创建
+		open_createuser: false,
+		createuser_name: '',
+		createuser_email: '',
+		// 编辑
+		open_edituser: false,
+		edituser_name: '',
+		edituser_email: ''
     },
 	methods: {
 		userlist: function(page, last_page){
@@ -359,6 +315,71 @@ var vm_user = new Vue({
 				alert('failed');
 				// console.log(error);
 			})
+		},
+		callback_createuser: function (msg) {
+			// this.$notify(`Modal dismissed with msg '${msg}'.`)
+		},
+		createuser: function () {
+			var _this = this;
+			var name = _this.createuser_name;
+			var email = _this.createuser_email;
+
+			if ( name.length == 0 || email.length == 0) {return false;}
+			var url = "{{ route('admin.user.create') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				name: name,
+				email: email
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.$notify('User created successfully!');
+					_this.createuser_name = '';
+					_this.createuser_email = '';
+					_this.userlist(1, 1);
+				} else {
+					alert('failed');
+				}
+			})
+			.catch(function (error) {
+				alert('failed');
+				// console.log(error);
+			})
+		},
+		callback_edituser: function (msg) {
+			// this.$notify(`Modal dismissed with msg '${msg}'.`)
+		},
+		edituser: function () {
+			var _this = this;
+			var user = _this.currentuser;
+			// alert(user);return false;
+			if (user.length == 0) {return false;}
+			// user['password'] = _this.currentuserpassword;
+			var url = "{{ route('admin.user.edit') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				user: user
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.$notify('User updated successfully!');
+					// _this.currentuser = [];
+					// _this.currentuserpassword = '';
+					// _this.userlist(1, 1);
+				} else {
+					_this.$notify('User updated failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.$notify(error);
+				// console.log(error);
+			})
+		},
+		callback_deleteuser: function (msg) {
+			// this.$notify(`Modal dismissed with msg '${msg}'.`)
+		},
+		deleteuser: function () {
+			
 		}
 	},
 	mounted: function(){

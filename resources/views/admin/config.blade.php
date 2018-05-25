@@ -3,39 +3,8 @@
 @section('my_title', "Admin(Config) - $SITE_TITLE  Ver: $SITE_VERSION")
 
 @section('my_js')
-	<script type="text/javascript">
-/*		$(function(){
-			// 一打开就默认读取所有配置内容
-			$("#test01").val("{$Think.config.test01}");
-			$("#test02").val("{$Think.config.test02}");
-			
-			//配置修改customized
-			$("#config_update_customized").on('click',function(){
-				var config_file = 'customized.php';
-				var test01 = parseInt($("#test01").val());
-				var test02 = $("#test02").val();
-				var customized = '{"TEST01":' + test01 + ',"TEST02":"' + test02 + '"}';
-
-				$.post("{:U('Admin/Index/config_update')}",{config_file:config_file,customized:customized}, function(jdata){
-					if(jdata.ajax_status == 0){
-						//alert('更新配置成功！'); //查询成功
-						BootstrapDialog.show({
-						type:BootstrapDialog.TYPE_SUCCESS,
-						message:'更新配置成功！',
-						onhidden: function(dialogRef){
-							window.location.reload();
-						}});
-						
-						
-					} else {
-						//alert('更新配置失败');
-						BootstrapDialog.show({message:'更新配置失败！'});
-					}
-				});
-				return false;
-			});
-		});
-*/	</script>
+<script type="text/javascript">
+</script>
 @endsection
 
 @section('my_body')
@@ -43,18 +12,17 @@
 <div id="page-wrapper" style="min-height: 331px;">
 	<div class="row">
 		<div class="col-lg-12">
-			<h1 class="page-header">这里是配置项啊</h1>
+			<h1 class="page-header">Configration Management</h1>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-lg-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					Basic Form Elements
+					系统配置项
 				</div>
 				<div id="config_list" class="panel-body" v-cloak>
 				<form role="form">
-
 					<div class="row">
 					<span v-for="(val, index) in gets">
 
@@ -66,16 +34,14 @@
 								<p class="help-block">&nbsp;@{{ val.cfg_description }}</p>
 							</div>
 						</div>
-
 					</span>
 					</div>
-							<button type="submit" class="btn btn-default">Submit</button>
-							<button type="reset" class="btn btn-default">Reset</button>
+					<button type="submit" class="btn btn-default">Submit</button>
+					<button type="reset" class="btn btn-default">Reset</button>
 				</form>
 				</div>
 
 				<div style="background-color:#c9e2b3;height:1px"></div>
-								
 
 			</div>
 		</div>
@@ -90,24 +56,39 @@
 var vm_config = new Vue({
     el: '#config_list',
     data: {
+		notification_type: '',
+		notification_title: '',
+		notification_content: '',
 		gets: {}
     },
 	methods: {
+		notification_message: function () {
+			this.$notify({
+				type: this.notification_type,
+				title: this.notification_title,
+				content: this.notification_content
+			})
+		},
 		configchange: function(event){
-			// alert(event.target.id);
-			// alert(event.target.value);
 			var _this = this;
+			var cfg_name = event.target.id;
+			var cfg_value = event.target.value;
+			
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
-					cfg_name: event.target.id,
-					cfg_value: event.target.value
+					cfg_name: cfg_name,
+					cfg_value: cfg_value
 				})
 				.then(function (response) {
 					if (response.data) {
 						// alert('success');
 					} else {
-						alert('failed');
+						_this.notification_type = 'danger';
+						_this.notification_title = 'Error';
+						_this.notification_content = cfg_name + 'failed to be modified!';
+						_this.notification_message();
+						event.target.value = cfg_value;
 					}
 				})
 				.catch(function (error) {
@@ -121,10 +102,6 @@ var vm_config = new Vue({
 		var url = "{{ route('admin.config.list') }}";
 		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 		axios.get(url, {
-				params: {
-					perPage: 1,
-					page: 1
-				}
 			})
 			.then(function (response) {
 				//console.log(response);

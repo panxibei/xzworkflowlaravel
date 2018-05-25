@@ -7,7 +7,6 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Config;
 use App\Models\User;
-use App\Models\Group;
 use Cookie;
 use DB;
 use Spatie\Permission\Models\Role;
@@ -130,9 +129,9 @@ class AdminController extends Controller
 		if (! $request->ajax()) { return null; }
 		
         // 获取用户信息
-		$perPage = $request->input('perPage');
-		$page = $request->input('page');
-		if (null == $page) $page = 1;
+		// $perPage = $request->input('perPage');
+		// $page = $request->input('page');
+		// if (null == $page) $page = 1;
 
 		$config = Config::select('cfg_id', 'cfg_name', 'cfg_value', 'cfg_description')
 			->get();
@@ -151,8 +150,8 @@ class AdminController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
 		$up2data = $request->all();
-		$res = Config::where('cfg_name', $up2data['cfg_name'])->update(['cfg_value'=>$up2data['cfg_value']]);
-		return $res;
+		$result = Config::where('cfg_name', $up2data['cfg_name'])->update(['cfg_value'=>$up2data['cfg_value']]);
+		return $result;
     }
 
     /**
@@ -190,100 +189,5 @@ class AdminController extends Controller
 		return $user;
     }
 	
-    /**
-     * 列出用户组页面
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function groupIndex()
-    {
-        // 获取配置值
-		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-        return view('admin.group', $config);
-    }
-
-    /**
-     * 列出用户组页面 ajax
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function groupList(Request $request)
-    {
-		if (! $request->ajax()) { return null; }
-
-        // 获取用户信息
-		$perPage = $request->input('perPage');
-		$page = $request->input('page');
-		if (null == $page) $page = 1;
-
-		$group = Group::select('id', 'title', 'rules', 'created_at')
-			->paginate($perPage, ['*'], 'page', $page);
-			
-		return $group;
-    }
-
-    /**
-     * 列出权限页面
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function ruleIndex()
-    {
-        // 获取配置值
-		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-        return view('admin.rule', $config);
-    }
-
-
-    /**
-     * 显示role
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function roleShow(Request $request)
-    {
-		if (! $request->ajax()) { return null; }
-		
-		// 请求的用户名
-        $username = $request->input('user');
-		$user = User::where('name', $username)->first();
-		// dd($user);
-		// $result = $user->permissions;
-		// $result = $user->getPermissionsViaRoles();
-		// $result = $user->getAllPermissions();
-		$roles = $user->getRoleNames();
-        return $roles;
-    }
-
-    /**
-     * 显示permission
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function permissionShow(Request $request)
-    {
-		if (! $request->ajax()) { return null; }
-		
-		// 请求的role名称
-        $role = $request->input('role');
-		// dd($roleid);
-		// $permission = Permission::where('name', $role)->get();
-		// $permission = DB::table('role_has_permissions')
-			// ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-			// ->where('role_id', $roleid)
-			// ->get();
-		$permission = DB::table('roles')
-			->join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.permission_id')
-			->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-			->where('roles.name', $role)
-			->get();
-		// dd($permission);
-        return $permission;
-    }
 
 }

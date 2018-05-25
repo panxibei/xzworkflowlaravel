@@ -259,7 +259,7 @@ var vm_role = new Vue({
 				// },1000);
 			})
 		},
-		notification_message () {
+		notification_message: function () {
 			this.$notify({
 				type: this.notification_type,
 				title: this.notification_title,

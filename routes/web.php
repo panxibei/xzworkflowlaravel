@@ -27,10 +27,6 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	Route::get('configIndex', 'AdminController@configIndex')->name('admin.config.index');
 	// 显示user页面
 	Route::get('userIndex', 'AdminController@userIndex')->name('admin.user.index');
-	// 显示group页面
-	Route::get('groupIndex', 'AdminController@groupIndex')->name('admin.group.index');
-	// 显示rule页面
-	Route::get('ruleIndex', 'AdminController@ruleIndex')->name('admin.rule.index');
 
 	// 获取config数据信息
 	Route::get('configList', 'AdminController@configList')->name('admin.config.list');
@@ -38,19 +34,24 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 	Route::get('userList', 'AdminController@userList')->name('admin.user.list');
 	// 获取group数据信息
 	Route::get('groupList', 'AdminController@groupList')->name('admin.group.list');
-	// 获取rule数据信息
-	Route::get('ruleList', 'AdminController@ruleList')->name('admin.rule.list');
 	
-	// 显示role
-	Route::get('roleShow', 'AdminController@roleShow')->name('admin.role.show');
-	// 显示permission
-	Route::get('permissionShow', 'AdminController@permissionShow')->name('admin.permission.show');
-	
+
 	// 修改config数据
 	Route::post('configChange', 'AdminController@configChange')->name('admin.config.change');
 
 	// logout
 	Route::get('logout', 'AdminController@logout')->name('admin.logout');
+
+});
+
+// UserController路由
+Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+
+	// 创建user
+	Route::post('userCreate', 'UserController@userCreate')->name('admin.user.create');
+
+	// 编辑user
+	Route::post('userEdit', 'UserController@userEdit')->name('admin.user.edit');
 
 });
 

@@ -351,16 +351,10 @@
 						<a href="{{ route('admin.user.index') }}"><i class="fa fa-user fa-fw"></i> 用户管理</a>
 					</li>
 					<li>
-						<a href="{{ route('admin.group.index') }}"><i class="fa fa-group fa-fw"></i> 群组管理</a>
-					</li>
-					<li>
-						<a href="{{ route('admin.rule.index') }}"><i class="fa fa-key fa-fw"></i> 权限管理测试</a>
-					</li>
-					<li>
 						<a href="{{ route('admin.role.index') }}"><i class="fa fa-group fa-fw"></i> 角色管理</a>
 					</li>
 					<li>
-						<a href="{{ route('admin.permission.index') }}"><i class="fa fa-group fa-fw"></i> 权限管理</a>
+						<a href="{{ route('admin.permission.index') }}"><i class="fa fa-key fa-fw"></i> 权限管理</a>
 					</li>
 				</ul>
 			</li>
