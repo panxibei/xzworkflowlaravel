@@ -26,61 +26,66 @@
 					<div class="row">
 						<div class="col-lg-12">
 							<div class="form-group">
-								<button type="button" id="button_user_query_open" class="btn btn-default btn-sm" data-toggle="collapse" data-target="#collapse_user_query" aria-expanded="false" aria-controls="collapse_user_query">打开查询</button>&nbsp;
-								<button type="button" id="user_excel_export" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> 导出</button>&nbsp;
-								<button @click="open_createuser=true" type="button" class="btn btn-default btn-sm">新 建</button>&nbsp;
-								<btn type="default" @click="open_createuser=true">Create User</btn>
-								
+								<btn type="default" @click="open_queryuser=!open_queryuser" size="sm">Open/Close Query</btn>								
+								<btn type="default" size="sm"><i class="fa fa-external-link fa-fw"></i> 导出</btn>&nbsp;
+								<btn type="default" @click="open_createuser=true" size="sm">Create User</btn>
 								
 								
 							</div>
 						</div>
 						<div class="col-lg-12">
-							<div class="collapse" id="collapse_user_query">
-								<form id="form_user_query" class="form-inline">
-									<div class="form-group">
-										<label for="user_query_account" class="control-label">帐号</label>
-										<input class="form-control input-sm" type="text" id="user_query_account" placeholder="帐号" />
+							<collapse v-model="open_queryuser">
+								<div class="well" style="margin-bottom: 0">
+									<div class="row">
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label class="control-label">账号</label>
+												<input class="form-control input-sm" type="text" placeholder="账号">
+								<br><btn type="default" size="sm">Query</btn>
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label class="control-label">最近登录时间（始）</label>
+												<dropdown class="form-group">
+													<div class="input-group">
+														<input class="form-control" type="text" v-model="query_date_start" placeholder="开始时间">
+														<div class="input-group-btn">
+															<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
+														</div>
+													</div>
+													<template slot="dropdown">
+														<li>
+															<date-picker v-model="query_date_start"/>
+														</li>
+													</template>
+												</dropdown>
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<label class="control-label">最近登录时间（终）</label>
+											<dropdown class="form-group">
+												<div class="input-group">
+													<input class="form-control" type="text" v-model="query_date_end" placeholder="结束时间">
+													<div class="input-group-btn">
+														<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
+													</div>
+												</div>
+												<template slot="dropdown">
+													<li>
+														<date-picker v-model="query_date_end"/>
+													</li>
+												</template>
+											</dropdown>
+										</div>
+										<div class="col-lg-3">
+										</div>
 									</div>
-									<div class="form-group">
-										<label for="user_query_login_time" class="control-label">最近登录时间</label>
-										<input class="form-control input-sm" type="text" id="user_query_login_time" />
-										<script type="text/javascript">
-										/*$(function() {
-											moment.lang('ja');
-											$('input#user_query_login_time').daterangepicker({
-												singleDatePicker: false,
-												showDropdowns: true,
-												timePicker: true,
-												timePicker24Hour: true,
-												timePickerSeconds: true,
-												linkedCalendars: false,
-												//startDate: "08/13/2016",
-												//endDate: "08/19/2016",
-												//minDate: "01/01/2000",
-												maxDate: "12/31/2199",
-												locale: {
-													format: 'MM/DD/YYYY HH:mm:ss'
-												}
-												 
-												//function(start, end, label) {
-												//	var years = moment().diff(start, 'years');
-												//	alert("You are " + years + " years old.");
-												//});
-											});
-											//$('div.calendar-table').remove();
-										});*/
-										</script>
-									</div>
-									<button type="button" id="button_user_query" class="btn btn-default btn-sm">查询</button>
-								</form>
-							</div>
+								</div>
+							</collapse>						
 						</div>
-						
-						
-						
-						
-						
+
+
 						<div class="col-lg-12">
 							<br><div style="background-color:#c9e2b3;height:1px"></div>
 							<div class="table-responsive" v-cloak>
@@ -178,7 +183,6 @@
 				</div>
 				<div class="form-group">
 					<label>Password</label>
-					<!--<input :value="currentuser.password" type="text" class="form-control input-sm">-->
 					<input v-model="currentuser.password" type="text" class="form-control input-sm">
 				</div>
 			</div>
@@ -242,7 +246,11 @@ var vm_user = new Vue({
 		// 编辑
 		open_edituser: false,
 		edituser_name: '',
-		edituser_email: ''
+		edituser_email: '',
+		// 查询
+		open_queryuser: false,
+		query_date_start: null,
+		query_date_end: null
     },
 	methods: {
 		userlist: function(page, last_page){
@@ -353,15 +361,14 @@ var vm_user = new Vue({
 		edituser: function () {
 			var _this = this;
 			var user = _this.currentuser;
-			// var user = new Object();
-			// user.id = _this.$refs.currentuser_id.value;
-			// user.name = _this.$refs.currentuser_name.value;
-			// user.email = _this.$refs.currentuser_email.value;
-			// user.password = _this.$refs.currentuser_password.value;
 			// console.log(user);
 			// alert(user);return false;
 			if (user.length == 0) {return false;}
 			// user['password'] = _this.currentuserpassword;
+			if (user.name.trim().length == 0 || user.email.trim().length == 0) {
+				_this.$notify('Please input username and email!');
+				return false;
+			}
 			var url = "{{ route('admin.user.edit') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
