@@ -86,6 +86,44 @@ class UserController extends Controller
         //
     }
 
+
+    /**
+     * 列出用户页面 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function userList(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+
+        // 获取用户信息
+		$perPage = $request->input('perPage');
+		$page = $request->input('page');
+		
+		$queryfilter_name = $request->input('queryfilter_name');
+		$queryfilter_datefrom = $request->input('queryfilter_datefrom');
+		$queryfilter_dateto = $request->input('queryfilter_dateto');
+
+		$queryfilter_datefrom = strtotime($queryfilter_datefrom) ? $queryfilter_datefrom : '1970-01-01';
+		$queryfilter_dateto = strtotime($queryfilter_dateto) ? $queryfilter_dateto : '9999-12-31';
+
+
+		if (null == $page) $page = 1;
+
+		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
+			->where('name', 'like', '%'.$queryfilter_name.'%')
+			// ->orWhere(function ($query) {
+				// $query->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto]);
+				// $query->whereBetween('login_time', ['2018-01-01', '2018-05-26']);
+            // })
+			->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto])
+			->withTrashed()
+			->paginate($perPage, ['*'], 'page', $page);
+
+		return $user;
+    }
+
     /**
      * 创建用户 ajax
      *

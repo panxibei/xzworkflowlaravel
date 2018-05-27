@@ -18,7 +18,7 @@ class CreateUsersTable extends Migration
             $table->string('name',32)->unique();
             $table->string('email',36)->unique();
             $table->string('password');
-			$table->integer('login_time')->default(null)->comment('登录时间');
+			$table->timestamp('login_time')->default(null)->comment('登录时间');
 			$table->string('login_ip',15)->default(null)->comment('登录ip');
 			$table->integer('login_counts')->default(0)->comment('登录次数');
             $table->rememberToken();

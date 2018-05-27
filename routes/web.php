@@ -30,8 +30,7 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 	// 获取config数据信息
 	Route::get('configList', 'AdminController@configList')->name('admin.config.list');
-	// 获取user数据信息
-	Route::get('userList', 'AdminController@userList')->name('admin.user.list');
+
 	// 获取group数据信息
 	Route::get('groupList', 'AdminController@groupList')->name('admin.group.list');
 	
@@ -46,6 +45,9 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 // UserController路由
 Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+
+	// 获取user数据信息
+	Route::get('userList', 'UserController@userList')->name('admin.user.list');
 
 	// 创建user
 	Route::post('userCreate', 'UserController@userCreate')->name('admin.user.create');

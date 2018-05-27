@@ -26,7 +26,7 @@
 					<div class="row">
 						<div class="col-lg-12">
 							<div class="form-group">
-								<btn type="default" @click="open_queryuser=!open_queryuser" size="sm">Open/Close Query</btn>								
+								<btn type="default" @click="open_queryuser=!open_queryuser" size="sm">Query Filter</btn>&nbsp;
 								<btn type="default" size="sm"><i class="fa fa-external-link fa-fw"></i> 导出</btn>&nbsp;
 								<btn type="default" @click="open_createuser=true" size="sm">Create User</btn>
 								
@@ -40,8 +40,9 @@
 										<div class="col-lg-3">
 											<div class="form-group">
 												<label class="control-label">账号</label>
-												<input class="form-control input-sm" type="text" placeholder="账号">
-								<br><btn type="default" size="sm">Query</btn>
+												<input v-model.lazy="queryfilter_name" class="form-control input-sm" type="text" placeholder="账号">
+								<br><btn type="default" size="sm"  @click="queryfilter()">Query</btn>
+								&nbsp;<btn type="default" size="sm"  @click="queryfilter_name='';queryfilter_datefrom=null;queryfilter_dateto=null">Clear</btn>
 											</div>
 										</div>
 										<div class="col-lg-3">
@@ -49,14 +50,14 @@
 												<label class="control-label">最近登录时间（始）</label>
 												<dropdown class="form-group">
 													<div class="input-group">
-														<input class="form-control" type="text" v-model="query_date_start" placeholder="开始时间">
+														<input class="form-control" type="text" v-model.lazy="queryfilter_datefrom" placeholder="开始时间">
 														<div class="input-group-btn">
 															<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
 														</div>
 													</div>
 													<template slot="dropdown">
 														<li>
-															<date-picker v-model="query_date_start"/>
+															<date-picker v-model="queryfilter_datefrom"/>
 														</li>
 													</template>
 												</dropdown>
@@ -66,14 +67,14 @@
 											<label class="control-label">最近登录时间（终）</label>
 											<dropdown class="form-group">
 												<div class="input-group">
-													<input class="form-control" type="text" v-model="query_date_end" placeholder="结束时间">
+													<input class="form-control" type="text" v-model.lazy="queryfilter_dateto" placeholder="结束时间">
 													<div class="input-group-btn">
 														<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
 													</div>
 												</div>
 												<template slot="dropdown">
 													<li>
-														<date-picker v-model="query_date_end"/>
+														<date-picker v-model="queryfilter_dateto"/>
 													</li>
 												</template>
 											</dropdown>
@@ -111,7 +112,7 @@
 											<td><div>@{{ val.email }}</div></td>
 											<td><div>@{{ val.login_ip }}</div></td>
 											<td><div>@{{ val.login_counts }}</div></td>
-											<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
+											<td><div>@{{ val.login_time }}</div></td>
 											<td><div>@{{ val.deleted_at ? "禁用" : "启用" }}</div></td>
 											<td><div>@{{ val.created_at }}<br>@{{ val.updated_at }}</div></td>
 											<td><div>
@@ -215,7 +216,7 @@
 				</div>
 				<div class="form-group">
 					<label>Email</label>
-					<input v-model="createuser_email" type="text" class="form-control input-sm">
+					<input v-model="createuser_email" type="email" class="form-control input-sm">
 				</div>
 			</div>
 		</div>
@@ -260,12 +261,12 @@ var vm_user = new Vue({
 		open_edituser: false,
 		edituser_name: '',
 		edituser_email: '',
-		// 回收站
-		// user_trash: false,
 		// 查询
 		open_queryuser: false,
-		query_date_start: null,
-		query_date_end: null
+		// 查询过滤器
+		queryfilter_name: '',
+		queryfilter_datefrom: null,
+		queryfilter_dateto: null
     },
 	methods: {
 		// 表单变化后的值
@@ -283,20 +284,26 @@ var vm_user = new Vue({
 		},
 		userlist: function(page, last_page){
 			var _this = this;
-			var url = "{{ route('admin.user.list') }}";
-			// var perPage = 1; // 有待修改，将来使用配置项
-			
+			var queryfilter_name = _this.queryfilter_name;
+			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
+			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
+
 			if (page > last_page) {
 				page = last_page;
 			} else if (page < 1) {
 				page = 1;
 			}
 			_this.gets.current_page = page;
+
+			var url = "{{ route('admin.user.list') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
 					perPage: _this.perpage,
-					page: page
+					page: page,
+					queryfilter_name: queryfilter_name,
+					queryfilter_datefrom: queryfilter_datefrom,
+					queryfilter_dateto: queryfilter_dateto
 				}
 			})
 			.then(function (response) {
@@ -304,10 +311,7 @@ var vm_user = new Vue({
 				// alert(response.data);
 				if (typeof(response.data.data) == "undefined") {
 					// alert('toekn失效，跳转至登录页面');
-					_this.alert_exit();
-					// window.setTimeout(function(){
-						// window.location.href = "{{ route('admin.config.index') }}";
-					// },1000);
+					// _this.alert_exit();
 				}
 				// return false;
 				_this.gets = response.data;
@@ -364,6 +368,15 @@ var vm_user = new Vue({
 			var email = _this.createuser_email;
 
 			if ( name.length == 0 || email.length == 0) {return false;}
+			
+			// var re = new RegExp(“a”);  //RegExp对象。参数就是我们想要制定的规则。有一种情况必须用这种方式，下面会提到。
+			// var re = /a/;   // 简写方法 推荐使用 性能更好  不能为空 不然以为是注释 ，
+			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+			if (! regexp.test(email)) {
+				_this.$notify('Email is incorrect!');
+				return false;
+			}
+
 			var url = "{{ route('admin.user.create') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
@@ -398,6 +411,13 @@ var vm_user = new Vue({
 				_this.$notify('Please input username and email!');
 				return false;
 			}
+
+			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+			if (! regexp.test(user.email)) {
+				_this.$notify('Email is incorrect!');
+				return false;
+			}
+
 			var url = "{{ route('admin.user.edit') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
@@ -476,15 +496,26 @@ var vm_user = new Vue({
 					_this.$notify('Error! User deleted failed!');
 					// console.log(error);
 				})
-				
-				
 			})
 			.catch(function () {
 				// this.$notify('Delete canceled.')
 				return false;
 			})
-			
-		
+		},
+		queryfilter: function () {
+			var _this = this;
+			// alert(_this.queryfilter_name);
+			// alert(_this.queryfilter_datefrom);
+			// alert(_this.queryfilter_dateto);
+			// var queryfilter_name = _this.queryfilter_name;
+			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
+			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
+			if (queryfilter_datefrom > queryfilter_dateto) {
+				_this.$notify('Date is incorrect!');
+				return false;
+			}
+
+			_this.userlist(1, 1);
 		}
 	},
 	mounted: function(){

@@ -167,27 +167,6 @@ class AdminController extends Controller
         return view('admin.user', $config);
     }
 
-    /**
-     * 列出用户页面 ajax
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function userList(Request $request)
-    {
-		if (! $request->ajax()) { return null; }
-
-        // 获取用户信息
-		$perPage = $request->input('perPage');
-		$page = $request->input('page');
-		if (null == $page) $page = 1;
-
-		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
-			->withTrashed()
-			->paginate($perPage, ['*'], 'page', $page);
-			
-		return $user;
-    }
 	
 
 }
