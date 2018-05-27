@@ -116,6 +116,38 @@ class UserController extends Controller
     }
 
     /**
+     * 删除用户 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function userDelete(Request $request)
+    {
+        //
+		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+
+		$userid = $request->only('userid');
+		dd($userid);
+		
+		$nowtime = date("Y-m-d H:i:s",time());
+		
+		$result = User::create([
+			'name'     => $newuser['name'],
+			'email'    => $newuser['email'],
+			'password' => bcrypt('12345678'),
+			'login_time' => time(),
+			'login_ip' => '127.0.0.1',
+			'login_counts' => 0,
+			'remember_token' => '',
+			'created_at' => $nowtime,
+			'updated_at' => $nowtime,
+			'deleted_at' => NULL
+		]);
+
+		return $result;
+    }
+
+    /**
      * 编辑用户 ajax
      *
      * @param  int  $id

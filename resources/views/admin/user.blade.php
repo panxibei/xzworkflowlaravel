@@ -107,7 +107,7 @@
 				
 										<tr v-for="val in gets.data">
 											<td><div>@{{ val.id }}</div></td>
-											<td><div v-bind:id="val.id">@{{ val.name }}</div></td>
+											<td><div>@{{ val.name }}</div></td>
 											<td><div>@{{ val.email }}</div></td>
 											<td><div>@{{ val.login_ip }}</div></td>
 											<td><div>@{{ val.login_counts }}</div></td>
@@ -115,8 +115,9 @@
 											<td><div>@{{ val.delete_at ? "禁用" : "启用" }}</div></td>
 											<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
 											<td><div>
-											&nbsp;<btn type="primary" size="xs" @click="open_edituser=true;currentuser=val"><i class="fa fa-edit fa-fw"></i></btn>
-											&nbsp;<btn type="danger" size="xs" @click="deleteuser;currentuser=val"><i class="fa fa-times fa-fw"></i></btn></div></td>
+											&nbsp;<btn type="primary" size="xs" @click="open_edituser=true;currentuser=val;"><i class="fa fa-edit fa-fw"></i></btn>
+											&nbsp;<btn type="warning" size="xs" @click="trashuser(val.id)"><i class="fa fa-trash-o fa-fw"></i></btn>
+											&nbsp;<btn type="danger" size="xs" @click="deleteuser(val.id)"><i class="fa fa-times fa-fw"></i></btn></div></td>
 										</tr>
 
 									</tbody>
@@ -154,10 +155,10 @@
 
 									</nav></div></td></tr>
 
-									
 								</div>
 							</div>
 						</div>
+
 					</div>
 				</div>
 			</div>
@@ -391,8 +392,45 @@ var vm_user = new Vue({
 		callback_deleteuser: function (msg) {
 			// this.$notify(`Modal dismissed with msg '${msg}'.`)
 		},
-		deleteuser: function () {
-			
+		trashuser: function (userid) {
+			var _this = this;
+			if (userid == undefined || userid.length == 0) {return false;}
+			var url = "{{ route('admin.user.trash') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				userid: userid
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.$notify('User deleted successfully!');
+				} else {
+					_this.$notify('User deleted failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.$notify('Error! User deleted failed!');
+				// console.log(error);
+			})			
+		},
+		deleteuser: function (userid) {
+			var _this = this;
+			if (userid == undefined || userid.length == 0) {return false;}
+			var url = "{{ route('admin.user.delete') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				userid: userid
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.$notify('User deleted successfully!');
+				} else {
+					_this.$notify('User deleted failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.$notify('Error! User deleted failed!');
+				// console.log(error);
+			})			
 		}
 	},
 	mounted: function(){

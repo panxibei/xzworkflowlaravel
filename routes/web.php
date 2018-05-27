@@ -50,6 +50,12 @@ Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 	// 创建user
 	Route::post('userCreate', 'UserController@userCreate')->name('admin.user.create');
 
+	// 禁用user（软删除）
+	Route::post('userTrash', 'UserController@userTrash')->name('admin.user.trash');
+
+	// 删除user
+	Route::post('userDelete', 'UserController@userDelete')->name('admin.user.delete');
+
 	// 编辑user
 	Route::post('userEdit', 'UserController@userEdit')->name('admin.user.edit');
 
