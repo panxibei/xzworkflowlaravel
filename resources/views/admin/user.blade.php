@@ -99,7 +99,7 @@
 											<th>登录次数</th>
 											<th>最近登录时间</th>
 											<th>状态</th>
-											<th>创建时间</th>
+											<th>创建/更新时间</th>
 											<th>操作</th>
 										</tr>
 									</thead>
@@ -112,12 +112,16 @@
 											<td><div>@{{ val.login_ip }}</div></td>
 											<td><div>@{{ val.login_counts }}</div></td>
 											<td><div>@{{ date('Y-m-d H:i:s', val.login_time) }}</div></td>
-											<td><div>@{{ val.delete_at ? "禁用" : "启用" }}</div></td>
-											<td><div>@{{ date('Y-m-d H:i:s', val.create_at) }}</div></td>
+											<td><div>@{{ val.deleted_at ? "禁用" : "启用" }}</div></td>
+											<td><div>@{{ val.created_at }}<br>@{{ val.updated_at }}</div></td>
 											<td><div>
-											&nbsp;<btn type="primary" size="xs" @click="open_edituser=true;currentuser=val;"><i class="fa fa-edit fa-fw"></i></btn>
-											&nbsp;<btn type="warning" size="xs" @click="trashuser(val.id)"><i class="fa fa-trash-o fa-fw"></i></btn>
-											&nbsp;<btn type="danger" size="xs" @click="deleteuser(val.id)"><i class="fa fa-times fa-fw"></i></btn></div></td>
+											&nbsp;<btn type="primary" size="xs" @click="open_edituser=true;currentuser=val;" :id="'btnedituser'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
+											<tooltip text="编辑" :target="'#btnedituser'+val.id"/>
+											&nbsp;<btn type="warning" size="xs" @click="trashuser(val.id)" :id="'btntrashuser'+val.id"><i class="fa fa-trash-o fa-fw"></i></btn>
+											<tooltip text="禁用/启用" :target="'#btntrashuser'+val.id"/>
+											&nbsp;<btn type="danger" size="xs" @click="deleteuser(val.id, val.name)" :id="'btndeleteuser'+val.id"><i class="fa fa-times fa-fw"></i></btn>
+											<tooltip text="删除" :target="'#btndeleteuser'+val.id"/>
+											</div></td>
 										</tr>
 
 									</tbody>
@@ -173,18 +177,20 @@
 	<div class="container">
 		<div class="row">
 			<div  class="col-lg-3">
-				<input v-model="currentuser.id" type="hidden" class="form-control input-sm">
+				<!--<input v-model="currentuser.id" type="hidden" class="form-control input-sm">-->
+				<input :value="up2dateuser.id=currentuser.id" type="hidden" class="form-control input-sm">
 				<div class="form-group">
 					<label>账号</label>
-					<input v-model="currentuser.name" type="text" class="form-control input-sm">
+					<!--<input v-model="currentuser.name" type="text" class="form-control input-sm">-->
+					<input :value="currentuser.name" @change="forchange('name', $event.target.value)" type="text" class="form-control input-sm">
 				</div>
 				<div class="form-group">
 					<label>Email</label>
-					<input v-model="currentuser.email" type="text" class="form-control input-sm">
+					<input :value="currentuser.email" @change="forchange('email', $event.target.value)" type="text" class="form-control input-sm">
 				</div>
 				<div class="form-group">
 					<label>Password</label>
-					<input v-model="currentuser.password" type="text" class="form-control input-sm">
+					<input :value="currentuser.password" @change="forchange('password', $event.target.value)" type="text" class="form-control input-sm">
 				</div>
 			</div>
 		</div>
@@ -239,6 +245,12 @@ var vm_user = new Vue({
 			email: '',
 			password: ''
 		},
+		up2dateuser: {
+			id: '',
+			name: '',
+			email: '',
+			password: ''
+		},
 		// currentuserpassword: '',
 		// 创建
 		open_createuser: false,
@@ -248,12 +260,27 @@ var vm_user = new Vue({
 		open_edituser: false,
 		edituser_name: '',
 		edituser_email: '',
+		// 回收站
+		// user_trash: false,
 		// 查询
 		open_queryuser: false,
 		query_date_start: null,
 		query_date_end: null
     },
 	methods: {
+		// 表单变化后的值
+		forchange: function (key, value) {
+			// alert(value);
+			var _this = this;
+			if (key == "name") {
+				_this.up2dateuser.name = value
+			} else if ((key == "email")) {
+				_this.up2dateuser.email = value
+			} else if ((key == "password")) {
+				_this.up2dateuser.password = value
+			}
+			// alert(_this.up2dateuser.id);
+		},
 		userlist: function(page, last_page){
 			var _this = this;
 			var url = "{{ route('admin.user.list') }}";
@@ -327,7 +354,9 @@ var vm_user = new Vue({
 			})
 		},
 		callback_createuser: function (msg) {
-			// this.$notify(`Modal dismissed with msg '${msg}'.`)
+			var _this = this;
+			// _this.$notify(`Modal dismissed with msg '${msg}'.`)
+			_this.createuser_name = _this.createuser_email = '';
 		},
 		createuser: function () {
 			var _this = this;
@@ -346,13 +375,13 @@ var vm_user = new Vue({
 					_this.$notify('User created successfully!');
 					_this.createuser_name = '';
 					_this.createuser_email = '';
-					_this.userlist(1, 1);
+					_this.userlist(_this.gets.current_page, _this.gets.last_page);
 				} else {
-					alert('failed');
+					_this.$notify('User created failed!');
 				}
 			})
 			.catch(function (error) {
-				alert('failed');
+				_this.$notify('Error! User created failed!');
 				// console.log(error);
 			})
 		},
@@ -361,9 +390,8 @@ var vm_user = new Vue({
 		},
 		edituser: function () {
 			var _this = this;
-			var user = _this.currentuser;
-			// console.log(user);
-			// alert(user);return false;
+			var user = _this.up2dateuser;
+			
 			if (user.length == 0) {return false;}
 			// user['password'] = _this.currentuserpassword;
 			if (user.name.trim().length == 0 || user.email.trim().length == 0) {
@@ -379,7 +407,8 @@ var vm_user = new Vue({
 				if (response.data) {
 					_this.open_edituser = false;
 					_this.$notify('User updated successfully!');
-					_this.currentuser.password = '';
+					// _this.currentuser.password = '';
+					_this.userlist(_this.gets.current_page, _this.gets.last_page);
 				} else {
 					_this.$notify('User updated failed!');
 				}
@@ -402,9 +431,10 @@ var vm_user = new Vue({
 			})
 			.then(function (response) {
 				if (response.data) {
-					_this.$notify('User deleted successfully!');
+					_this.$notify('User 禁用/启用 successfully!');
+					_this.userlist(_this.gets.current_page, _this.gets.last_page);
 				} else {
-					_this.$notify('User deleted failed!');
+					_this.$notify('User 禁用/启用 failed!');
 				}
 			})
 			.catch(function (error) {
@@ -412,25 +442,49 @@ var vm_user = new Vue({
 				// console.log(error);
 			})			
 		},
-		deleteuser: function (userid) {
+		deleteuser: function (userid, username) {
 			var _this = this;
 			if (userid == undefined || userid.length == 0) {return false;}
-			var url = "{{ route('admin.user.delete') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				userid: userid
+			
+			_this.$confirm({
+				okText: '删除',
+				okType: 'danger',
+				cancelText: '取消',
+				title: '危险',
+				content: '即将完全删除用户 [' + username + ']，确认吗？'
 			})
-			.then(function (response) {
-				if (response.data) {
-					_this.$notify('User deleted successfully!');
-				} else {
-					_this.$notify('User deleted failed!');
-				}
+			.then(function () {
+				// this.$notify({
+					// type: 'success',
+					// content: 'Delete completed.'
+				// })
+				
+				var url = "{{ route('admin.user.delete') }}";
+				axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+				axios.post(url, {
+					userid: userid
+				})
+				.then(function (response) {
+					if (response.data) {
+						_this.$notify('User deleted successfully!');
+						_this.userlist(_this.gets.current_page, _this.gets.last_page);
+					} else {
+						_this.$notify('User deleted failed!');
+					}
+				})
+				.catch(function (error) {
+					_this.$notify('Error! User deleted failed!');
+					// console.log(error);
+				})
+				
+				
 			})
-			.catch(function (error) {
-				_this.$notify('Error! User deleted failed!');
-				// console.log(error);
-			})			
+			.catch(function () {
+				// this.$notify('Delete canceled.')
+				return false;
+			})
+			
+		
 		}
 	},
 	mounted: function(){

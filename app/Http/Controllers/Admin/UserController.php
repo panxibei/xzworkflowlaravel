@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Models\User;
+use DB;
 
 class UserController extends Controller
 {
@@ -116,6 +117,33 @@ class UserController extends Controller
     }
 
     /**
+     * 禁用用户（软删除） ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function userTrash(Request $request)
+    {
+        //
+		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+
+		$userid = $request->only('userid');
+		
+		$usertrashed = User::select('deleted_at')
+			->where('id', $userid)
+			->first();
+
+		// 如果在回收站里，则恢复它
+		if ($usertrashed == null) {
+			$result = User::where('id', $userid)->restore();
+		} else {
+			$result = User::where('id', $userid)->delete();
+		}
+
+		return $result;
+    }
+
+    /**
      * 删除用户 ajax
      *
      * @param  int  $id
@@ -127,22 +155,27 @@ class UserController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
 		$userid = $request->only('userid');
-		dd($userid);
+		// dd($userid);
+
+
+		// 判断两个表（model_has_permissions和model_has_roles）中，
+		// 是否已有用户被分配了角色或权限
+		// 如果已经分配了，则不允许删除
+		$model_has_permissions = DB::table('model_has_permissions')
+			->where('model_id', $userid)
+			->first();
+		// dd($model_has_permissions);
+
+		$model_has_roles = DB::table('model_has_roles')
+			->where('model_id', $userid)
+			->first();
+		// dd($model_has_roles);
 		
-		$nowtime = date("Y-m-d H:i:s",time());
+		if ($model_has_permissions != null || $model_has_roles != null) {
+			return 0;
+		}
 		
-		$result = User::create([
-			'name'     => $newuser['name'],
-			'email'    => $newuser['email'],
-			'password' => bcrypt('12345678'),
-			'login_time' => time(),
-			'login_ip' => '127.0.0.1',
-			'login_counts' => 0,
-			'remember_token' => '',
-			'created_at' => $nowtime,
-			'updated_at' => $nowtime,
-			'deleted_at' => NULL
-		]);
+		$result = User::where('id', $userid)->forceDelete();
 
 		return $result;
     }

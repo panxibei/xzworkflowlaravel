@@ -182,8 +182,8 @@ class AdminController extends Controller
 		$page = $request->input('page');
 		if (null == $page) $page = 1;
 
-		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts')
-			// ->get()
+		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
+			->withTrashed()
 			->paginate($perPage, ['*'], 'page', $page);
 			
 		return $user;
