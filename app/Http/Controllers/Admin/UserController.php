@@ -102,6 +102,7 @@ class UserController extends Controller
 		$page = $request->input('page');
 		
 		$queryfilter_name = $request->input('queryfilter_name');
+		$queryfilter_email = $request->input('queryfilter_email');
 		$queryfilter_datefrom = $request->input('queryfilter_datefrom');
 		$queryfilter_dateto = $request->input('queryfilter_dateto');
 
@@ -113,6 +114,7 @@ class UserController extends Controller
 
 		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
 			->where('name', 'like', '%'.$queryfilter_name.'%')
+			->where('email', 'like', '%'.$queryfilter_email.'%')
 			// ->orWhere(function ($query) {
 				// $query->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto]);
 				// $query->whereBetween('login_time', ['2018-01-01', '2018-05-26']);

@@ -42,7 +42,13 @@
 												<label class="control-label">账号</label>
 												<input v-model.lazy="queryfilter_name" class="form-control input-sm" type="text" placeholder="账号">
 								<br><btn type="default" size="sm"  @click="queryfilter()">Query</btn>
-								&nbsp;<btn type="default" size="sm"  @click="queryfilter_name='';queryfilter_datefrom=null;queryfilter_dateto=null">Clear</btn>
+								&nbsp;<btn type="default" size="sm"  @click="queryfilter_name='';queryfilter_email='';queryfilter_datefrom=null;queryfilter_dateto=null">Clear</btn>
+											</div>
+										</div>
+										<div class="col-lg-3">
+											<div class="form-group">
+												<label class="control-label">Email</label>
+												<input v-model.lazy="queryfilter_email" class="form-control input-sm" type="text" placeholder="邮箱">
 											</div>
 										</div>
 										<div class="col-lg-3">
@@ -265,6 +271,7 @@ var vm_user = new Vue({
 		open_queryuser: false,
 		// 查询过滤器
 		queryfilter_name: '',
+		queryfilter_email: '',
 		queryfilter_datefrom: null,
 		queryfilter_dateto: null
     },
@@ -285,6 +292,7 @@ var vm_user = new Vue({
 		userlist: function(page, last_page){
 			var _this = this;
 			var queryfilter_name = _this.queryfilter_name;
+			var queryfilter_email = _this.queryfilter_email;
 			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
 			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
 
@@ -302,6 +310,7 @@ var vm_user = new Vue({
 					perPage: _this.perpage,
 					page: page,
 					queryfilter_name: queryfilter_name,
+					queryfilter_email: queryfilter_email,
 					queryfilter_datefrom: queryfilter_datefrom,
 					queryfilter_dateto: queryfilter_dateto
 				}
