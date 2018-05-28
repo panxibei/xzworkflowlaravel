@@ -149,8 +149,14 @@ class AdminController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
-		$up2data = $request->all();
-		$result = Config::where('cfg_name', $up2data['cfg_name'])->update(['cfg_value'=>$up2data['cfg_value']]);
+		// $up2data = $request->all();
+		$up2data = $request->only('cfg_data');
+		// dd($up2data['cfg_data']);
+		foreach ($up2data['cfg_data'] as $key => $value) {
+			// dd($key . '|' . $value);
+			// $result = Config::where('cfg_name', $up2data['cfg_name'])->update(['cfg_value'=>$up2data['cfg_value']]);
+			$result = Config::where('cfg_name', $key)->update(['cfg_value'=>$value]);
+		}
 		return $result;
     }
 

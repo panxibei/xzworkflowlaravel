@@ -5,11 +5,24 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Models\Config;
 use App\Models\User;
 use DB;
+use Maatwebsite\Excel\Facades\Excel;
+
+use App\Exports\userExport;
+
+// use Illuminate\Database\Eloquent\Collection;
+// use Illuminate\Support\Collection;
 
 class UserController extends Controller
 {
+
+	// public function __construct(\Maatwebsite\Excel\Exporter $excel)
+	// {
+		// $this->excel = $excel;
+	// }
+
     /**
      * Display a listing of the resource.
      *
@@ -261,6 +274,76 @@ class UserController extends Controller
 // dd($result);
 		return $result;
     }
-	
-	
+
+
+
+
+	// Excel 文件导出功能测试
+
+    public function excelExport()
+    {
+		
+		// if (! $request->ajax()) { return null; }
+		
+		// 获取扩展名配置值
+		$config = Config::select('cfg_name', 'cfg_value')
+			->pluck('cfg_value', 'cfg_name')->toArray();
+
+		$EXPORTS_EXTENSION_TYPE = $config['EXPORTS_EXTENSION_TYPE'];
+		$FILTERS_USER_NAME = $config['FILTERS_USER_NAME'];
+		$FILTERS_USER_EMAIL = $config['FILTERS_USER_EMAIL'];
+		$FILTERS_USER_LOGINTIME_DATEFROM = $config['FILTERS_USER_LOGINTIME_DATEFROM'];
+		$FILTERS_USER_LOGINTIME_DATETO = $config['FILTERS_USER_LOGINTIME_DATETO'];
+
+        // 获取用户信息
+		// Excel数据，最好转换成数组，以便传递过去
+		$queryfilter_name = $FILTERS_USER_NAME || '';
+		$queryfilter_email = $FILTERS_USER_EMAIL || '';
+
+		// $queryfilter_datefrom = $request->input('queryfilter_datefrom');
+		// $queryfilter_dateto = $request->input('queryfilter_dateto');
+		$queryfilter_datefrom = strtotime($FILTERS_USER_LOGINTIME_DATEFROM) ? $FILTERS_USER_LOGINTIME_DATEFROM : '1970-01-01';
+		$queryfilter_dateto = strtotime($FILTERS_USER_LOGINTIME_DATETO) ? $FILTERS_USER_LOGINTIME_DATETO : '9999-12-31';
+
+
+		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
+			->where('name', 'like', '%'.$queryfilter_name.'%')
+			->where('email', 'like', '%'.$queryfilter_email.'%')
+			->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto])
+			->withTrashed()
+			->get()->toArray();		
+		
+// dd($user);		
+		
+		
+		
+		
+		
+		
+
+
+        // $cellData = [
+            // ['学号','姓名','成绩'],
+            // ['10001','AAAAA','199'],
+            // ['10002','BBBBB','192'],
+            // ['10003','CCCCC','195'],
+            // ['10004','DDDDD','189'],
+            // ['10005','EEEEE','196'],
+        // ];
+
+		// Excel标题一行
+		$title[] = ['id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at'];
+
+		
+		// 合并Excel的标题和数据为一个整体
+		$data = array_merge($title, $user);
+// dd($data);
+		// dd(Excel::download($user, '学生成绩', 'Xlsx'));
+		// dd(Excel::download($user, '学生成绩.xlsx'));
+		return Excel::download(new userExport($data), '学生成绩.'.$EXPORTS_EXTENSION_TYPE);
+		
+		
+    }
+
+
 }

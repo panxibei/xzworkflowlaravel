@@ -81,6 +81,56 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            6 => 
+            array (
+                'cfg_id' => 7,
+                'cfg_name' => 'EXPORTS_EXTENSION_TYPE',
+                'cfg_value' => 'xlsx',
+				'cfg_description' => '导出文件扩展名（xlsx、xls、csv、html等）',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            7 => 
+            array (
+                'cfg_id' => 8,
+                'cfg_name' => 'FILTERS_USER_NAME',
+                'cfg_value' => '',
+				'cfg_description' => '过滤器，用户名称',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            8 => 
+            array (
+                'cfg_id' => 9,
+                'cfg_name' => 'FILTERS_USER_EMAIL',
+                'cfg_value' => '',
+				'cfg_description' => '过滤器，邮箱',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            9 => 
+            array (
+                'cfg_id' => 10,
+                'cfg_name' => 'FILTERS_USER_LOGINTIME_DATEFROM',
+                'cfg_value' => '',
+				'cfg_description' => '过滤器，登录开始时间',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            10 => 
+            array (
+                'cfg_id' => 11,
+                'cfg_name' => 'FILTERS_USER_LOGINTIME_DATETO',
+                'cfg_value' => '',
+				'cfg_description' => '过滤器，登录结束时间',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }

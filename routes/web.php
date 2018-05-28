@@ -61,6 +61,9 @@ Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 	// 编辑user
 	Route::post('userEdit', 'UserController@userEdit')->name('admin.user.edit');
 
+	// 测试excelExport
+	Route::get('excelExport', 'UserController@excelExport')->name('admin.user.excelexport');
+
 });
 
 // RoleController路由

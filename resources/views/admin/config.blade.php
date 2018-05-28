@@ -73,12 +73,14 @@ var vm_config = new Vue({
 			var _this = this;
 			var cfg_name = event.target.id;
 			var cfg_value = event.target.value;
+
+			var cfg_data = {};
+			cfg_data[cfg_name] = cfg_value;
 			
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
-					cfg_name: cfg_name,
-					cfg_value: cfg_value
+					cfg_data: cfg_data
 				})
 				.then(function (response) {
 					if (response.data) {
