@@ -25,8 +25,6 @@ Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
 Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
 	// 显示config页面
 	Route::get('configIndex', 'AdminController@configIndex')->name('admin.config.index');
-	// 显示user页面
-	Route::get('userIndex', 'AdminController@userIndex')->name('admin.user.index');
 
 	// 获取config数据信息
 	Route::get('configList', 'AdminController@configList')->name('admin.config.list');
@@ -45,6 +43,9 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 // UserController路由
 Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+
+	// 显示user页面
+	Route::get('userIndex', 'UserController@userIndex')->name('admin.user.index');
 
 	// 获取user数据信息
 	Route::get('userList', 'UserController@userList')->name('admin.user.list');

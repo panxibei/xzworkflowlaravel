@@ -86,7 +86,7 @@ class ConfigsTableSeeder extends Seeder
                 'cfg_id' => 7,
                 'cfg_name' => 'EXPORTS_EXTENSION_TYPE',
                 'cfg_value' => 'xlsx',
-				'cfg_description' => '导出文件扩展名（xlsx、xls、csv、html等）',
+				'cfg_description' => '导出文件扩展名（xlsx、xls、csv）',
                 'created_at' => $nowtime,
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,

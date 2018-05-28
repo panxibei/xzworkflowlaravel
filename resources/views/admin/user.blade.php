@@ -40,15 +40,15 @@
 										<div class="col-lg-3">
 											<div class="form-group">
 												<label class="control-label">账号</label>
-												<input v-model.lazy="queryfilter_name" @change="changeconfig('FILTERS_USER_NAME', queryfilter_name)" class="form-control input-sm" type="text" placeholder="账号">
+												<input v-model.lazy="queryfilter_name" class="form-control input-sm" type="text" placeholder="账号">
 								<br><btn type="default" size="sm"  @click="queryfilter()">Query</btn>
-								&nbsp;<btn type="default" size="sm"  @click="queryfilter_name='';queryfilter_email='';queryfilter_datefrom=null;queryfilter_dateto=null">Clear</btn>
+								&nbsp;<btn type="default" size="sm"  @click="queryfilter_name=queryfilter_email='';queryfilter_datefrom=queryfilter_dateto=null;queryfilter()">Clear</btn>
 											</div>
 										</div>
 										<div class="col-lg-3">
 											<div class="form-group">
 												<label class="control-label">Email</label>
-												<input v-model.lazy="queryfilter_email" @change="changeconfig('FILTERS_USER_EMAIL', queryfilter_email)" class="form-control input-sm" type="text" placeholder="邮箱">
+												<input v-model.lazy="queryfilter_email" class="form-control input-sm" type="text" placeholder="邮箱">
 											</div>
 										</div>
 										<div class="col-lg-3">
@@ -56,7 +56,7 @@
 												<label class="control-label">最近登录时间（始）</label>
 												<dropdown class="form-group">
 													<div class="input-group">
-														<input class="form-control" type="text" v-model.lazy="queryfilter_datefrom" @change="changeconfig('FILTERS_USER_LOGINTIME_DATEFROM', queryfilter_datefrom)" placeholder="开始时间">
+														<input class="form-control" type="text" v-model.lazy="queryfilter_datefrom" placeholder="开始时间">
 														<div class="input-group-btn">
 															<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
 														</div>
@@ -73,7 +73,7 @@
 											<label class="control-label">最近登录时间（终）</label>
 											<dropdown class="form-group">
 												<div class="input-group">
-													<input class="form-control" type="text" v-model.lazy="queryfilter_dateto" @change="changeconfig('FILTERS_USER_LOGINTIME_DATETO', queryfilter_dateto)" placeholder="结束时间">
+													<input class="form-control" type="text" v-model.lazy="queryfilter_dateto" placeholder="结束时间">
 													<div class="input-group-btn">
 														<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
 													</div>
@@ -154,7 +154,7 @@
 												</div>
 
 											<div class="btn-group">
-											<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ gets.per_page }}条<span class="caret"></span></button>
+											<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
 											<ul class="dropdown-menu">
 											<li><a @click="configperpageforuser(2)" href="javascript:;"><small>2条记录</small></a></li>
 											<li><a @click="configperpageforuser(5)" href="javascript:;"><small>5条记录</small></a></li>
@@ -270,10 +270,10 @@ var vm_user = new Vue({
 		// 查询
 		open_queryuser: false,
 		// 查询过滤器
-		queryfilter_name: '',
-		queryfilter_email: '',
-		queryfilter_datefrom: null,
-		queryfilter_dateto: null
+		queryfilter_name: "{{ $FILTERS_USER_NAME }}",
+		queryfilter_email: "{{ $FILTERS_USER_EMAIL }}",
+		queryfilter_datefrom: "{{ $FILTERS_USER_LOGINTIME_DATEFROM }}" || null,
+		queryfilter_dateto: "{{ $FILTERS_USER_LOGINTIME_DATETO }}" || null
     },
 	methods: {
 		// 表单变化后的值
@@ -347,24 +347,13 @@ var vm_user = new Vue({
 		},
 		configperpageforuser: function (value) {
 			var _this = this;
-			var url = "{{ route('admin.config.change') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				cfg_name: 'PERPAGE_RECORDS_FOR_USER',
-				cfg_value: value
-			})
-			.then(function (response) {
-				if (response.data) {
-					_this.perpage = value;
-					_this.userlist(1, 1);
-				} else {
-					alert('failed');
-				}
-			})
-			.catch(function (error) {
-				alert('failed');
-				// console.log(error);
-			})
+			
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_USER'] = _this.perpage = value;
+
+			_this.changeconfig(cfg_data);			
+
+			_this.userlist(1, 1);
 		},
 		callback_createuser: function (msg) {
 			var _this = this;
@@ -513,72 +502,50 @@ var vm_user = new Vue({
 		},
 		queryfilter: function () {
 			var _this = this;
+			// var queryfilter_name = _this.queryfilter_name;
+			// var queryfilter_email = _this.queryfilter_email;
 			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
 			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
 			if (queryfilter_datefrom > queryfilter_dateto) {
 				_this.$notify('Date is incorrect!');
 				return false;
 			}
-			
-			// _this.changeconfig('FILTERS_USER_LOGINTIME_DATEFROM', queryfilter_datefrom);
-			// _this.changeconfig('FILTERS_USER_LOGINTIME_DATEFROM', queryfilter_datefrom);
-			// _this.changeconfig('FILTERS_USER_LOGINTIME_DATEFROM', queryfilter_datefrom);
-			// _this.changeconfig('FILTERS_USER_LOGINTIME_DATETO', queryfilter_dateto);
-			
 
+			var cfg_data = {};
+			cfg_data['FILTERS_USER_NAME'] = _this.queryfilter_name;
+			cfg_data['FILTERS_USER_EMAIL'] = _this.queryfilter_email;
+			cfg_data['FILTERS_USER_LOGINTIME_DATEFROM'] = _this.queryfilter_datefrom;
+			cfg_data['FILTERS_USER_LOGINTIME_DATETO'] = _this.queryfilter_dateto;
+
+			_this.changeconfig(cfg_data);
+			
 			_this.userlist(1, 1);
 		},
 		userexport: function(){
-			var _this = this;
-			var queryfilter_name = _this.queryfilter_name;
-			var queryfilter_email = _this.queryfilter_email;
-			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
-			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
+			// var _this = this;
+			// var queryfilter_name = _this.queryfilter_name;
+			// var queryfilter_email = _this.queryfilter_email;
+			// var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
+			// var queryfilter_dateto = new Date(_this.queryfilter_dateto);
 			
-			if (queryfilter_datefrom > queryfilter_dateto) {
-				_this.$notify('Date is incorrect!');
-				return false;
-			}
+			// if (queryfilter_datefrom > queryfilter_dateto) {
+				// _this.$notify('Date is incorrect!');
+				// return false;
+			// }
 
 			var url = "{{ route('admin.user.excelexport') }}";
 			
-			// window.setTimeout(function(){
+			window.setTimeout(function(){
 				window.location.href = url;
-			// },1000);
+			},1000);
 			return false;
-			
-			// axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url,{
-				params: {
-					queryfilter_name: queryfilter_name,
-					queryfilter_email: queryfilter_email,
-					queryfilter_datefrom: queryfilter_datefrom,
-					queryfilter_dateto: queryfilter_dateto
-				}
-			})
-			.then(function (response) {
-				// console.log(response);
-				// alert(response.data);
-				if (typeof(response.data.data) == "undefined") {
-					// alert('toekn失效，跳转至登录页面');
-					// _this.alert_exit();
-				}
-				// return false;
-				// _this.gets = response.data;
-				// alert(_this.gets);
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
+
 		},
-		changeconfig: function (key, value) {
-			// alert(key);
-			// alert(value);return false;
+		changeconfig: function (cfg_data) {
 			var _this = this;
 
-			var cfg_data = {};
-			cfg_data[key] = value;
+			// var cfg_data = {};
+			// cfg_data[key] = value;
 
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';

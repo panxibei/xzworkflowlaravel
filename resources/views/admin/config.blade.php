@@ -26,14 +26,15 @@
 					<div class="row">
 					<span v-for="(val, index) in gets">
 
-						<div class="col-lg-3">
+						<div class="col-lg-4">
 							<div class="form-group">
 								<label>@{{ val.cfg_name }}</label>
 								<!--<input v-model="val.cfg_value" class="form-control" placeholder="暂无配置值" >-->
-								<input v-bind:id="val.cfg_name" v-bind:value="val.cfg_value" v-on:change="configchange" class="form-control" placeholder="暂无配置值" >
+								<input :id="val.cfg_name" :value="val.cfg_value" v-on:change="configchange" class="form-control" placeholder="暂无配置值" >
 								<p class="help-block">&nbsp;@{{ val.cfg_description }}</p>
 							</div>
 						</div>
+
 					</span>
 					</div>
 					<button type="submit" class="btn btn-default">Submit</button>

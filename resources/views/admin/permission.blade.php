@@ -626,12 +626,12 @@ var vm_role = new Vue({
 		},
 		configperpageforpermission: function (value) {
 			var _this = this;
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_PERMISSION'] = value;
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
-				// cfg_id: event.target.id,
-				cfg_name: 'PERPAGE_RECORDS_FOR_PERMISSION',
-				cfg_value: value
+				cfg_data: cfg_data
 			})
 			.then(function (response) {
 				if (response.data) {

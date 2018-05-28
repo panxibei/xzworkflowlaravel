@@ -632,11 +632,12 @@ var vm_role = new Vue({
 		},
 		configperpageforrole: function (value) {
 			var _this = this;
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_ROLE'] = value;
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
-				cfg_name: 'PERPAGE_RECORDS_FOR_ROLE',
-				cfg_value: value
+				cfg_data: cfg_data
 			})
 			.then(function (response) {
 				if (response.data) {

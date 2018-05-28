@@ -99,6 +99,19 @@ class UserController extends Controller
         //
     }
 
+    /**
+     * 列出用户页面
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function userIndex()
+    {
+        // 获取配置值
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+        return view('admin.user', $config);
+    }
+	
 
     /**
      * 列出用户页面 ajax
@@ -278,8 +291,7 @@ class UserController extends Controller
 
 
 
-	// Excel 文件导出功能测试
-
+	// 用户列表Excel文件导出
     public function excelExport()
     {
 		
@@ -300,8 +312,6 @@ class UserController extends Controller
 		$queryfilter_name = $FILTERS_USER_NAME || '';
 		$queryfilter_email = $FILTERS_USER_EMAIL || '';
 
-		// $queryfilter_datefrom = $request->input('queryfilter_datefrom');
-		// $queryfilter_dateto = $request->input('queryfilter_dateto');
 		$queryfilter_datefrom = strtotime($FILTERS_USER_LOGINTIME_DATEFROM) ? $FILTERS_USER_LOGINTIME_DATEFROM : '1970-01-01';
 		$queryfilter_dateto = strtotime($FILTERS_USER_LOGINTIME_DATETO) ? $FILTERS_USER_LOGINTIME_DATETO : '9999-12-31';
 
@@ -313,16 +323,10 @@ class UserController extends Controller
 			->withTrashed()
 			->get()->toArray();		
 		
-// dd($user);		
-		
-		
-		
-		
-		
-		
 
 
-        // $cellData = [
+        // 示例数据，不能直接使用，只能把数组变成Exports类导出后才有数据
+		// $cellData = [
             // ['学号','姓名','成绩'],
             // ['10001','AAAAA','199'],
             // ['10002','BBBBB','192'],
@@ -331,17 +335,15 @@ class UserController extends Controller
             // ['10005','EEEEE','196'],
         // ];
 
-		// Excel标题一行
+		// Excel标题第一行，可修改为任意名字，包括中文
 		$title[] = ['id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at'];
 
-		
 		// 合并Excel的标题和数据为一个整体
 		$data = array_merge($title, $user);
-// dd($data);
+
 		// dd(Excel::download($user, '学生成绩', 'Xlsx'));
 		// dd(Excel::download($user, '学生成绩.xlsx'));
-		return Excel::download(new userExport($data), '学生成绩.'.$EXPORTS_EXTENSION_TYPE);
-		
+		return Excel::download(new userExport($data), 'users'.date('YmdHis',time()).'.'.$EXPORTS_EXTENSION_TYPE);
 		
     }
 

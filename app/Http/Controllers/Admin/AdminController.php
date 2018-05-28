@@ -160,18 +160,6 @@ class AdminController extends Controller
 		return $result;
     }
 
-    /**
-     * 列出用户页面
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function userIndex()
-    {
-        // 获取配置值
-		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-        return view('admin.user', $config);
-    }
 
 	
 
