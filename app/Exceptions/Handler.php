@@ -46,6 +46,16 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+		
+	if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
+
+		// laravel-permission异常处理
+		// return '没有权限！';
+		// dd('没有权限！');
+		dd($exception->getMessage());
+		
+	}
+
         return parent::render($request, $exception);
     }
 }
