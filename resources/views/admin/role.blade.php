@@ -127,6 +127,18 @@
 									<button @click="syncpermissiontorole" type="button" class="btn btn-primary btn-sm" >同步权限到角色</button>
 								</div>
 							</div>
+							<div class="col-lg-3">
+@hasallroles('role_role_page|role_permission_page')
+    我拥有访问role页面权限!
+@else
+	我没有访问role页面权限...
+@endrole
+<br>
+@can('permission_config_page')
+  我有permission_role_page权限
+@endcan
+
+							</div>
 						</div>
 						
 						<!--角色操作2-->

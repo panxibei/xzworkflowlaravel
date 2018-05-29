@@ -42,7 +42,7 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 });
 
 // UserController路由
-Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
 
 	// 显示user页面
 	Route::get('userIndex', 'UserController@userIndex')->name('admin.user.index');
@@ -68,7 +68,7 @@ Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 });
 
 // RoleController路由
-Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_role']], function() {
 
 	// 显示role页面
 	Route::get('roleIndex', 'RoleController@roleIndex')->name('admin.role.index');
@@ -113,7 +113,7 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], 
 });
 
 // PermissionController路由
-Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
+Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_permission']], function() {
 
 	// 显示permission页面
 	Route::get('permissionIndex', 'PermissionController@permissionIndex')->name('admin.permission.index');

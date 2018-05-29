@@ -25,7 +25,7 @@ class UsersTableSeeder extends Seeder
                 'id' => 1,
                 'name' => 'admin',
                 'email' => 'admin@xz.com',
-                'password' => '123',
+                'password' => '$2y$10$LZyZUTTyHugBeHGiSCumi.KKb4doF5eQYoKqIBYR03J84LLcEVVZW',
                 'login_time' => $nowtime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
