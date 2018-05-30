@@ -50,12 +50,13 @@ class Handler extends ExceptionHandler
 		// laravel-permission异常处理
 		if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
 
-			if (view()->exists('errors.' . $code)) {
+			if (view()->exists('errors.' . $exception->getStatusCode())) {
 
 				// return '没有权限！';
 				// dd('没有权限！');
-				dd($exception->getMessage());
-				// return response()->view('error.'.$exception->getStatusCode(), [],$exception->getStatusCode());
+				// dd($exception->getMessage());
+				// return response()->view('errors.'.$exception->getStatusCode(), [],$exception->getStatusCode());
+				return response()->view('errors.' . $exception->getStatusCode());
 			
 			}
 		}
@@ -66,7 +67,8 @@ class Handler extends ExceptionHandler
 
 			if (view()->exists('errors.' . $code)) {
 				$message  = $exception->getMessage();
-				return response()->view('errors.' . $code, ['message'=>$message], $code);
+				// return response()->view('errors.' . $code, ['message'=>$message], $code);
+				return response()->view('errors.' . $code);
 			}
 		}
 

@@ -25,162 +25,169 @@
 				<div class="panel-body">
 					<div class="row">
 
-						<!--角色列表-->
-						<div class="col-lg-12">
-							<br><div style="background-color:#c9e2b3;height:1px"></div>
-							<div class="table-responsive">
-								<table class="table table-condensed">
-									<thead>
-										<tr>
-											<th>id</th>
-											<th>name</th>
-											<th>guard_name</th>
-											<th>created_at</th>
-											<th>updated_at</th>
-											<th>操作（保留）</th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr v-for="val in gets.data">
-											<td><div>@{{ val.id }}</div></td>
-											<td><div>@{{ val.name }}</div></td>
-											<td><div>@{{ val.guard_name }}</div></td>
-											<td><div>@{{ val.created_at || '未知' }}</div></td>
-											<td><div>@{{ val.updated_at || '未知'}}</div></td>
-											<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
-											&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
-										</tr>
-									</tbody>
-								</table>
+					<div class="panel-body">
+						<tabs>
+							<tab title="UserList">
+								<!--角色列表-->
+								<div class="col-lg-12">
+									<br>
+									<div class="table-responsive">
+										<table class="table table-condensed">
+											<thead>
+												<tr>
+													<th>id</th>
+													<th>name</th>
+													<th>guard_name</th>
+													<th>created_at</th>
+													<th>updated_at</th>
+													<th>操作（保留）</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr v-for="val in gets.data">
+													<td><div>@{{ val.id }}</div></td>
+													<td><div>@{{ val.name }}</div></td>
+													<td><div>@{{ val.guard_name }}</div></td>
+													<td><div>@{{ val.created_at || '未知' }}</div></td>
+													<td><div>@{{ val.updated_at || '未知'}}</div></td>
+													<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
+													&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
+												</tr>
+											</tbody>
+										</table>
 
-								<div class="dropup">
-									<tr>
-										<td colspan="9">
-											<div>
-												<nav>
-													<ul class="pagination pagination-sm">
-														<li><a aria-label="Previous" @click="permissiongets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+										<div class="dropup">
+											<tr>
+												<td colspan="9">
+													<div>
+														<nav>
+															<ul class="pagination pagination-sm">
+																<li><a aria-label="Previous" @click="permissiongets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
 
-														<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-															<a v-if="n==1" @click="permissiongets(1, gets.last_page)" href="javascript:;">1</a>
-															<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="permissiongets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
-															<a v-else-if="n==2||n==gets.last_page">...</a>
-														</li>&nbsp;
+																<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
+																	<a v-if="n==1" @click="permissiongets(1, gets.last_page)" href="javascript:;">1</a>
+																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="permissiongets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
+																	<a v-else-if="n==2||n==gets.last_page">...</a>
+																</li>&nbsp;
 
-														<li><a aria-label="Next" @click="permissiongets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-														<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+																<li><a aria-label="Next" @click="permissiongets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
+																<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
 
-															<div class="col-xs-2">
-															<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="permissiongets($event.target.value, gets.last_page)">
-															</div>
+																	<div class="col-xs-2">
+																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="permissiongets($event.target.value, gets.last_page)">
+																	</div>
 
-														<div class="btn-group">
-														<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
-														<ul class="dropdown-menu">
-														<li><a @click="configperpageforpermission(2)" href="javascript:;"><small>2条记录</small></a></li>
-														<li><a @click="configperpageforpermission(5)" href="javascript:;"><small>5条记录</small></a></li>
-														<li><a @click="configperpageforpermission(10)" href="javascript:;"><small>10条记录</small></a></li>
-														<li><a @click="configperpageforpermission(20)" href="javascript:;"><small>20条记录</small></a></li>
-														</ul>
-														</div>
-													</ul>
-												</nav>
-											</div>
-										</td>
-									</tr>
+																<div class="btn-group">
+																<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
+																<ul class="dropdown-menu">
+																<li><a @click="configperpageforpermission(2)" href="javascript:;"><small>2条记录</small></a></li>
+																<li><a @click="configperpageforpermission(5)" href="javascript:;"><small>5条记录</small></a></li>
+																<li><a @click="configperpageforpermission(10)" href="javascript:;"><small>10条记录</small></a></li>
+																<li><a @click="configperpageforpermission(20)" href="javascript:;"><small>20条记录</small></a></li>
+																</ul>
+																</div>
+															</ul>
+														</nav>
+													</div>
+												</td>
+											</tr>
+										</div>
+
+									</div>
+								</div>
+							</tab>
+							<tab title="General">
+								<!--权限操作1-->
+								<div class="col-lg-12">
+									<br>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Create permission</label><br>
+											<input class="form-control input-sm" type="text" ref="permissioncreateinput" placeholder="权限名称" />
+										</div>
+										<div class="form-group">
+											<button @click="permissioncreate" type="button" class="btn btn-primary btn-sm">新建权限</button>
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Select permission(s) to delete</label><br>
+											<multi-select v-model="selected_selectpermissiontodelete" :options="options_selectpermissiontodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的权限名称..." />
+										</div>
+										<div class="form-group">
+											<button @click="permissiondelete" type="button" class="btn btn-danger btn-sm" >删除权限</button>
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Sync perimssion(s) to a role</label><br>
+											权限： <multi-select v-model="selected_syncpermission" :options="options_syncpermission" :limit="1" filterable collapse-selected size="sm" placeholder="请选择权限..." />
+										</div>
+										<div class="form-group">
+											角色： <multi-select v-model="selected_syncrole" :options="options_syncrole" filterable collapse-selected size="sm" placeholder="请选择角色..." />
+										</div>
+										<div class="form-group">
+											<button @click="syncroletopermission" type="button" class="btn btn-primary btn-sm" >同步角色至权限</button>
+										</div>
+									</div>
+								</div>
+							</tab>
+							<tab title="Advance">
+								<!--角色操作2-->
+								<div class="col-lg-12">
+									<br>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Select Role</label><br>
+											<multi-select v-model="selected_selectedrole" :options="options_selectedrole" :limit="1" @change="changerole" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
+										</div>
+										<div class="form-group">
+											<label>Select permission(s) to add</label><br>
+											<multi-select v-model="selected_currentrolenothaspermissions" :options="options_currentrolenothaspermissions" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
+										</div>
+										<div class="form-group">
+											<button @click="permissiongive" type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
+										</div>
+										<div class="form-group">
+											<label>Select permission(s) to remove</label><br>
+											<multi-select v-model="selected_currentrolepermissions" :options="options_currentrolepermissions" filterable collapse-selected size="sm" placeholder="请选择要移除的权限名称..." />
+										</div>
+										<div class="form-group">
+											<button @click="permissionremove" type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Current role's permission(s)</label><br>
+											<select v-model="selected_currentrolepermissions" class="form-control" size="16">
+												<option v-for="option in options_currentrolepermissions" v-bind:value="option.value">
+													@{{ option.label }}
+												</option>
+											</select>
+										</div>
+									</div>
+									<div class="col-lg-1">
+									</div>
+									<div class="col-lg-4">
+										<div class="form-group">
+											<label>Select permission to view roles</label><br>
+											<multi-select v-model="selected_permissiontoviewrole" :options="options_permissiontoviewrole" :limit="1" @change="changepermissiontoviewrole" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
+										</div>
+										<div class="form-group">
+											<label>Role(s) using current permission</label><br>
+											<select v-model="selected_permissiontoviewroleresult" class="form-control" size="11">
+												<option v-for="option in options_permissiontoviewroleresult" v-bind:value="option.value">
+													@{{ option.label }}
+												</option>
+											</select>
+										</div>
+									</div>
 								</div>
 
-							</div>
-						</div>
-				
-				
-						<!--权限操作1-->
-						<div class="col-lg-12">
-							<br><div style="background-color:#c9e2b3;height:1px"></div><br>
-							<div class="col-lg-3">
-								<div class="form-group">
-									<label>Create permission</label><br>
-									<input class="form-control input-sm" type="text" ref="permissioncreateinput" placeholder="权限名称" />
-								</div>
-								<div class="form-group">
-									<button @click="permissioncreate" type="button" class="btn btn-primary btn-sm">新建权限</button>
-								</div>
-							</div>
-							<div class="col-lg-3">
-								<div class="form-group">
-									<label>Select permission(s) to delete</label><br>
-									<multi-select v-model="selected_selectpermissiontodelete" :options="options_selectpermissiontodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的权限名称..." />
-								</div>
-								<div class="form-group">
-									<button @click="permissiondelete" type="button" class="btn btn-danger btn-sm" >删除权限</button>
-								</div>
-							</div>
-							<div class="col-lg-3">
-								<div class="form-group">
-									<label>Sync perimssion(s) to a role</label><br>
-									权限： <multi-select v-model="selected_syncpermission" :options="options_syncpermission" :limit="1" filterable collapse-selected size="sm" placeholder="请选择权限..." />
-								</div>
-								<div class="form-group">
-									角色： <multi-select v-model="selected_syncrole" :options="options_syncrole" filterable collapse-selected size="sm" placeholder="请选择角色..." />
-								</div>
-								<div class="form-group">
-									<button @click="syncroletopermission" type="button" class="btn btn-primary btn-sm" >同步角色至权限</button>
-								</div>
-							</div>
-						</div>
-						
-						<!--角色操作2-->
-						<div class="col-lg-12">
-							<div style="background-color:#c9e2b3;height:1px"></div><br>
-							
-							<div class="col-lg-3">
-								<div class="form-group">
-									<label>Select Role</label><br>
-									<multi-select v-model="selected_selectedrole" :options="options_selectedrole" :limit="1" @change="changerole" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
-								</div>
-								<div class="form-group">
-									<label>Select permission(s) to add</label><br>
-									<multi-select v-model="selected_currentrolenothaspermissions" :options="options_currentrolenothaspermissions" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
-								</div>
-								<div class="form-group">
-									<button @click="permissiongive" type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
-								</div>
-								<div class="form-group">
-									<label>Select permission(s) to remove</label><br>
-									<multi-select v-model="selected_currentrolepermissions" :options="options_currentrolepermissions" filterable collapse-selected size="sm" placeholder="请选择要移除的权限名称..." />
-								</div>
-								<div class="form-group">
-									<button @click="permissionremove" type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
-								</div>
-							</div>
-							<div class="col-lg-3">
-								<div class="form-group">
-									<label>Current role's permission(s)</label><br>
-									<select v-model="selected_currentrolepermissions" class="form-control" size="16">
-										<option v-for="option in options_currentrolepermissions" v-bind:value="option.value">
-											@{{ option.label }}
-										</option>
-									</select>
-								</div>
-							</div>
-							<div class="col-lg-1">
-							</div>
-							<div class="col-lg-4">
-								<div class="form-group">
-									<label>Select permission to view roles</label><br>
-									<multi-select v-model="selected_permissiontoviewrole" :options="options_permissiontoviewrole" :limit="1" @change="changepermissiontoviewrole" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
-								</div>
-								<div class="form-group">
-									<label>Role(s) using current permission</label><br>
-									<select v-model="selected_permissiontoviewroleresult" class="form-control" size="11">
-										<option v-for="option in options_permissiontoviewroleresult" v-bind:value="option.value">
-											@{{ option.label }}
-										</option>
-									</select>
-								</div>
-							</div>
-						</div>						
-						
+							</tab>
+						</tabs>
+					</div>
+
 					</div>
 				</div>
 			</div>
