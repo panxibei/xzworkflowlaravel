@@ -1,6 +1,10 @@
 @extends('admin.layouts.adminbase')
 
-@section('my_title', "Admin(Permission) - $SITE_TITLE  Ver: $SITE_VERSION")
+@section('my_title')
+Admin(Permission) - 
+@parent
+@endsection
+
 
 @section('my_js')
 <script type="text/javascript">
@@ -200,14 +204,14 @@
 @section('my_footer')
 @parent
 <script>
-var vm_role = new Vue({
+var vm_permission = new Vue({
     el: '#permission_list',
     data: {
 		notification_type: '',
 		notification_title: '',
 		notification_content: '',
 		gets: {},
-		perpage: {{ $PERPAGE_RECORDS_FOR_PERMISSION }},
+		perpage: {{ $config['PERPAGE_RECORDS_FOR_PERMISSION'] }},
 		// 选择角色
 		selected_selectedrole: [],
         options_selectedrole: [],

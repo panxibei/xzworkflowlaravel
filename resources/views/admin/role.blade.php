@@ -1,6 +1,9 @@
 @extends('admin.layouts.adminbase')
 
-@section('my_title', "Admin(Role) - $SITE_TITLE  Ver: $SITE_VERSION")
+@section('my_title')
+Admin(Role) - 
+@parent
+@endsection
 
 @section('my_js')
 <script type="text/javascript">
@@ -223,7 +226,7 @@ var vm_role = new Vue({
 		notification_title: '',
 		notification_content: '',
 		gets: {},
-		perpage: {{ $PERPAGE_RECORDS_FOR_ROLE }},
+		perpage: {{ $config['PERPAGE_RECORDS_FOR_ROLE'] }},
 		// 选择用户
 		selected_selecteduser: [],
         options_selecteduser: [],

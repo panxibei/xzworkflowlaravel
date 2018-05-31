@@ -1,6 +1,9 @@
 @extends('admin.layouts.adminbase')
 
-@section('my_title', "Admin(Config) - $SITE_TITLE  Ver: $SITE_VERSION")
+@section('my_title')
+Admin(Config) - 
+@parent
+@endsection
 
 @section('my_js')
 <script type="text/javascript">

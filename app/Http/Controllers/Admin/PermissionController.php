@@ -98,9 +98,19 @@ class PermissionController extends Controller
      */
     public function permissionIndex()
     {
+		// 获取JSON格式的jwt-auth用户响应
+		$me = response()->json(auth()->user());
+
+		// 获取JSON格式的jwt-auth用户信息（$me->getContent()），就是$me的data部分
+		$user = json_decode($me->getContent(), true);
+		// 用户信息：$user['id']、$user['name'] 等
+
         // 获取配置值
 		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-        return view('admin.permission', $config);
+        // return view('admin.permission', $config);
+		
+		$share = compact('config', 'user');
+        return view('admin.permission', $share);
     }
 
     /**

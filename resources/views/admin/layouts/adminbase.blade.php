@@ -6,7 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>@yield('my_title')</title>
+<title>@section('my_title')
+{{$config['SITE_TITLE']}}  Ver: {{$config['SITE_VERSION']}}
+@show
+</title>
 <link rel="stylesheet" href="{{ asset('statics/bootstrap/css/bootstrap.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/daterangepicker/daterangepicker.css') }}">
 <!--<link rel="stylesheet" href="{{ asset('css/bootstrap-dialog.min.css') }}">-->
@@ -44,7 +47,7 @@
 		<span class="icon-bar"></span>
 		<span class="icon-bar"></span>
 	</button>
-	<a class="navbar-brand" href="{:U('Admin/Index/index')}">{{$SITE_TITLE}} 后台管理</a>
+	<a class="navbar-brand" href="{:U('Admin/Index/index')}">{{$config['SITE_TITLE']}} 后台管理</a>
 </div>
 <!-- /.navbar-header -->
 
@@ -246,7 +249,7 @@
 		<ul class="dropdown-menu dropdown-user">
 			<li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
 			</li>
-			<li><a href="#"><i class="fa fa-user fa-fw"></i> {$Think.session.account}</a>
+			<li><a href="#"><i class="fa fa-user fa-fw"></i> {{ $user['name'] or 'Unknown User'}}</a>
 			</li>
 			<li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
 			</li>
@@ -298,7 +301,7 @@
 				<a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
 			</li>
 			<li>
-				<a href="{{ route('admin.config.index') }}"><i class="fa fa-table fa-fw"></i> 系统配置</a>
+				<a href="{{ route('admin.config.index') }}"><i class="fa fa-gear fa-fw"></i> 系统配置</a>
 			</li>
 			<li>
 				<a href="#"><i class="fa fa-dropbox fa-fw"></i> 元素管理<span class="fa arrow"></span></a>
@@ -402,7 +405,7 @@
 <!-- 底部 -->
 @section('my_footer')
 <div class="text-center">
-	<a href="{:U('Home/Index/index')}">{{$SITE_TITLE}}</a>&nbsp;|&nbsp;{{$SITE_COPYRIGHT}}
+	<a href="{:U('Home/Index/index')}">{{$config['SITE_TITLE']}}</a>&nbsp;|&nbsp;{{$config['SITE_COPYRIGHT']}}
 </div>
 <br>
 <script src="{{ asset('js/vue.min.js') }}"></script>
