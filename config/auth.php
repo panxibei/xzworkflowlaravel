@@ -82,6 +82,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
+            // 'driver' => env('ADLDAP_USE_ADLDAP', 'eloquent'),
             // 'model' => App\User::class,
             'model' => App\Models\User::class,
         ],

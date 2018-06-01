@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Models\Config;
+use App\Models\User;
 use Cookie;
 use Validator;
+use Adldap\Laravel\Facades\Adldap;
 
 class LoginController extends Controller
 {
@@ -27,7 +29,7 @@ class LoginController extends Controller
     {
 		if ($request->isMethod('post')) {
 
-			// 判断验证码
+			// 1.判断验证码
 			$rules = ['captcha' => 'required|captcha'];
 			// $validator = Validator::make(Input::all(), $rules);
 			$validator = Validator::make($request->all(), $rules);
@@ -39,10 +41,73 @@ class LoginController extends Controller
 				// echo '<p style="color: #00ff30;">Matched :)</p>';
 				// dd('<p style="color: #00ff30;">Matched :)</p>');
 			}
+			
+			// 2.adldap判断AD认证
+			if (env('ADLDAP_USE_ADLDAP') == 'adldap') {
+				$user = $request->only('name', 'password');
 
-			// jwt-auth，判断用户认证
-			$credentials['name'] = $request->input('username');
-			$credentials['password'] = $request->input('password');
+				try {
+					$adldap = Adldap::auth()->attempt(
+						$user['name'] . env('ADLDAP_ADMIN_ACCOUNT_SUFFIX'),
+						$user['password']
+						);
+				}
+				catch (Exception $e) {//捕获异常
+					// echo 'Message: ' .$e->getMessage();
+					$adldap = 0;
+				}
+				
+dd($adldap);
+				// 3.如果adldap认证成功，则同步本地用户的密码
+				//   否则认证失败再由jwt-auth本地判断
+				if ($adldap) {
+
+					// 同步本地用户密码
+					try	{
+						$result = User::where('name', $user['name'])
+							->update([
+								'password'=>bcrypt($user['password'])
+							]);
+
+						// 4.如果没有这个用户，则自动新增用户
+						if ($result == 0) {
+							$nowtime = date("Y-m-d H:i:s",time());
+
+							$user['email'] = $user['name'] . env('ADLDAP_ADMIN_ACCOUNT_SUFFIX');
+
+							$result = User::create([
+								'name'     => $user['name'],
+								'email'    => $user['email'],
+								'password' => bcrypt($user['password']),
+								'login_time' => $nowtime,
+								'login_ip' => '127.0.0.1',
+								'login_counts' => 1,
+								'remember_token' => '',
+								'created_at' => $nowtime,
+								'updated_at' => $nowtime,
+								'deleted_at' => NULL
+							]);
+						}
+						// dd($result);
+					}
+					catch (Exception $e) {//捕获异常
+						// echo 'Message: ' .$e->getMessage();
+						// $result = 0;
+						$result = $e->getMessage();
+					}
+
+				} else {
+					// 注意：adldap认证失败再由jwt-auth本地判断，不返回失败
+					// return null;
+				}
+
+			}
+
+
+			// 5.jwt-auth，判断用户认证
+			// $credentials['name'] = $request->input('name');
+			// $credentials['password'] = $request->input('password');
+			$credentials = $request->only('name', 'password');
 
 			if (! $token = auth()->attempt($credentials)) {
 				// 如果认证失败，则返回null
@@ -60,6 +125,11 @@ class LoginController extends Controller
 		}
 		
     }
+	
+	public function username()
+	{
+		return 'username';
+	}
 
     /**
      * Show the form for creating a new resource.

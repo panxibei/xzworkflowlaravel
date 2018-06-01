@@ -47,6 +47,23 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
 		
+		
+		
+		
+		// Adldap2-Laravel异常处理 测试中
+		if ($exception instanceof \Adldap\Auth\BindException) {
+
+			// if (view()->exists('errors.' . $exception->getStatusCode())) {
+
+				// return '没有权限！';
+				// dd('没有权限！');
+				dd($exception->getMessage());
+				// return response()->view('errors.'.$exception->getStatusCode(), [],$exception->getStatusCode());
+				// return response()->view('errors.' . $exception->getStatusCode());
+			
+			}
+		}
+
 		// laravel-permission异常处理
 		if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
 

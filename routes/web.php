@@ -154,4 +154,7 @@ Route::get('test', function(){
 	return view('test');
 });
 
+// 测试adldap用
+Route::get('adldap', 'adldapController@adLdap');
+
 
