@@ -21,6 +21,14 @@ Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
 	Route::post('checklogin', 'LoginController@checklogin')->name('login.checklogin');
 });
 
+// CirculationController路由
+Route::group(['prefix' => 'circulation', 'namespace' =>'Main'], function() {
+	// Route::get('/', 'MainController@index')->name('main');
+	
+	// 显示circulation页面
+	Route::post('circulationIndex', 'CirculationController@circulationIndex')->name('main.circulation.index');
+});
+
 // AdminController路由
 Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
 	// 显示config页面
