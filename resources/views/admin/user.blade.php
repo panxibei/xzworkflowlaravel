@@ -1,6 +1,9 @@
 @extends('admin.layouts.adminbase')
 
-@section('my_title', "Admin(User) - $SITE_TITLE  Ver: $SITE_VERSION")
+@section('my_title')
+Admin(User) - 
+@parent
+@endsection
 
 @section('my_js')
 <script type="text/javascript">
@@ -245,7 +248,7 @@ var vm_user = new Vue({
     el: '#user_list',
     data: {
 		gets: {},
-		perpage: {{ $PERPAGE_RECORDS_FOR_USER }},
+		perpage: {{ $config['PERPAGE_RECORDS_FOR_USER'] }},
 		currentuser: {
 			id: '',
 			name: '',
@@ -270,10 +273,10 @@ var vm_user = new Vue({
 		// 查询
 		open_queryuser: false,
 		// 查询过滤器
-		queryfilter_name: "{{ $FILTERS_USER_NAME }}",
-		queryfilter_email: "{{ $FILTERS_USER_EMAIL }}",
-		queryfilter_datefrom: "{{ $FILTERS_USER_LOGINTIME_DATEFROM }}" || null,
-		queryfilter_dateto: "{{ $FILTERS_USER_LOGINTIME_DATETO }}" || null
+		queryfilter_name: "{{ $config['FILTERS_USER_NAME'] }}",
+		queryfilter_email: "{{ $config['FILTERS_USER_EMAIL'] }}",
+		queryfilter_datefrom: "{{ $config['FILTERS_USER_LOGINTIME_DATEFROM'] }}" || null,
+		queryfilter_dateto: "{{ $config['FILTERS_USER_LOGINTIME_DATETO'] }}" || null
     },
 	methods: {
 		// 表单变化后的值

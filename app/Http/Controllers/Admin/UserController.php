@@ -107,9 +107,19 @@ class UserController extends Controller
      */
     public function userIndex()
     {
+		// 获取JSON格式的jwt-auth用户响应
+		$me = response()->json(auth()->user());
+		
+		// 获取JSON格式的jwt-auth用户信息（$me->getContent()），就是$me的data部分
+		$user = json_decode($me->getContent(), true);
+		// 用户信息：$user['id']、$user['name'] 等
+		
         // 获取配置值
 		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
-        return view('admin.user', $config);
+        // return view('admin.user', $config);
+		
+		$share = compact('config', 'user');
+        return view('admin.user', $share);
     }
 	
 
@@ -191,9 +201,12 @@ class UserController extends Controller
     public function userTrash(Request $request)
     {
         //
-		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+		if (! $request->isMethod('post') || ! $request->ajax()) { return 0; }
 
 		$userid = $request->only('userid');
+
+		// 如果是管理员id为1，则不能删除
+		if ($userid['userid'] == 1) {return 0;}
 		
 		$usertrashed = User::select('deleted_at')
 			->where('id', $userid)

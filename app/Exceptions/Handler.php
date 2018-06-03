@@ -53,15 +53,17 @@ class Handler extends ExceptionHandler
 		// Adldap2-Laravel异常处理 测试中
 		if ($exception instanceof \Adldap\Auth\BindException) {
 
-			// if (view()->exists('errors.' . $exception->getStatusCode())) {
+			if (view()->exists('errors.adldap')) {
 
-				// return '没有权限！';
-				// dd('没有权限！');
-				dd($exception->getMessage());
-				// return response()->view('errors.'.$exception->getStatusCode(), [],$exception->getStatusCode());
-				// return response()->view('errors.' . $exception->getStatusCode());
-			
+				if ($exception->getCode() == -1) {
+					// dd($exception->getMessage());
+					return response()->view('errors.adldap');
+				} elseif ($exception->getCode() == 49) {
+					dd($exception->getMessage());
+				}
 			}
+			
+			
 		}
 
 		// laravel-permission异常处理

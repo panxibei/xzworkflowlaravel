@@ -48,16 +48,18 @@ class LoginController extends Controller
 
 				try {
 					$adldap = Adldap::auth()->attempt(
-						$user['name'] . env('ADLDAP_ADMIN_ACCOUNT_SUFFIX'),
+						// $user['name'] . env('ADLDAP_ADMIN_ACCOUNT_SUFFIX'),
+						$user['name'],
 						$user['password']
 						);
 				}
-				catch (Exception $e) {//捕获异常
+				// catch (Exception $e) {
+				catch (\Adldap\Auth\BindException $e) { //捕获异常
 					// echo 'Message: ' .$e->getMessage();
-					$adldap = 0;
+					$adldap = false;
 				}
 				
-dd($adldap);
+// dd($adldap);
 				// 3.如果adldap认证成功，则同步本地用户的密码
 				//   否则认证失败再由jwt-auth本地判断
 				if ($adldap) {
@@ -116,7 +118,8 @@ dd($adldap);
 			}
 
 			// return $this->respondWithToken($token);
-			$minutes = 480;
+			// $minutes = 480;
+			$minutes = env('JWT_TTL', 60);
 			Cookie::queue('token', $token, $minutes);
 			return $token;
 		

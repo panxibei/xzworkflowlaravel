@@ -11,7 +11,7 @@ class adldapController extends Controller
     public function adLdap () {
 		
 	// Finding a user:
-	// $user = Adldap::search()->users()->find('user01');		
+	// $user = Adldap::search()->users()->find('user1');		
 	// dd($user);
 	
 	// Searching for a user:
@@ -37,7 +37,7 @@ class adldapController extends Controller
 	// $user->save();
 	
 try {
-	$mm = Adldap::auth()->attempt('user01@aota.local', '12345678');
+	$mm = Adldap::auth()->attempt('user1', '12345678');
 	dd($mm);
 }
 catch (Exception $e) {
