@@ -52,6 +52,10 @@ class LoginController extends Controller
 						$user['name'],
 						$user['password']
 						);
+						
+					// 获取用户email
+					$user_tmp = Adldap::search()->users()->find($user['name']);		
+					$user['email'] = $user_tmp['mail'][0];
 				}
 				// catch (Exception $e) {
 				catch (\Adldap\Auth\BindException $e) { //捕获异常
@@ -75,7 +79,7 @@ class LoginController extends Controller
 						if ($result == 0) {
 							$nowtime = date("Y-m-d H:i:s",time());
 
-							$user['email'] = $user['name'] . env('ADLDAP_ADMIN_ACCOUNT_SUFFIX');
+							// $user['email'] = $user['name'] . env('ADLDAP_ACCOUNT_SUFFIX');
 
 							$result = User::create([
 								'name'     => $user['name'],

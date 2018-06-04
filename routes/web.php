@@ -49,6 +49,53 @@ Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'],
 
 });
 
+// FieldController路由
+Route::group(['prefix'=>'field', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+
+	// 显示field页面
+	Route::get('fieldIndex', 'FieldController@fieldIndex')->name('admin.field.index');
+
+	// 显示field数据信息
+	Route::get('fieldList', 'FieldController@fieldList')->name('admin.field.fieldlist');
+
+	// field列表
+	Route::get('fieldGets', 'FieldController@fieldGets')->name('admin.field.fieldgets');
+	
+	// 创建field
+	Route::post('fieldCreate', 'FieldController@fieldCreate')->name('admin.field.create');
+
+	// 删除field
+	Route::post('fieldDelete', 'FieldController@fieldDelete')->name('admin.field.fielddelete');
+	
+	
+});
+
+// SlotController路由
+Route::group(['prefix'=>'slot', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+
+	// 显示field页面
+	Route::get('slotIndex', 'FieldController@slotIndex')->name('admin.slot.index');
+
+	// 显示field数据信息
+	Route::get('slotList', 'FieldController@slotList')->name('admin.slot.list');
+
+
+
+});
+
+// TemplateController路由
+Route::group(['prefix'=>'template', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+
+	// 显示field页面
+	Route::get('templateIndex', 'FieldController@templateIndex')->name('admin.template.index');
+
+	// 显示field数据信息
+	Route::get('templateList', 'FieldController@templateList')->name('admin.template.list');
+
+
+
+});
+
 // UserController路由
 Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
 

@@ -310,13 +310,13 @@
 						<a href="#"><i class="fa fa-magic fa-fw"></i> 基本元素 ...<span class="fa arrow"></span></a>
 						<ul class="nav nav-third-level">
 							<li>
-								<a href="{:U('Admin/Index/field')}"><i class="fa fa-bars fa-fw"></i> Field</a>
+								<a href="{{ route('admin.field.index') }}"><i class="fa fa-bars fa-fw"></i> Field</a>
 							</li>
 							<li>
-								<a href="{:U('Admin/Index/slot')}"><i class="fa fa-list-alt fa-fw"></i> Slot</a>
+								<a href="{{ route('admin.slot.index') }}"><i class="fa fa-list-alt fa-fw"></i> Slot</a>
 							</li>
 							<li>
-								<a href="{:U('Admin/Index/template')}"><i class="fa fa-file-text-o fa-fw"></i> Template</a>
+								<a href="{{ route('admin.template.index') }}"><i class="fa fa-file-text-o fa-fw"></i> Template</a>
 							</li>
 						</ul>
 					</li>

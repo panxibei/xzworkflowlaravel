@@ -131,6 +131,36 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            11 => 
+            array (
+                'cfg_id' => 12,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_FIELD',
+                'cfg_value' => '1',
+				'cfg_description' => 'FIELD页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            12 => 
+            array (
+                'cfg_id' => 13,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_SOLT',
+                'cfg_value' => '1',
+				'cfg_description' => 'SOLT页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            13 => 
+            array (
+                'cfg_id' => 14,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_TEMPLATE',
+                'cfg_value' => '1',
+				'cfg_description' => 'TEMPLATE页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }
