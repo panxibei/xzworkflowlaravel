@@ -131,7 +131,10 @@ Admin(Field) -
 													</div>
 													<div class="form-group">
 														<label>背景色</label>
-														<input v-model="field_add_bgcolor" id="field_add_bgcolor_id" type="text" class="form-control input-sm" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#000000">
+														<div id="field_add_bgcolor_id" class="input-group colorpicker-component" title="Select background color">
+															<input v-model="field_add_bgcolor" type="text" class="form-control input-sm input-group colorpicker-component" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#ffffff">
+															<span class="input-group-addon"><i></i></span>
+														</div>
 													</div>
 													<script type="text/javascript">
 													$(function() {
@@ -367,7 +370,7 @@ Admin(Field) -
 											<btn type="default" @click="" size="sm">Reset</btn>
 										</div>
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>示例</label></div>
+											<div class="panel-heading"><label>示例/结果</label></div>
 											<div class="panel-body">
 
 											<!--field example-->
@@ -382,7 +385,7 @@ Admin(Field) -
 												<div v-show="show_trueorfalse">
 													<div class="checkbox">
 														<label id="field_add_example_true_or_false">
-															<input type="checkbox">@{{field_add_name}}
+															<input type="checkbox" :style="{background: field_add_bgcolor}">@{{field_add_name}}
 														</label>
 													</div>
 												</div>
@@ -390,19 +393,19 @@ Admin(Field) -
 												<!--3-Number-->
 												<div v-show="show_number">
 													<label>@{{field_add_name}}</label>
-													<input id="field_add_example_number" type="text" class="form-control input-sm">
+													<input id="field_add_example_number" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor}">
 												</div>
 
 												<!--4-Date-->
 												<div v-show="show_date">
 													<label>@{{field_add_name}}</label>
-													<input id="field_edit_example_date" type="text" class="form-control input-sm">
+													<input id="field_edit_example_date" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor}">
 												</div>
 												
 												<!--5-Textfield-->
 												<div v-show="show_textfield">
 													<label>@{{field_add_name}}</label>
-													<textarea id="field_edit_example_textfield" class="form-control" rows="3" style="resize:none;"></textarea>
+													<textarea id="field_edit_example_textfield" class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor}"></textarea>
 												</div>
 												
 												<!--6-Radiogroup-->
@@ -452,7 +455,7 @@ Admin(Field) -
 												<!--8-Combobox-->
 												<div v-show="show_combobox">
 													<label>@{{field_add_name}}</label>
-													<select id="field_edit_example_combobox" class="form-control input-sm">
+													<select id="field_edit_example_combobox" class="form-control input-sm" :style="{background: field_add_bgcolor}">
 														<option value=""></option>
 														<option value="">combobox1</option>
 														<option value="">combobox2</option>
@@ -463,7 +466,7 @@ Admin(Field) -
 												<!--9-File-->
 												<div v-show="show_file">
 													<label>@{{field_add_name}}</label>
-													<input id="field_edit_example_file" type="file">
+													<input id="field_edit_example_file" type="file" :style="{background: field_add_bgcolor}">
 												</div>
 
 
@@ -508,7 +511,7 @@ var vm_field = new Vue({
 			{value: 9, label:'9-File'}
 		],
 		// 创建背景色
-		field_add_bgcolor: '',
+		field_add_bgcolor: '#ffffff',
 		// 创建帮助文本
 		field_add_helpblock: '',
 		// 创建只读
