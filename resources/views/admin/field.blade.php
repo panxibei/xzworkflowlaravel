@@ -129,83 +129,26 @@ Admin(Field) -
 														<label>类型</label><br>
 														<multi-select v-model="field_selected_add_type" :options="field_options_add_type" :limit="1" @change="field_add_type_change" filterable collapse-selected size="sm" placeholder="Select the type ..."/>
 													</div>
+
 													<div class="form-group">
 														<label>背景色</label>
-														<div id="field_add_bgcolor_id" class="input-group colorpicker-component" title="Select background color">
-															<input v-model="field_add_bgcolor" type="text" class="form-control input-sm input-group colorpicker-component" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#ffffff">
-															<span class="input-group-addon"><i></i></span>
-														</div>
+														<dropdown ref="dropdown">
+															<btn size="xs" type="default" class="dropdown-toggle"><span class="caret"></span></btn>
+															<template slot="dropdown">
+																<div>
+																<compact-picker v-model="field_add_bgcolor" />
+															</div>
+															</template>
+														</dropdown>
+														<input v-model="field_add_bgcolor_hex" type="text" class="form-control input-sm" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#ffffff">
 													</div>
-													<script type="text/javascript">
-													$(function() {
-														$('#field_add_bgcolor_id').colorpicker({
-															format:"hex"
-															// format:"rgb"
-														}).on('changeColor',function(e){
-															vm_field.field_add_bgcolor = e.color.toString();
-															// alert(vm_field.field_add_bgcolor);
-															
-															// var field_type = $("#field_add_type").val();
-															// var obj_field_add=new Object();
-															// switch(field_type.charAt(0))
-															// {
-																// case '1': //text
-																	// obj_field_add = $('#field_add_example_text');
-																	// break;
-														
-																// case '2': //true/false
-																	// obj_field_add = $('#field_add_example_true_or_false');
-																	// break;
-															
-																// case '3': //number
-																	// obj_field_add = $('#field_add_example_number');
-																	// break;
-															
-																// case '4': //date
-																	// obj_field_add = $('#field_add_example_date');
-																	// break;
-															
-																// case '5': //textfield
-																	// obj_field_add = $('#field_add_example_textfield');
-																	// break;
-															
-																// case '6': //radiogroup
-																	// obj_field_add=$('label[id^=field_add_example_radiogroup');
-																	// break;
-															
-																// case '7': //checkboxgroup
-																	// obj_field_add=$('label[id^=field_add_example_checkboxgroup');
-																	// break;
-															
-																// case '8': //combobox
-																	// obj_field_add=$('#field_add_example_combobox');
-																	// break;
-															
-																// case '9': //true/false
-																	// obj_field_add=$('#field_add_example_file');
-																	// break;
-															// }
-															
-															// if(field_type.charAt(0)=='6'||field_type.charAt(0)=='7'){
-																// obj_field_add.each(function(i){
-																	// this.style.backgroundColor = e.color.toString('rgba');
-																// });
-															// }else{
-																// obj_field_add[0].style.backgroundColor = e.color.toString('rgba');
-															// }
-															
-															// var field_bgcolor = $("#field_add_bgcolor").val();
-															// if(field_bgcolor=='') obj_field_add.removeAttr("style");
-														
-														});
-													});
-													</script>
+
 													<div class="form-group">
 														<label>帮助文本</label>
-														<input v-modal="field_add_helpblock" type="text" class="form-control input-sm" placeholder="帮助文本或提示信息">
+														<input v-model="field_add_helpblock" type="text" class="form-control input-sm" placeholder="帮助文本或提示信息">
 													</div>
 													<div class="checkbox">
-														<label><input v-modal="field_add_readonly" type="checkbox" value=""><b>只读</b></label>
+														<label><input @change="field_add_readonly=!field_add_readonly" type="checkbox"><b>只读</b></label>
 													</div>
 													
 												</div>
@@ -376,97 +319,105 @@ Admin(Field) -
 											<!--field example-->
 												<!--1-text-->
 												<div v-show="show_text">
-													<label>@{{field_add_name}}</label>
-													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor}" value="aaaaaaaaaa">
-												@{{field_add_bgcolor}}
+													<label>@{{field_add_name||'未命名'}}</label>
+													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly" value="aaaaaaaaaa">
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--2-True/False-->
 												<div v-show="show_trueorfalse">
 													<div class="checkbox">
-														<label id="field_add_example_true_or_false">
-															<input type="checkbox" :style="{background: field_add_bgcolor}">@{{field_add_name}}
+														<label :style="{background: field_add_bgcolor_hex}">
+															<input type="checkbox" v-bind:disabled="field_add_readonly">@{{field_add_name||'未命名'}}
 														</label>
+														<p class="help-block">@{{field_add_helpblock}}</p>
 													</div>
 												</div>
 
 												<!--3-Number-->
 												<div v-show="show_number">
-													<label>@{{field_add_name}}</label>
-													<input id="field_add_example_number" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor}">
+													<label>@{{field_add_name||'未命名'}}</label>
+													<input id="field_add_example_number" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly">
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 
 												<!--4-Date-->
 												<div v-show="show_date">
-													<label>@{{field_add_name}}</label>
-													<input id="field_edit_example_date" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor}">
+													<label>@{{field_add_name||'未命名'}}</label>
+													<input id="field_edit_example_date" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly">
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--5-Textfield-->
 												<div v-show="show_textfield">
-													<label>@{{field_add_name}}</label>
-													<textarea id="field_edit_example_textfield" class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor}"></textarea>
+													<label>@{{field_add_name||'未命名'}}</label>
+													<textarea id="field_edit_example_textfield" class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly"></textarea>
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--6-Radiogroup-->
 												<div v-show="show_radiogroup">
-													<label>@{{field_add_name}}</label>
+													<label>@{{field_add_name||'未命名'}}</label>
 													<div class="form-group">
 														<div class="radio">
-														<label id="field_edit_example_radiogroup1">
-														<input name="name_radiogroup_example" type="radio">radio1
+														<label :style="{background: field_add_bgcolor_hex}">
+														<input name="name_radiogroup_example" type="radio" v-bind:disabled="field_add_readonly">radio1
 														</label>
 														</div>
 														<div class="radio">
-														<label id="field_edit_example_radiogroup2">
-														<input name="name_radiogroup_example" type="radio">radio2
+														<label :style="{background: field_add_bgcolor_hex}">
+														<input name="name_radiogroup_example" type="radio" v-bind:disabled="field_add_readonly">radio2
 														</label>
 														</div>
 														<div class="radio">
-														<label id="field_edit_example_radiogroup3">
-														<input name="name_radiogroup_example" type="radio">radio3
+														<label :style="{background: field_add_bgcolor_hex}">
+														<input name="name_radiogroup_example" type="radio" v-bind:disabled="field_add_readonly">radio3
 														</label>
 														</div>
 													</div>
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--7-Checkboxgroup-->
 												<div v-show="show_checkboxgroup">
-													<label>@{{field_add_name}}</label>
+													<label>@{{field_add_name||'未命名'}}</label>
 													<div class="form-group">
 														<div class="checkbox">
-														<label id="field_edit_example_checkboxgroup1">
-														<input type="checkbox">checkbox1
+														<label :style="{background: field_add_bgcolor_hex}">
+														<input type="checkbox" v-bind:disabled="field_add_readonly">checkbox1
 														</label>
 														</div>
 														<div class="checkbox">
-														<label id="field_edit_example_checkboxgroup2">
-														<input type="checkbox">checkbox2
+														<label :style="{background: field_add_bgcolor_hex}">
+														<input type="checkbox" v-bind:disabled="field_add_readonly">checkbox2
 														</label>
 														</div>
 														<div class="checkbox">
-														<label id="field_edit_example_checkboxgroup3">
-														<input type="checkbox">checkbox3
+														<label :style="{background: field_add_bgcolor_hex}">
+														<input type="checkbox" v-bind:disabled="field_add_readonly">checkbox3
 														</label>
 														</div>
 													</div>
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--8-Combobox-->
 												<div v-show="show_combobox">
-													<label>@{{field_add_name}}</label>
-													<select id="field_edit_example_combobox" class="form-control input-sm" :style="{background: field_add_bgcolor}">
+													<label>@{{field_add_name||'未命名'}}</label>
+													<select id="field_edit_example_combobox" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:disabled="field_add_readonly">
 														<option value=""></option>
 														<option value="">combobox1</option>
 														<option value="">combobox2</option>
 														<option value="">combobox3</option>
 													</select>
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--9-File-->
 												<div v-show="show_file">
-													<label>@{{field_add_name}}</label>
-													<input id="field_edit_example_file" type="file" :style="{background: field_add_bgcolor}">
+													<label>@{{field_add_name||'未命名'}}</label>
+													<input id="field_edit_example_file" type="file" :style="{background: field_add_bgcolor_hex}" v-bind:disabled="field_add_readonly">
+													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 
 
@@ -479,7 +430,10 @@ Admin(Field) -
 						</tabs>
 
 					</div>
+					</div>
+					
 				</div>
+
 			</div>
 		</div>
 	</div>
@@ -489,9 +443,22 @@ Admin(Field) -
 
 @section('my_footer')
 @parent
+<script src="{{ asset('js/vue-color.min.js') }}"></script>
 <script>
+// var Photoshop = VueColor.Photoshop
+var compact = VueColor.Compact
+
 var vm_field = new Vue({
     el: '#field_list',
+	components: {
+		// 'material-picker': material,
+		'compact-picker': compact
+		// 'swatches-picker': swatches,
+		// 'slider-picker': slider,
+		// 'sketch-picker': sketch,
+		// 'chrome-picker': chrome,
+		// 'photoshop-picker': photoshop
+	},
     data: {
 		gets: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_ROLE'] }},
@@ -511,7 +478,8 @@ var vm_field = new Vue({
 			{value: 9, label:'9-File'}
 		],
 		// 创建背景色
-		field_add_bgcolor: '#ffffff',
+		field_add_bgcolor: '',
+		field_add_bgcolor_hex: '',
 		// 创建帮助文本
 		field_add_helpblock: '',
 		// 创建只读
@@ -990,6 +958,11 @@ var vm_field = new Vue({
 			})
 		}
 	},
+	watch: {
+        field_add_bgcolor: function(val) {
+            this.field_add_bgcolor_hex = val['hex'];
+        }
+    },
 	mounted: function(){
 		var _this = this;
 

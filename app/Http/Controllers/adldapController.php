@@ -11,10 +11,10 @@ class adldapController extends Controller
     public function adLdap () {
 		
 	// Finding a user:
-	$user = Adldap::search()->users()->find('ca071215958');		
+	// $user = Adldap::search()->users()->find('ca071215958');		
 	// dd($user);
 	// dd($user['mail'][0]);
-	dd($user['displayname'][0]);
+	// dd($user['displayname'][0]);
 	
 	// Searching for a user:
 	// $search = Adldap::search()->where('cn', '=', 'user01')->get();
@@ -37,7 +37,9 @@ class adldapController extends Controller
 
 	// Saving a user:
 	// $user->save();
-	
+
+	// dd(env('JWT_TTL', 60));
+
 try {
 	$mm = Adldap::auth()->attempt('ca071215958', 'Aota12345678');
 	dd($mm);
