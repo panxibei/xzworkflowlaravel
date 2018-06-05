@@ -131,16 +131,17 @@ Admin(Field) -
 													</div>
 
 													<div class="form-group">
-														<label>背景色</label>
+														<label>背景色</label>&nbsp;&nbsp;
 														<dropdown ref="dropdown">
-															<btn size="xs" type="default" class="dropdown-toggle"><span class="caret"></span></btn>
+															<btn size="xs" type="default" class="dropdown-toggle"><i class="fa fa-caret-down fa-fw"></i></btn>
 															<template slot="dropdown">
 																<div>
 																<compact-picker v-model="field_add_bgcolor" />
 															</div>
 															</template>
 														</dropdown>
-														<input v-model="field_add_bgcolor_hex" type="text" class="form-control input-sm" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#ffffff">
+														<btn size="xs" type="default" @click="field_add_bgcolor_hex=''"><i class="fa fa-refresh fa-fw"></i></btn>
+														<input v-model="field_add_bgcolor_hex" type="text" class="form-control input-sm" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#FFFFFF">
 													</div>
 
 													<div class="form-group">
@@ -148,7 +149,7 @@ Admin(Field) -
 														<input v-model="field_add_helpblock" type="text" class="form-control input-sm" placeholder="帮助文本或提示信息">
 													</div>
 													<div class="checkbox">
-														<label><input @change="field_add_readonly=!field_add_readonly" type="checkbox"><b>只读</b></label>
+														<label><input v-model="field_add_readonly" type="checkbox"><b>只读</b></label>
 													</div>
 													
 												</div>
@@ -159,15 +160,15 @@ Admin(Field) -
 													<div v-show="show_text">
 													<div class="form-group">
 														<label>默认值</label>
-														<input id="field_add_value_text" type="text" class="form-control input-sm">
+														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
 													</div>
 													<div class="form-group">
 														<label>占位符</label>
-														<input id="field_add_placeholder" type="text" class="form-control input-sm" placeholder="请输入文字">
+														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入文字">
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input id="field_add_regexp" type="text" class="form-control input-sm">
+														<input ref="field_add_regexp" type="text" class="form-control input-sm">
 													</div>
 													</div>
 													
@@ -176,7 +177,7 @@ Admin(Field) -
 													<div class="form-group">
 														<label>默认值</label>
 														<div class="checkbox">
-														<label><input id="field_add_value_true_or_false" type="checkbox">是否选中？</label>
+														<label><input :checked="field_add_ischecked" @change="field_add_ischecked=!field_add_ischecked" type="checkbox">是否选中？</label>
 														</div>
 													</div>
 													</div>
@@ -185,15 +186,15 @@ Admin(Field) -
 													<div v-show="show_number">
 													<div class="form-group">
 														<label>默认值</label>
-														<input id="field_add_value_number" type="text" class="form-control input-sm">
+														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
 													</div>
 													<div class="form-group">
 														<label>占位符</label>
-														<input id="field_add_placeholder" type="text" class="form-control input-sm" placeholder="请输入数字">
+														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入数字">
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input id="field_add_regexp" type="text" class="form-control input-sm" value="^[1-9]\d*$">
+														<input ref="field_add_regexp" type="text" class="form-control input-sm" value="^[1-9]\d*$">
 													</div>
 													</div>
 
@@ -201,15 +202,15 @@ Admin(Field) -
 													<div v-show="show_date">
 													<div class="form-group">
 														<label>默认值</label>
-														<input id="field_edit_value_date" type="text" class="form-control input-sm" value="">
+														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
 													</div>
 													<div class="form-group">
 														<label>占位符</label>
-														<input id="field_edit_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入日期">
+														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入日期">
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input id="field_edit_regexp" type="text" class="form-control input-sm" value="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
+														<input ref="field_add_regexp" type="text" class="form-control input-sm" value="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
 													</div>
 													</div>
 													
@@ -217,15 +218,15 @@ Admin(Field) -
 													<div v-show="show_textfield">
 													<div class="form-group">
 														<label>默认值</label>
-														<input id="field_edit_value_date" type="text" class="form-control input-sm" value="">
+														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
 													</div>
 													<div class="form-group">
 														<label>占位符</label>
-														<input id="field_edit_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入日期">
+														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入大段文字">
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input id="field_edit_regexp" type="text" class="form-control input-sm" value="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
+														<input ref="field_add_regexp" type="text" class="form-control input-sm" value="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
 													</div>
 													</div>
 													
@@ -310,7 +311,7 @@ Admin(Field) -
 									<div class="col-lg-4">
 										<div class="form-group">
 											<btn type="primary" @click="" size="sm">Create</btn>&nbsp;
-											<btn type="default" @click="" size="sm">Reset</btn>
+											<btn type="default" @click="field_add_reset" size="sm">Reset</btn>
 										</div>
 										<div class="panel panel-default">
 											<div class="panel-heading"><label>示例/结果</label></div>
@@ -320,7 +321,7 @@ Admin(Field) -
 												<!--1-text-->
 												<div v-show="show_text">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly" value="aaaaaaaaaa">
+													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder">
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
@@ -328,7 +329,7 @@ Admin(Field) -
 												<div v-show="show_trueorfalse">
 													<div class="checkbox">
 														<label :style="{background: field_add_bgcolor_hex}">
-															<input type="checkbox" v-bind:disabled="field_add_readonly">@{{field_add_name||'未命名'}}
+															<input v-model="field_add_ischecked" @change="field_add_ischecked!=field_add_ischecked" type="checkbox" :disabled="field_add_readonly">@{{field_add_name||'未命名'}}
 														</label>
 														<p class="help-block">@{{field_add_helpblock}}</p>
 													</div>
@@ -337,21 +338,21 @@ Admin(Field) -
 												<!--3-Number-->
 												<div v-show="show_number">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<input id="field_add_example_number" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly">
+													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder">
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 
 												<!--4-Date-->
 												<div v-show="show_date">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<input id="field_edit_example_date" type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly">
+													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder">
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--5-Textfield-->
 												<div v-show="show_textfield">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<textarea id="field_edit_example_textfield" class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor_hex}" v-bind:readonly="field_add_readonly"></textarea>
+													<textarea class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder"></textarea>
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
@@ -384,17 +385,17 @@ Admin(Field) -
 													<div class="form-group">
 														<div class="checkbox">
 														<label :style="{background: field_add_bgcolor_hex}">
-														<input type="checkbox" v-bind:disabled="field_add_readonly">checkbox1
+														<input type="checkbox" :disabled="field_add_readonly">checkbox1
 														</label>
 														</div>
 														<div class="checkbox">
 														<label :style="{background: field_add_bgcolor_hex}">
-														<input type="checkbox" v-bind:disabled="field_add_readonly">checkbox2
+														<input type="checkbox" :disabled="field_add_readonly">checkbox2
 														</label>
 														</div>
 														<div class="checkbox">
 														<label :style="{background: field_add_bgcolor_hex}">
-														<input type="checkbox" v-bind:disabled="field_add_readonly">checkbox3
+														<input type="checkbox" :disabled="field_add_readonly">checkbox3
 														</label>
 														</div>
 													</div>
@@ -404,7 +405,7 @@ Admin(Field) -
 												<!--8-Combobox-->
 												<div v-show="show_combobox">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<select id="field_edit_example_combobox" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" v-bind:disabled="field_add_readonly">
+													<select id="field_edit_example_combobox" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :disabled="field_add_readonly">
 														<option value=""></option>
 														<option value="">combobox1</option>
 														<option value="">combobox2</option>
@@ -416,7 +417,7 @@ Admin(Field) -
 												<!--9-File-->
 												<div v-show="show_file">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<input id="field_edit_example_file" type="file" :style="{background: field_add_bgcolor_hex}" v-bind:disabled="field_add_readonly">
+													<input id="field_edit_example_file" type="file" :style="{background: field_add_bgcolor_hex}" :disabled="field_add_readonly">
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 
@@ -484,6 +485,14 @@ var vm_field = new Vue({
 		field_add_helpblock: '',
 		// 创建只读
 		field_add_readonly: false,
+		// 创建默认值
+		field_add_defaultvalue: '',
+		// 创建占位符
+		field_add_placeholder: '',
+		// 创建正则
+		field_add_regexp: '',
+		// 创建是否选中
+		field_add_ischecked: false,
 		// field其他项目
 		// field_add_others: '',
 		// field动态示例
@@ -508,6 +517,21 @@ var vm_field = new Vue({
         ]
     },
 	methods: {
+		field_add_reset: function () {
+			var _this = this;
+			_this.field_add_name = '';
+			_this.field_selected_add_type = [];
+			_this.field_add_bgcolor = '';
+			_this.field_add_bgcolor_hex = '';
+			_this.field_add_helpblock = '';
+			_this.field_add_readonly = false;
+			_this.field_add_defaultvalue = '';
+			_this.field_add_placeholder = '';
+			_this.field_add_regexp = '';
+			_this.field_add_ischecked = false;
+			
+			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
+		},
 		// 把laravel返回的结果转换成select能接受的格式
 		json2selectvalue: function (json) {
 			var arr = [];
@@ -555,7 +579,7 @@ var vm_field = new Vue({
 					// if(text0.length == 0) { text0='未命名'; }
 					// _this.field_add_example =
 					// '<label>' + @{{field_add_name}} + '</label>' +
-					// '<label><span v-modal="field_add_name"></span></label>' +
+					// '<label><span v-model="field_add_name"></span></label>' +
 					// '<input id="field_add_example_text" type="text" class="form-control input-sm">';
 
 					// _this.field_add_others =

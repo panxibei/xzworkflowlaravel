@@ -38,7 +38,7 @@ class adldapController extends Controller
 	// Saving a user:
 	// $user->save();
 
-	// dd(env('JWT_TTL', 60));
+	dd(env('JWT_TTL', 60));
 
 try {
 	$mm = Adldap::auth()->attempt('ca071215958', 'Aota12345678');
