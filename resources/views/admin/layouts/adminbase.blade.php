@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
-<!--<link rel="stylesheet" href="{{ asset('statics/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css') }}">-->
+<link rel="stylesheet" href="{{ asset('statics/jquery.spinner/css/bootstrap-spinner.min.css') }}">
 <style type="text/css">
 	/* 解决闪烁问题的CSS */
 	[v-cloak] {	display: none; }
@@ -31,7 +31,7 @@
 <script src="{{ asset('statics/daterangepicker/daterangepicker.js') }}"></script>
 <script src="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.js') }}"></script>
 <script src="{{ asset('statics/startbootstrap/js/sb-admin-2.min.js') }}"></script>
-<!--<script src="{{ asset('statics/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js') }}"></script>-->
+<script src="{{ asset('statics/jquery.spinner/js/jquery.spinner.min.js') }}"></script>
 <script src="{{ asset('js/functions.js') }}"></script>
 @yield('my_js')
 </head>

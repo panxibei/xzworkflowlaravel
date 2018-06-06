@@ -234,66 +234,99 @@ Admin(Field) -
 													<div v-show="show_radiogroup">
 													<div id="radio_plus_or_minus" class="form-group">
 														<label>(only input fields with valid values will be saved)</label>
-														<br><button id="radio_plus" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus fa-fw"></i></button>&nbsp;
-														<button id="radio_minus" type="button" class="btn btn-success btn-xs"><i class="fa fa-minus fa-fw"></i></button>&nbsp;
-														<button id="radio_reset" type="button" class="btn btn-success btn-xs"><i class="fa fa-undo fa-fw"></i></button>
-														<div id="radio_div_1" class="radio">
-															<input id="radio_radio_1" name="name_radiogroup" type="radio">
-															<input id="radio_input_1" type="text" class="form-control input-sm">
+														<br>
+														
+														<div id="spinner_radio" class="input-group spinner" data-trigger="spinner">
+															<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
+															<span class="input-group-addon">
+																<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
+																<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+															</span>
 														</div>
-														<div id="radio_div_2" class="radio">
-															<input id="radio_radio_2" name="name_radiogroup" type="radio">
-															<input id="radio_input_2" type="text" class="form-control input-sm">
+														<script>
+														$(function(){
+															$("#spinner_radio").spinner('changing', function(e, newVal, oldVal) {
+																vm_field.radiochecked_generate(newVal);
+															});
+														});
+														</script>
+														
+														<br><btn @click="radiochecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
+														
+														<div v-for="(item,index) in radiochecked" class="radio">
+															<input type="radio" name="name_radiogroup"  :value="item.value" :checked="item.ischecked" @change="radiochecked_change(index)">
+															<input type="text" class="form-control input-sm" v-model="item.value">
 														</div>
-														<div id="radio_div_3" class="radio">
-															<input id="radio_radio_3" name="name_radiogroup" type="radio">
-															<input id="radio_input_3" type="text" class="form-control input-sm">
-														</div>
+														
 													</div>
 													</div>
 													
 													<!--7-Checkboxgroup-->
 													<div v-show="show_checkboxgroup">
 													<div id="checkbox_plus_or_minus" class="form-group">
-														<label>(only input fields with valid values will be saved)</label>
-														<br><button id="checkbox_plus" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus fa-fw"></i></button>&nbsp;
-														<button id="checkbox_minus" type="button" class="btn btn-success btn-xs"><i class="fa fa-minus fa-fw"></i></button>&nbsp;
-														<button id="checkbox_reset" type="button" class="btn btn-success btn-xs"><i class="fa fa-undo fa-fw"></i></button>
-														<div id="checkbox_div_1" class="checkbox">
-															<input id="checkbox_checkbox_1" type="checkbox">
-															<input id="checkbox_input_1" type="text" class="form-control input-sm">
+														<label>(Input and check the following fields)</label>
+														<br>
+														
+														<div id="spinner_checkbox" class="input-group spinner" data-trigger="spinner">
+															<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
+															<span class="input-group-addon">
+																<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
+																<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+															</span>
 														</div>
-														<div id="checkbox_div_2" class="checkbox">
-															<input id="checkbox_checkbox_2" type="checkbox">
-															<input id="checkbox_input_2" type="text" class="form-control input-sm">
-														</div>
-														<div id="checkbox_div_3" class="checkbox">
-															<input id="checkbox_checkbox_3" value="option1" type="checkbox">
-															<input id="checkbox_input_3" type="text" class="form-control input-sm">
-														</div>
+														<script>
+														$(function(){
+															$("#spinner_checkbox").spinner('changing', function(e, newVal, oldVal) {
+																vm_field.checkboxchecked_generate(newVal);
+															});
+														});
+														</script>
+														
+														<br><btn @click="checkboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
+														
+														<div v-for="(item,index) in checkboxchecked" class="checkbox">
+															<input type="checkbox" name="name_checkboxgroup"  :value="item.value" :checked="item.ischecked" @change="checkboxchecked_change(index)">
+															<input type="text" class="form-control input-sm" v-model="item.value">
+														</div>														
+
 													</div>
 													</div>
 													
 													<!--8-Combobox-->
 													<div v-show="show_combobox">
-													<div id="combobox_plus_or_minus" class="form-group">
-														<label>(only input fields with valid values will be saved)</label>
-														<br><button id="combobox_plus" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus fa-fw"></i></button>&nbsp;
-														<button id="combobox_minus" type="button" class="btn btn-success btn-xs"><i class="fa fa-minus fa-fw"></i></button>&nbsp;
-														<button id="combobox_reset" type="button" class="btn btn-success btn-xs"><i class="fa fa-undo fa-fw"></i></button>
-														<div id="combobox_div_1" class="radio">
-															<input id="combobox_radio_1" name="name_combobox" type="radio">
-															<input id="combobox_input_1" type="text" class="form-control input-sm">
+													<div class="form-group">
+														<label>(Input and check the following fields)</label>
+														<br>
+														
+														<div id="spinner_combobox" class="input-group spinner" data-trigger="spinner">
+															<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
+															<span class="input-group-addon">
+																<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
+																<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+															</span>
 														</div>
-														<div id="combobox_div_2" class="radio">
-															<input id="combobox_radio_2" name="name_combobox" type="radio">
-															<input id="combobox_input_2" type="text" class="form-control input-sm">
-														</div>
-														<div id="combobox_div_3" class="radio">
-															<input id="combobox_radio_3" name="name_combobox" type="radio">
-															<input id="combobox_input_3" type="text" class="form-control input-sm">
-														</div>
+														<script>
+														$(function(){
+															$("#spinner_combobox").spinner('changing', function(e, newVal, oldVal) {
+																vm_field.comboboxchecked_generate(newVal);
+															});
+														});
+														</script>
+														
+														<br><btn @click="comboboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
+														
+														<div v-for="(item,index) in comboboxchecked" class="radio">
+															<input type="radio" name="name_comboboxgroup" :value="item.value"  @change="comboboxchecked_change(index)">
+															<input type="text" class="form-control input-sm" v-model="item.label">
+														</div>														
 													</div>
+													
+													<div class="form-group">
+														<label>占位符</label>
+														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入提示文字">
+													</div>
+													
+													
 													</div>
 													
 													<!--9-File-->
@@ -360,57 +393,40 @@ Admin(Field) -
 												<div v-show="show_radiogroup">
 													<label>@{{field_add_name||'未命名'}}</label>
 													<div class="form-group">
-														<div class="radio">
-														<label :style="{background: field_add_bgcolor_hex}">
-														<input name="name_radiogroup_example" type="radio" v-bind:disabled="field_add_readonly">radio1
-														</label>
+													
+														<div v-for="(item,index) in radiochecked" class="radio">
+															<label :style="{background: field_add_bgcolor_hex}">
+																<input type="radio" name="name_radiogroup_example"  :value="item.value" :checked="item.ischecked" @change="radiochecked_change(index)" :disabled="field_add_readonly">
+																@{{item.value}}
+															</label>
 														</div>
-														<div class="radio">
-														<label :style="{background: field_add_bgcolor_hex}">
-														<input name="name_radiogroup_example" type="radio" v-bind:disabled="field_add_readonly">radio2
-														</label>
-														</div>
-														<div class="radio">
-														<label :style="{background: field_add_bgcolor_hex}">
-														<input name="name_radiogroup_example" type="radio" v-bind:disabled="field_add_readonly">radio3
-														</label>
-														</div>
+														<p class="help-block">@{{field_add_helpblock}}</p>
+
 													</div>
-													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--7-Checkboxgroup-->
 												<div v-show="show_checkboxgroup">
 													<label>@{{field_add_name||'未命名'}}</label>
 													<div class="form-group">
-														<div class="checkbox">
-														<label :style="{background: field_add_bgcolor_hex}">
-														<input type="checkbox" :disabled="field_add_readonly">checkbox1
-														</label>
+													
+														<div v-for="(item,index) in checkboxchecked">
+															<label :style="{background: field_add_bgcolor_hex}">
+																<input type="checkbox" name="name_checkboxgroup_example"  :value="item.value" :checked="item.ischecked" @change="checkboxchecked_change(index)" :disabled="field_add_readonly">
+																@{{item.value}}
+															</label>
 														</div>
-														<div class="checkbox">
-														<label :style="{background: field_add_bgcolor_hex}">
-														<input type="checkbox" :disabled="field_add_readonly">checkbox2
-														</label>
-														</div>
-														<div class="checkbox">
-														<label :style="{background: field_add_bgcolor_hex}">
-														<input type="checkbox" :disabled="field_add_readonly">checkbox3
-														</label>
-														</div>
+														<p class="help-block">@{{field_add_helpblock}}</p>
+													
 													</div>
-													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
 												<!--8-Combobox-->
 												<div v-show="show_combobox">
 													<label>@{{field_add_name||'未命名'}}</label>
-													<select id="field_edit_example_combobox" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :disabled="field_add_readonly">
-														<option value=""></option>
-														<option value="">combobox1</option>
-														<option value="">combobox2</option>
-														<option value="">combobox3</option>
-													</select>
+													<div class="form-group">
+														<multi-select v-model="comboboxchecked_select" :options="comboboxchecked" :limit="1" filterable collapse-selected size="sm" :placeholder="field_add_placeholder" :disabled="field_add_readonly"/>
+													</div>
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 												
@@ -493,7 +509,22 @@ var vm_field = new Vue({
 		field_add_regexp: '',
 		// 创建是否选中
 		field_add_ischecked: false,
-		// field其他项目
+		// 创建radiochecked
+		radiochecked: [
+			{value: '', ischecked: false},
+			{value: '', ischecked: false}
+		],
+		// 创建checkbox
+		checkboxchecked: [
+			{value: '', ischecked: false},
+			{value: '', ischecked: false}
+		],
+		// 创建combobox
+		comboboxchecked_select: [],
+		comboboxchecked: [
+			{value: 1, label: ''},
+			{value: 2, label: ''}
+		],
 		// field_add_others: '',
 		// field动态示例
 		// field_add_example: '',
@@ -517,6 +548,82 @@ var vm_field = new Vue({
         ]
     },
 	methods: {
+		// 点击radio后选中的状态
+		radiochecked_change: function (index) {
+			this.radiochecked.map(function (v,i) {
+			if(i==index){
+					v.ischecked = true
+				}else{
+					v.ischecked = false
+				}
+			});
+			
+		},
+		// 生成radio
+		radiochecked_generate: function (counts) {
+			var arr = [];
+			for(var i=0;i<counts;i++)
+			{
+				arr.push({value: '', ischecked: false});
+			}
+			this.radiochecked = arr;
+		},
+		// 取消radio选中状态
+		radiochecked_reset: function () {
+			// console.log(this.radiochecked[0].value);
+			this.radiochecked.map(function (v,i) {
+				v.ischecked = false
+			});
+		},
+		// 点击checkbox后选中的状态
+		checkboxchecked_change: function (index) {
+			this.checkboxchecked[index].ischecked = ! this.checkboxchecked[index].ischecked
+		},
+		// 生成checkbox
+		checkboxchecked_generate: function (counts) {
+			var arr = [];
+			for(var i=0;i<counts;i++)
+			{
+				arr.push({value: '', ischecked: false});
+			}
+			this.checkboxchecked = arr;
+		},
+		// 取消checkbox选中状态
+		checkboxchecked_reset: function () {
+			// console.log(this.radiochecked[0].value);
+			this.checkboxchecked.map(function (v,i) {
+				v.ischecked = false
+			});
+		},
+		// 点击combobox后选中的状态
+		comboboxchecked_change: function (index) {
+			// console.log(this.comboboxchecked[index]);
+			// console.log(this.comboboxchecked[index].label);
+			// console.log(this.comboboxchecked[index].value);
+			this.comboboxchecked_select = [
+				this.comboboxchecked[index].value
+			];
+
+		},
+		// 生成combobox
+		comboboxchecked_generate: function (counts) {
+			var arr = [];
+			for(var i=0;i<counts;i++)
+			{
+				arr.push({value: i});
+			}
+			this.comboboxchecked = arr;
+		},
+		// 取消combobox选中状态
+		comboboxchecked_reset: function () {
+			this.comboboxchecked_select = [];
+			this.comboboxchecked = [];
+			// this.comboboxchecked_generate(2);
+			// this.comboboxchecked = [
+				// {value: 1, label: ''},
+				// {value: 2, label: ''}
+			// ];
+		},
 		field_add_reset: function () {
 			var _this = this;
 			_this.field_add_name = '';
@@ -575,243 +682,40 @@ var vm_field = new Vue({
 				case 1: //text
 				
 					_this.show_text = true;
-					// var text0 = _this.field_add_name;
-					// if(text0.length == 0) { text0='未命名'; }
-					// _this.field_add_example =
-					// '<label>' + @{{field_add_name}} + '</label>' +
-					// '<label><span v-model="field_add_name"></span></label>' +
-					// '<input id="field_add_example_text" type="text" class="form-control input-sm">';
-
-					// _this.field_add_others =
-					// '<div class="form-group">' +
-						// '<label>默认值</label>' +
-						// '<input id="field_add_value_text" type="text" class="form-control input-sm">' +
-					// '</div>' +
-					// '<div class="form-group">' +
-						// '<label>占位符</label>' +
-						// '<input id="field_add_placeholder" type="text" class="form-control input-sm" placeholder="请输入文字">' +
-					// '</div>' +
-					// '<div class="form-group">' +
-						// '<label>正则表达式</label>' +
-						// '<input id="field_add_regexp" type="text" class="form-control input-sm">' +
-					// '</div>';
 					break;
 
 				case 2: //True/False
 				
 					_this.show_trueorfalse = true;
-					// var true_or_false = $('#field_add_name').val();
-					// select_example+='<div class="checkbox">';
-					// select_example+='<label id="field_add_example_true_or_false">';
-					// if(true_or_false==''){
-						// select_example+='<input type="checkbox">未命名';
-					// }else{
-						// select_example+='<input type="checkbox">'+true_or_false;
-					// }
-					// select_example+='</label>';
-					// select_example+='</div>';
-
-					// _this.field_add_others =
-					// '<div class="form-group">' +
-						// '<label>默认值</label>' +
-						// '<div class="checkbox">' +
-						// '<label><input id="field_add_value_true_or_false" type="checkbox">是否选中？</label>' +
-						// '</div>';
-					// '</div>';
-
 					break;
 
 				case 3: //Number
 				
 					_this.show_number = true;
-					// var number0 = $('#field_add_name').val();
-					// if(number0==''){number0='未命名'};
-					// select_example=
-					// '<label>' + number0 + '</label>' +
-					// '<input id="field_add_example_number" type="text" class="form-control input-sm">';
-				
-					// _this.field_add_others =
-					// '<div class="form-group">' +
-						// '<label>默认值</label>' +
-						// '<input id="field_add_value_number" type="text" class="form-control input-sm">' +
-					// '</div>' +
-					// '<div class="form-group">' +
-						// '<label>占位符</label>' +
-						// '<input id="field_add_placeholder" type="text" class="form-control input-sm" placeholder="请输入数字">' +
-					// '</div>' +
-					// '<div class="form-group">' +
-						// '<label>正则表达式</label>' +
-						// '<input id="field_add_regexp" type="text" class="form-control input-sm" value="^[1-9]\d*$">' +
-					// '</div>';
-				
 					break;
 
 				case 4: //Date
 					_this.show_date = true;
-
 					break;
 
 				case 5: //Textfield
 					_this.show_textfield = true;
-				
-					// var textfield0 = $('#field_add_name').val();
-					// if(textfield0==''){textfield0='未命名'};
-					// select_example=
-					// '<label>' + textfield0 + '</label>' +
-					// '<textarea id="field_add_example_textfield" class="form-control" rows="3" style="resize:none;"></textarea>';
-				
-					// _this.field_add_others =
-					// '<div class="form-group">' +
-						// '<label>默认值</label>' +
-						// '<textarea id="field_add_value_textfield" class="form-control" rows="3" style="resize:none;"></textarea>' +
-					// '</div>'+
-					// '<div class="form-group">' +
-						// '<label>占位符</label>' +
-						// '<input id="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入XXX">' +
-					// '</div>';
-				
 					break;
 
 				case 6: //Radiogroup
 					_this.show_radiogroup = true;
-				
-					// var radiogroup0 = $('#field_add_name').val();
-					// if(radiogroup0==''){radiogroup0='未命名'};
-					// select_example=
-					// '<label>' + radiogroup0 + '</label>' +
-					// '<div class="form-group">' +
-						// '<div class="radio">' +
-						// '<label id="field_add_example_radiogroup1">' +
-						// '<input name="name_radiogroup_example" type="radio">radio1' +
-						// '</label>' +
-						// '</div>' +
-						// '<div class="radio">' +
-						// '<label id="field_add_example_radiogroup2">' +
-						// '<input name="name_radiogroup_example" type="radio">radio2' +
-						// '</label>' +
-						// '</div>' +
-						// '<div class="radio">' +
-						// '<label id="field_add_example_radiogroup3">' +
-						// '<input name="name_radiogroup_example" type="radio">radio3' +
-						// '</label>' +
-						// '</div>' +
-					// '</div>';
-				
-					// _this.field_add_others =
-					// '<div id="radio_plus_or_minus" class="form-group">' +
-						// '<label>(only input fields with valid values will be saved)</label>' +
-						// '<br><button id="radio_plus" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus fa-fw"></i></button>&nbsp;' +
-						// '<button id="radio_minus" type="button" class="btn btn-success btn-xs"><i class="fa fa-minus fa-fw"></i></button>&nbsp;' +
-						// '<button id="radio_reset" type="button" class="btn btn-success btn-xs"><i class="fa fa-undo fa-fw"></i></button>' +
-						// '<div id="radio_div_1" class="radio">' +
-							// '<input id="radio_radio_1" name="name_radiogroup" type="radio">' +
-							// '<input id="radio_input_1" type="text" class="form-control input-sm">' +
-						// '</div>' +
-						// '<div id="radio_div_2" class="radio">' +
-							// '<input id="radio_radio_2" name="name_radiogroup" type="radio">' +
-							// '<input id="radio_input_2" type="text" class="form-control input-sm">' +
-						// '</div>' +
-						// '<div id="radio_div_3" class="radio">' +
-							// '<input id="radio_radio_3" name="name_radiogroup" type="radio">' +
-							// '<input id="radio_input_3" type="text" class="form-control input-sm">' +
-						// '</div>' +
-					// '</div>';
-
 					break;
 
 				case 7: //Checkboxgroup
 					_this.show_checkboxgroup = true;
-				
-					// var checkboxgroup0 = $('#field_add_name').val();
-					// if(checkboxgroup0==''){checkboxgroup0='未命名'};
-					// select_example=
-					// '<label>' + checkboxgroup0 + '</label>' +
-					// '<div class="form-group">' +
-						// '<div class="checkbox">' +
-						// '<label id="field_add_example_checkboxgroup1">' +
-						// '<input type="checkbox">checkbox1' +
-						// '</label>' +
-						// '</div>' +
-						// '<div class="checkbox">' +
-						// '<label id="field_add_example_checkboxgroup2">' +
-						// '<input type="checkbox">checkbox2' +
-						// '</label>' +
-						// '</div>' +
-						// '<div class="checkbox">' +
-						// '<label id="field_add_example_checkboxgroup3">' +
-						// '<input type="checkbox">checkbox3' +
-						// '</label>' +
-						// '</div>' +
-					// '</div>';					
-				
-					// _this.field_add_others =
-					// '<div id="checkbox_plus_or_minus" class="form-group">' +
-						// '<label>(only input fields with valid values will be saved)</label>' +
-						// '<br><button id="checkbox_plus" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus fa-fw"></i></button>&nbsp;' +
-						// '<button id="checkbox_minus" type="button" class="btn btn-success btn-xs"><i class="fa fa-minus fa-fw"></i></button>&nbsp;' +
-						// '<button id="checkbox_reset" type="button" class="btn btn-success btn-xs"><i class="fa fa-undo fa-fw"></i></button>' +
-						// '<div id="checkbox_div_1" class="checkbox">' +
-							// '<input id="checkbox_checkbox_1" type="checkbox">' +
-							// '<input id="checkbox_input_1" type="text" class="form-control input-sm">' +
-						// '</div>' +
-						// '<div id="checkbox_div_2" class="checkbox">' +
-							// '<input id="checkbox_checkbox_2" type="checkbox">' +
-							// '<input id="checkbox_input_2" type="text" class="form-control input-sm">' +
-						// '</div>' +
-						// '<div id="checkbox_div_3" class="checkbox">' +
-							// '<input id="checkbox_checkbox_3" value="option1" type="checkbox">' +
-							// '<input id="checkbox_input_3" type="text" class="form-control input-sm">' +
-						// '</div>' +
-					// '</div>';
-				
 					break;
 
 				case 8: //Combobox
 					_this.show_combobox = true;
-				
-					// var combobox0 = $('#field_add_name').val();
-					// if(combobox0==''){combobox0='未命名'};
-					// select_example=
-					// '<label>' + combobox0 + '</label>' +
-					// '<select id="field_add_example_combobox" class="form-control input-sm">' +
-						// '<option value=""></option>' +
-						// '<option value="">combobox1</option>' +
-						// '<option value="">combobox2</option>' +
-						// '<option value="">combobox3</option>' +
-					// '</select>';
-					
-					// _this.field_add_others =
-					// '<div id="combobox_plus_or_minus" class="form-group">' +
-						// '<label>(only input fields with valid values will be saved)</label>' +
-						// '<br><button id="combobox_plus" type="button" class="btn btn-success btn-xs"><i class="fa fa-plus fa-fw"></i></button>&nbsp;' +
-						// '<button id="combobox_minus" type="button" class="btn btn-success btn-xs"><i class="fa fa-minus fa-fw"></i></button>&nbsp;' +
-						// '<button id="combobox_reset" type="button" class="btn btn-success btn-xs"><i class="fa fa-undo fa-fw"></i></button>' +
-						// '<div id="combobox_div_1" class="radio">' +
-							// '<input id="combobox_radio_1" name="name_combobox" type="radio">' +
-							// '<input id="combobox_input_1" type="text" class="form-control input-sm">' +
-						// '</div>' +
-						// '<div id="combobox_div_2" class="radio">' +
-							// '<input id="combobox_radio_2" name="name_combobox" type="radio">' +
-							// '<input id="combobox_input_2" type="text" class="form-control input-sm">' +
-						// '</div>' +
-						// '<div id="combobox_div_3" class="radio">' +
-							// '<input id="combobox_radio_3" name="name_combobox" type="radio">' +
-							// '<input id="combobox_input_3" type="text" class="form-control input-sm">' +
-						// '</div>' +
-					// '</div>';
-				
 					break;
 
 				case 9: //File
 					_this.show_file = true;
-				
-					// var file0 = $('#field_add_name').val();
-					// if(file0==''){file0='上传文件'};
-
-					// _this.field_add_others =
-					// '<label>' + file0 + '</label>' +
-					// '<input id="field_add_example_file" type="file">';
-				
 					break;
 				
 				default:
