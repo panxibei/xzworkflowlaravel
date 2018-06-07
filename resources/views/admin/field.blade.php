@@ -837,6 +837,7 @@ var vm_field = new Vue({
 			}
 			postdata['placeholder'] = postdata['placeholder'] || '';
 			postdata['regexp'] = postdata['regexp'] || '';
+			postdata['value'] = postdata['value'] || '';
 
 
 			var url = "{{ route('admin.field.create') }}";

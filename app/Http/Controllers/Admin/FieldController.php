@@ -69,7 +69,7 @@ class FieldController extends Controller
 		$page = $request->input('page');
 		if (null == $page) $page = 1;
 
-		$field = Field::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+		$field = Field::select('id', 'name', 'type', 'bgcolor', 'readonly', 'value', 'placeholder', 'regexp', 'helpblock', 'created_at', 'updated_at')
 			->paginate($perPage, ['*'], 'page', $page);
 
 		return $field;
