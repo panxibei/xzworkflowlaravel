@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Field extends Model
 {
-    //
+	protected $fillable = [
+        'name', 'type', 'password', 'bgcolor', 'readonly', 'value', 'placeholder', 'regexp', 'helpblock',
+    ];
+
 }

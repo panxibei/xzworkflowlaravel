@@ -74,6 +74,42 @@ class FieldController extends Controller
 
 		return $field;
     }
+
+    /**
+     * field create ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function fieldCreate(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$postdata = $request->input('params.postdata');
+		// dd($postdata);
+		
+        // 新增field
+		try	{
+			$result = Field::create([
+				'name' => $postdata['name'],
+				'type' => $postdata['type'],
+				'bgcolor' => $postdata['bgcolor'],
+				'readonly' => $postdata['readonly'],
+				'value' => $postdata['value'],
+				'placeholder' => $postdata['placeholder'],
+				'regexp' => $postdata['regexp'],
+				'helpblock' => $postdata['helpblock']
+			]);
+
+			$result = 1;
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+
+		return $result;
+    }
 	
 	
 }

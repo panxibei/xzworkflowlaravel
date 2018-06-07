@@ -168,7 +168,7 @@ Admin(Field) -
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input ref="field_add_regexp" type="text" class="form-control input-sm">
+														<input v-model="field_add_regexp" type="text" class="form-control input-sm">
 													</div>
 													</div>
 													
@@ -194,7 +194,7 @@ Admin(Field) -
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input ref="field_add_regexp" type="text" class="form-control input-sm" value="^[1-9]\d*$">
+														<input v-model="field_add_regexp" type="text" class="form-control input-sm" placeholder="^[1-9]\d*$">
 													</div>
 													</div>
 
@@ -210,7 +210,7 @@ Admin(Field) -
 													</div>
 													<div class="form-group">
 														<label>正则表达式</label>
-														<input ref="field_add_regexp" type="text" class="form-control input-sm" value="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
+														<input v-model="field_add_regexp" type="text" class="form-control input-sm" placeholder="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
 													</div>
 													</div>
 													
@@ -223,10 +223,6 @@ Admin(Field) -
 													<div class="form-group">
 														<label>占位符</label>
 														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入大段文字">
-													</div>
-													<div class="form-group">
-														<label>正则表达式</label>
-														<input ref="field_add_regexp" type="text" class="form-control input-sm" value="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
 													</div>
 													</div>
 													
@@ -343,8 +339,8 @@ Admin(Field) -
 									</div>
 									<div class="col-lg-4">
 										<div class="form-group">
-											<btn type="primary" @click="" size="sm">Create</btn>&nbsp;
-											<btn type="default" @click="field_add_reset" size="sm">Reset</btn>
+											<btn type="primary" @click="fieldcreate" size="sm">Create</btn>&nbsp;
+											<btn type="default" @click="fieldreset" size="sm">Reset</btn>
 										</div>
 										<div class="panel panel-default">
 											<div class="panel-heading"><label>示例/结果</label></div>
@@ -624,7 +620,7 @@ var vm_field = new Vue({
 				// {value: 2, label: ''}
 			// ];
 		},
-		field_add_reset: function () {
+		fieldreset: function () {
 			var _this = this;
 			_this.field_add_name = '';
 			_this.field_selected_add_type = [];
@@ -638,6 +634,10 @@ var vm_field = new Vue({
 			_this.field_add_ischecked = false;
 			
 			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
+		
+			_this.radiochecked_generate(2);
+			_this.checkboxchecked_generate(2);
+			_this.comboboxchecked_generate(2);
 		},
 		// 把laravel返回的结果转换成select能接受的格式
 		json2selectvalue: function (json) {
@@ -674,23 +674,19 @@ var vm_field = new Vue({
 		// 1.选择不同类型
 		field_add_type_change: function (value) {
 			var _this = this;
-			// alert(value[0]);
 			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
 
 			switch(value[0])
 			{
 				case 1: //text
-				
 					_this.show_text = true;
 					break;
 
 				case 2: //True/False
-				
 					_this.show_trueorfalse = true;
 					break;
 
 				case 3: //Number
-				
 					_this.show_number = true;
 					break;
 
@@ -719,23 +715,16 @@ var vm_field = new Vue({
 					break;
 				
 				default:
-				
 					// _this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
-
-			}			
-			
-			
-			
-			
-			
+			}
 		},
 		// 2.创建field
 		fieldcreate: function () {
 			var _this = this;
-			var fieldname = _this.$refs.fieldcreateinput.value;
-			var url = "{{ route('admin.field.create') }}";
-
-			if(fieldname.length==0){
+			
+			var field_add_name = _this.field_add_name;
+			
+			if(field_add_name.length==0){
 				_this.notification_type = 'danger';
 				_this.notification_title = 'Error';
 				_this.notification_content = 'Please input the field name!';
@@ -743,39 +732,141 @@ var vm_field = new Vue({
 				return false;
 			}
 			
+			var postdata = {};
+			postdata['name'] = field_add_name;
+			
+			var field_selected_add_type = _this.field_selected_add_type[0];
+			postdata['type'] = field_selected_add_type;
+			
+			var field_add_bgcolor_hex = _this.field_add_bgcolor_hex;
+			postdata['bgcolor'] = field_add_bgcolor_hex || '';
+			
+			var field_add_helpblock = _this.field_add_helpblock;
+			postdata['helpblock'] = field_add_helpblock || '';
+			
+			var field_add_readonly = _this.field_add_readonly;
+			postdata['readonly'] = field_add_readonly ? '1' : '0';
+			
+			var field_add_defaultvalue = _this.field_add_defaultvalue;
+			var field_add_placeholder = _this.field_add_placeholder;
+			var field_add_regexp = _this.field_add_regexp;
+			var field_add_ischecked = _this.field_add_ischecked;
+
+			var tmpstr = '';
+			// console.log(_this.radiochecked);
+			_this.radiochecked.map(function (v,i) {
+				// console.log(v.value);
+				// console.log(v.ischecked);
+				tmpstr += v.value + '---' + (v.ischecked?1:0) + '---';
+			});
+			var radiochecked = tmpstr.substring(0, tmpstr.length-3);
+			// console.log(radiochecked);
+
+			tmpstr = '';
+			// console.log(_this.checkboxchecked);
+			_this.checkboxchecked.map(function (v,i) {
+				// console.log(v.value);
+				// console.log(v.ischecked);
+				tmpstr += v.value + '---' + (v.ischecked?1:0) + '---';
+			});
+			var checkboxchecked = tmpstr.substring(0, tmpstr.length-3);
+			// console.log(checkboxchecked);
+
+			tmpstr = '';
+			// console.log(_this.comboboxchecked_select[0]);
+			// console.log(_this.comboboxchecked);
+			_this.comboboxchecked.map(function (v,i) {
+				// console.log(v.value);
+				// console.log(v.label);
+				tmpstr += v.label + '---' + (_this.comboboxchecked_select[0]==v.value?1:0) + '---';
+			});
+			var comboboxchecked = tmpstr.substring(0, tmpstr.length-3);
+			// console.log(comboboxchecked);			
+			
+			// 分配
+			switch(field_selected_add_type)
+			{
+				case 1: //text
+					postdata['value'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					postdata['regexp'] = field_add_regexp;
+					break;
+
+				case 2: //True/False
+					postdata['value'] = field_add_ischecked?'1':'0';
+					break;
+
+				case 3: //Number
+					postdata['value'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					postdata['regexp'] = field_add_regexp;
+					break;
+
+				case 4: //Date
+					postdata['value'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					postdata['regexp'] = field_add_regexp;
+					break;
+
+				case 5: //Textfield
+					postdata['defaultvalue'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					break;
+
+				case 6: //Radiogroup
+					postdata['value'] = radiochecked;
+					break;
+
+				case 7: //Checkboxgroup
+					postdata['value'] = checkboxchecked;
+					break;
+
+				case 8: //Combobox
+					postdata['value'] = comboboxchecked;
+					break;
+
+				case 9: //File
+					break;
+				
+				default:
+					_this.notification_type = 'danger';
+					_this.notification_title = 'Error';
+					_this.notification_content = 'Field type error!';
+					_this.notification_message();
+					return false;
+			}
+			postdata['placeholder'] = postdata['placeholder'] || '';
+			postdata['regexp'] = postdata['regexp'] || '';
+
+
+			var url = "{{ route('admin.field.create') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					fieldname: fieldname
+					postdata: postdata
 				}
 			})
 			.then(function (response) {
 				// console.log(response);
 				if (typeof(response.data) == "undefined") {
-					// _this.alert_message('WARNING', 'Field [' + fieldname + '] failed to create!');
 					_this.notification_type = 'danger';
 					_this.notification_title = 'Error';
-					_this.notification_content = 'Field [' + fieldname + '] failed to create!';
+					_this.notification_content = 'Field [' + field_add_name + '] failed to create!';
 					_this.notification_message();
 				} else {
-					// _this.alert_message('SUCCESS', 'Field [' + fieldname + '] created successfully!');
 					_this.notification_type = 'success';
 					_this.notification_title = 'Success';
-					_this.notification_content = 'Field [' + fieldname + '] created successfully!';
+					_this.notification_content = 'Field [' + field_add_name + '] created successfully!';
 					_this.notification_message();
 
 					// 刷新
-					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
-				// console.log(error);
-				// alert(error.response.data.message);
-				// _this.alert_message('ERROR', error.response.data.message);
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
+				// _this.notification_type = 'warning';
+				// _this.notification_title = 'Warning';
+				// _this.notification_content = error.response.data.message;
+				// _this.notification_message();
 			})
 		},
 		// 3.删除field
