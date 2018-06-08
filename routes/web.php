@@ -62,7 +62,7 @@ Route::group(['prefix'=>'field', 'namespace'=>'Admin', 'middleware'=>['jwtauth',
 	Route::get('fieldGets', 'FieldController@fieldGets')->name('admin.field.fieldgets');
 	
 	// 创建field
-	Route::post('fieldCreate', 'FieldController@fieldCreate')->name('admin.field.create');
+	Route::post('fieldCreateOrUpdate', 'FieldController@fieldCreateOrUpdate')->name('admin.field.createorupdate');
 
 	// 删除field
 	Route::post('fieldDelete', 'FieldController@fieldDelete')->name('admin.field.fielddelete');

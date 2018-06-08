@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
 <link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/jquery.spinner/css/bootstrap-spinner.min.css') }}">
+<link rel="stylesheet" href="{{ asset('statics/jquery.spinner/css/bootstrap-spinner.css') }}">
 <style type="text/css">
 	/* 解决闪烁问题的CSS */
 	[v-cloak] {	display: none; }

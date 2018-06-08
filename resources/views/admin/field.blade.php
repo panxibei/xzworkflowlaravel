@@ -29,7 +29,7 @@ Admin(Field) -
 					<div class="row">
 
 					<div class="panel-body">
-						<tabs>
+						<tabs v-model="currenttabs">
 							<tab title="Field List">
 								<!--field列表-->
 								<div class="col-lg-12">
@@ -53,7 +53,7 @@ Admin(Field) -
 												</tr>
 											</thead>
 											<tbody>
-												<tr v-for="val in gets.data">
+												<tr v-for="(val, index) in gets.data">
 													<td><div>@{{ val.id }}</div></td>
 													<td><div>@{{ val.name }}</div></td>
 													<td><div>@{{ val.type }}</div></td>
@@ -65,8 +65,10 @@ Admin(Field) -
 													<td><div>@{{ val.helpblock }}</div></td>
 													<td><div>@{{ val.created_at }}</div></td>
 													<td><div>@{{ val.updated_at }}</div></td>
-													<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
-													&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
+													<td><div>
+													<btn @click="field_detail(index)" size="xs" type="primary"><i class="fa fa-edit fa-fw"></i></btn>&nbsp;
+													<button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>&nbsp;
+													<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
 												</tr>
 											</tbody>
 										</table>
@@ -111,23 +113,24 @@ Admin(Field) -
 									</div>
 								</div>
 							</tab>
-							<tab title="Create Field">
+							<tab title="Create/Edit Field">
 								<!--操作1-->
 								<div class="col-lg-12">
 									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
 									<div class="col-lg-8">
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>选择元素</label></div>
+											<div class="panel-heading"><label>新建元素</label></div>
 											<div class="panel-body">
 
 												<div class="col-lg-6">
 													<div class="form-group">
 														<label>名称</label>
+														<input v-model="field_add_id" type="text" class="form-control input-sm" hidden="hidden">
 														<input v-model="field_add_name" type="text" class="form-control input-sm">
 													</div>
 													<div class="form-group">
 														<label>类型</label><br>
-														<multi-select v-model="field_selected_add_type" :options="field_options_add_type" :limit="1" @change="field_add_type_change" filterable collapse-selected size="sm" placeholder="Select the type ..."/>
+														<multi-select v-model="field_selected_add_type" :options="field_options_add_type" :limit="1" @change="field_add_type_change(field_selected_add_type[0])" filterable collapse-selected size="sm" placeholder="Select the type ..."/>
 													</div>
 
 													<div class="form-group">
@@ -339,11 +342,12 @@ Admin(Field) -
 									</div>
 									<div class="col-lg-4">
 										<div class="form-group">
-											<btn type="primary" @click="fieldcreate" size="sm">Create</btn>&nbsp;
+											<btn type="primary" @click="fieldcreateorupdate('create')" size="sm">Create</btn>&nbsp;
+											<btn type="primary" @click="fieldcreateorupdate('update')" size="sm">Update</btn>&nbsp;
 											<btn type="default" @click="fieldreset" size="sm">Reset</btn>
 										</div>
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>示例/结果</label></div>
+											<div class="panel-heading"><label>示例/结果（新建）</label></div>
 											<div class="panel-body">
 
 											<!--field example-->
@@ -433,13 +437,12 @@ Admin(Field) -
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
 
-
-
 											</div>
 										</div>
 									</div>
 								</div>
 							</tab>
+							
 						</tabs>
 
 					</div>
@@ -474,21 +477,23 @@ var vm_field = new Vue({
 	},
     data: {
 		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_ROLE'] }},
+		perpage: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
+		// 创建ID
+		field_add_id: '',
 		// 创建名称
 		field_add_name: '',
 		// 创建类型
 		field_selected_add_type: [],
         field_options_add_type: [
-			{value: 1, label:'1-Text'},
-			{value: 2, label:'2-True/False'},
-			{value: 3, label:'3-Number'},
-			{value: 4, label:'4-Date'},
-			{value: 5, label:'5-Textfield'},
-			{value: 6, label:'6-Radiogroup'},
-			{value: 7, label:'7-Checkboxgroup'},
-			{value: 8, label:'8-Combobox'},
-			{value: 9, label:'9-File'}
+			{value: '1-Text', label: '1-Text'},
+			{value: '2-True/False', label: '2-True/False'},
+			{value: '3-Number', label: '3-Number'},
+			{value: '4-Date', label: '4-Date'},
+			{value: '5-Textfield', label: '5-Textfield'},
+			{value: '6-Radiogroup', label: '6-Radiogroup'},
+			{value: '7-Checkboxgroup', label: '7-Checkboxgroup'},
+			{value: '8-Combobox', label: '8-Combobox'},
+			{value: '9-File', label: '9-File'}
 		],
 		// 创建背景色
 		field_add_bgcolor: '',
@@ -541,9 +546,114 @@ var vm_field = new Vue({
 			{value: 3, label:'Option3333333333'},
 			{value: 4, label:'Option4'},
 			{value: 5, label:'Option5'}
-        ]
+        ],
+		// tabs索引
+		currenttabs: 0
     },
 	methods: {
+		// 显示当前field并切换到编辑界面
+		field_detail: function (index) {
+			var _this = this;
+			// console.log(index);
+			// console.log(_this.gets.data[index].readonly);
+			// _this.field_add_type_change(_this.gets.data[index].type);
+			
+			_this.field_add_id = _this.gets.data[index].id;
+			_this.field_add_name = _this.gets.data[index].name;
+			_this.field_selected_add_type = [_this.gets.data[index].type];
+			_this.field_add_bgcolor_hex = _this.gets.data[index].bgcolor;
+			
+			_this.field_add_helpblock = _this.gets.data[index].helpblock;
+			_this.field_add_readonly = _this.gets.data[index].readonly ? true : false;
+			_this.field_add_placeholder = _this.gets.data[index].placeholder;
+			_this.field_add_regexp = _this.gets.data[index].regexp;
+
+			
+			// _this.field_add_defaultvalue = _this.gets.data[index].defaultvalue;
+			// 选择不同field显示不同值
+			switch(_this.gets.data[index].type)
+			{
+				case '1-Text': //text
+					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					break;
+
+				case '2-True/False': //True/False
+					_this.field_add_ischecked = _this.gets.data[index].value ? true : false;
+					break;
+
+				case '3-Number': //Number
+					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					break;
+
+				case '4-Date': //Date
+					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					break;
+
+				case '5-Textfield': //Textfield
+					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					break;
+
+				case '6-Radiogroup': //Radiogroup
+					var arr_tmp = _this.gets.data[index].value.split('---');
+					var arr_counts = arr_tmp.length;
+					var arr_result = [];
+					
+					for(var i=0;i<arr_counts;i+=2)
+					{
+						arr_result.push({value: arr_tmp[i], ischecked: arr_tmp[i+1]==1?true:false});
+					}
+					_this.radiochecked = arr_result;
+
+					break;
+
+				case '7-Checkboxgroup': //Checkboxgroup
+					arr_tmp = _this.gets.data[index].value.split('---');
+					arr_counts = arr_tmp.length;
+					arr_result = [];
+					
+					for(var i=0;i<arr_counts;i+=2)
+					{
+						arr_result.push({value: arr_tmp[i], ischecked: arr_tmp[i+1]==1?true:false});
+					console.log(arr_tmp[i+1]);
+					}
+					_this.checkboxchecked = arr_result;
+
+					break;
+
+				case '8-Combobox': //Combobox
+					arr_tmp = _this.gets.data[index].value.split('---');
+					arr_counts = arr_tmp.length;
+					arr_result = [];
+					var selectstring = '';
+					
+					for(var i=0;i<arr_counts;i+=2)
+					{
+						// arr_result.push({value: arr_tmp[i], label: arr_tmp[i+1]==1?true:false});
+						arr_result.push({value: arr_tmp[i], label: arr_tmp[i]});
+						if (arr_tmp[i+1] == 1) {
+							selectstring = arr_tmp[i];
+						}
+					}
+					_this.comboboxchecked = arr_result;
+					_this.comboboxchecked_select = [selectstring];
+					
+					break;
+
+				case '9-File': //File
+					
+					break;
+				
+				default:
+			}
+
+
+
+			// 切换出相应field状态			
+			_this.field_add_type_change(_this.gets.data[index].type);
+
+			// 切换到第二个面板
+			_this.currenttabs = 1;
+		},
 		// 点击radio后选中的状态
 		radiochecked_change: function (index) {
 			this.radiochecked.map(function (v,i) {
@@ -676,41 +786,41 @@ var vm_field = new Vue({
 			var _this = this;
 			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
 
-			switch(value[0])
+			switch(value)
 			{
-				case 1: //text
+				case '1-Text': //text
 					_this.show_text = true;
 					break;
 
-				case 2: //True/False
+				case '2-True/False': //True/False
 					_this.show_trueorfalse = true;
 					break;
 
-				case 3: //Number
+				case '3-Number': //Number
 					_this.show_number = true;
 					break;
 
-				case 4: //Date
+				case '4-Date': //Date
 					_this.show_date = true;
 					break;
 
-				case 5: //Textfield
+				case '5-Textfield': //Textfield
 					_this.show_textfield = true;
 					break;
 
-				case 6: //Radiogroup
+				case '6-Radiogroup': //Radiogroup
 					_this.show_radiogroup = true;
 					break;
 
-				case 7: //Checkboxgroup
+				case '7-Checkboxgroup': //Checkboxgroup
 					_this.show_checkboxgroup = true;
 					break;
 
-				case 8: //Combobox
+				case '8-Combobox': //Combobox
 					_this.show_combobox = true;
 					break;
 
-				case 9: //File
+				case '9-File': //File
 					_this.show_file = true;
 					break;
 				
@@ -718,10 +828,10 @@ var vm_field = new Vue({
 					// _this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
 			}
 		},
-		// 2.创建field
-		fieldcreate: function () {
+		// 2.创建或更新field
+		fieldcreateorupdate: function (createorupdate) {
 			var _this = this;
-			
+			var field_add_id = _this.field_add_id;
 			var field_add_name = _this.field_add_name;
 			
 			if(field_add_name.length==0){
@@ -733,6 +843,9 @@ var vm_field = new Vue({
 			}
 			
 			var postdata = {};
+			postdata['createorupdate'] = createorupdate;
+			
+			postdata['id'] = field_add_id;
 			postdata['name'] = field_add_name;
 			
 			var field_selected_add_type = _this.field_selected_add_type[0];
@@ -786,46 +899,46 @@ var vm_field = new Vue({
 			// 分配
 			switch(field_selected_add_type)
 			{
-				case 1: //text
+				case '1-Text': //text
 					postdata['value'] = field_add_defaultvalue;
 					postdata['placeholder'] = field_add_placeholder;
 					postdata['regexp'] = field_add_regexp;
 					break;
 
-				case 2: //True/False
+				case '2-True/False': //True/False
 					postdata['value'] = field_add_ischecked?'1':'0';
 					break;
 
-				case 3: //Number
+				case '3-Number': //Number
 					postdata['value'] = field_add_defaultvalue;
 					postdata['placeholder'] = field_add_placeholder;
 					postdata['regexp'] = field_add_regexp;
 					break;
 
-				case 4: //Date
+				case '4-Date': //Date
 					postdata['value'] = field_add_defaultvalue;
 					postdata['placeholder'] = field_add_placeholder;
 					postdata['regexp'] = field_add_regexp;
 					break;
 
-				case 5: //Textfield
+				case '5-Textfield': //Textfield
 					postdata['defaultvalue'] = field_add_defaultvalue;
 					postdata['placeholder'] = field_add_placeholder;
 					break;
 
-				case 6: //Radiogroup
+				case '6-Radiogroup': //Radiogroup
 					postdata['value'] = radiochecked;
 					break;
 
-				case 7: //Checkboxgroup
+				case '7-Checkboxgroup': //Checkboxgroup
 					postdata['value'] = checkboxchecked;
 					break;
 
-				case 8: //Combobox
+				case '8-Combobox': //Combobox
 					postdata['value'] = comboboxchecked;
 					break;
 
-				case 9: //File
+				case '9-File': //File
 					break;
 				
 				default:
@@ -840,7 +953,7 @@ var vm_field = new Vue({
 			postdata['value'] = postdata['value'] || '';
 
 
-			var url = "{{ route('admin.field.create') }}";
+			var url = "{{ route('admin.field.createorupdate') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
