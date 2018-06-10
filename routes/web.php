@@ -116,6 +116,9 @@ Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwta
 	// fieldsort
 	Route::post('fieldSort', 'Slot2fieldController@fieldSort')->name('admin.slot2field.fieldsort');
 
+	// slot2fieldadd
+	Route::post('slot2fieldAdd', 'Slot2fieldController@slot2fieldAdd')->name('admin.slot2field.slot2fieldadd');
+
 	// 创建slot
 	// Route::post('templateCreateOrUpdate', 'TemplateController@templateCreateOrUpdate')->name('admin.template.createorupdate');
 

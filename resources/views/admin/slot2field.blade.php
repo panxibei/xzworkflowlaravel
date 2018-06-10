@@ -40,41 +40,53 @@ Admin(slot2field) -
 											<div class="panel-heading"><label>编辑 Slot2Field</label></div>
 											<div class="panel-body">
 
-												<div class="col-lg-4">
+												<div class="col-lg-3">
+													<div class="form-group">
+														<input placeholder="过滤器: Slot 创建开始时间" type="text" class="form-control"><br>
+														<input placeholder="过滤器: Slot 创建结束时间" type="text" class="form-control">
+													</div>
 													<div class="form-group">
 														<label>Select Slot</label><br>
 														<multi-select @change="change_slot()" v-model="slot_select" :options="slot_options"  :limit="1" filterable collapse-selected size="sm" />
+													</div>
+													<btn @click="slot2field_review" type="primary" size="sm">Review</btn>&nbsp;
+												</div>
+
+												<div class="col-lg-3">
+													<div class="form-group">
+														<input placeholder="过滤器: Field 创建开始时间" type="text" class="form-control"><br>
+														<input placeholder="过滤器: Field 创建结束时间" type="text" class="form-control">
 													</div>
 													<div class="form-group">
 														<label>Select field(s)</label><br>
 														<multi-select v-model="field_select" :options="field_options"  filterable collapse-selected size="sm" />
 													</div>
-													<btn @click="" type="primary" size="xs">Add</btn>&nbsp;
+													<btn @click="slot2field_add" type="primary" size="sm">Add</btn>&nbsp;
 												</div>
 
-												<div class="col-lg-8">
+												<div class="col-lg-6">
 
-									<div class="table-responsive">
-										<table class="table table-condensed">
-											<thead>
-												<tr>
-													<th>sort</th>
-													<th>name</th>
-													<th>操作</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr v-for="(val, index) in gets">
-													<td><div>@{{ index }}</div></td>
-													<td><div>@{{ val.name }}</div></td>
-													<td><div>
-													<btn @click="field_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
-													<btn @click="field_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
-													<btn @click="field_remove(val.id)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
-												</tr>
-											</tbody>
-										</table>												
-									</div>
+													<div class="table-responsive">
+														<table class="table table-condensed">
+															<thead>
+																<tr>
+																	<th>sort</th>
+																	<th>name</th>
+																	<th>操作</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr v-for="(val, index) in gets">
+																	<td><div>@{{ index }}</div></td>
+																	<td><div>@{{ val.name }}</div></td>
+																	<td><div>
+																	<btn @click="field_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
+																	<btn @click="field_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
+																	<btn @click="field_remove(val.id)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
 												
 												</div>
 											</div>
@@ -129,19 +141,19 @@ var vm_slot2field = new Vue({
 		// perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
 		slot_select: [],
         slot_options: [
-			{value: 1, label:'Option1'},
-			{value: 2, label:'Option2'},
-			{value: 3, label:'Option3333333333'},
-			{value: 4, label:'Option4'},
-			{value: 5, label:'Option5'}
+			// {value: 1, label:'Option1'},
+			// {value: 2, label:'Option2'},
+			// {value: 3, label:'Option3333333333'},
+			// {value: 4, label:'Option4'},
+			// {value: 5, label:'Option5'}
         ],
 		field_select: [],
         field_options: [
-			{value: 1, label:'Option1'},
-			{value: 2, label:'Option2'},
-			{value: 3, label:'Option3333333333'},
-			{value: 4, label:'Option4'},
-			{value: 5, label:'Option5'}
+			// {value: 1, label:'Option1'},
+			// {value: 2, label:'Option2'},
+			// {value: 3, label:'Option3333333333'},
+			// {value: 4, label:'Option4'},
+			// {value: 5, label:'Option5'}
         ],
 
 		// tabs索引
@@ -218,10 +230,9 @@ var vm_slot2field = new Vue({
 				}
 			})
 			.then(function (response) {
-				// console.log(response.data[4]);
-				// if (response.data != undefined) {
-					// _this.gets = response.data;
-				// }
+				if (response.data != undefined) {
+					_this.gets = response.data;
+				}
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -245,10 +256,9 @@ var vm_slot2field = new Vue({
 				}
 			})
 			.then(function (response) {
-				// if (response.data != undefined) {
-					// _this.gets = response.data;
+				if (response.data != undefined) {
 					_this.change_slot();
-				// }
+				}
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -271,15 +281,45 @@ var vm_slot2field = new Vue({
 				}
 			})
 			.then(function (response) {
-				// if (response.data != undefined) {
-					// _this.gets = response.data;
+				if (response.data != undefined) {
 					_this.change_slot();
-				// }
+				}
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
 			})
+		},
+		slot2field_add: function () {
+			var _this = this;
+			var slotid = _this.slot_select[0];
+			var fieldid = _this.field_select;
+			// console.log(slotid);
+			console.log(fieldid);
+			
+			if (slotid == undefined || fieldid == undefined) return false;
+			
+			var url = "{{ route('admin.slot2field.slot2fieldadd') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					slotid: slotid,
+					fieldid: fieldid
+				}
+			})
+			.then(function (response) {
+				// console.log(response.data);
+				if (response.data != undefined) {
+					_this.change_slot();
+				}
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		slot2field_review: function () {
+			
 		}
 	},
 	mounted: function(){

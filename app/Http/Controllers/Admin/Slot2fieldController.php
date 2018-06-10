@@ -9,6 +9,7 @@ use App\Models\Config;
 use App\Models\Slot2field;
 use App\Models\Slot;
 use App\Models\Field;
+use DB;
 
 class Slot2fieldController extends Controller
 {
@@ -46,12 +47,15 @@ class Slot2fieldController extends Controller
     public function slot2fieldGets(Request $request)
     {
 		if (! $request->ajax()) { return null; }
-
+		
+		$limit = $request->only('limit');
+		$limit = sizeof($limit) == 0 ? 10 : $limit;
+// dd($limit);
 		// 所有的slot
-		$slot = Slot::pluck('name', 'id')->toArray();
+		$slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
 
 		// 所有的field
-		$field = Field::pluck('name', 'id')->toArray();
+		$field = array_reverse(Field::limit($limit)->pluck('name', 'id')->toArray());
 
 		$slot2field = compact('slot', 'field');
 		
@@ -81,12 +85,21 @@ class Slot2fieldController extends Controller
 // dd($arr_fieldid);		
 		
 		// 所有的field
-		$field = Field::select('id', 'name')
-			->whereIn('id', $arr_fieldid)
-			->get()
-			->orderByRaw()->toArray();
-dd($field);
+		// $field = Field::select('id', 'name')
+			// ->whereIn('id', $arr_fieldid)
+			// ->orderByRaw(DB::raw("FIELD(id, ".$fieldid[0]['field_id']." )"))
+			// ->get()
+			// ->toArray();
 		
+		foreach ($arr_fieldid as $value) {
+			$field[] = Field::select('id', 'name')
+				->where('id', $value)
+				->first()
+				->toArray();
+		}
+
+// dd($field);
+
 		return $field;
     }
 
@@ -145,8 +158,6 @@ dd($field);
 		$fieldid = implode(',', $arr_temp);
 // dd($fieldid);
 		
-		
-		
 		// 根据slotid查询相应的field
 		$result = Slot2field::where('slot_id', $sortinfo['params']['slotid'])
 			->update([
@@ -156,6 +167,66 @@ dd($field);
 		
 		return $result;
     }
+
+	/**
+     * slot2fieldAdd ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	 public function slot2fieldAdd(Request $request)
+	 {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$slotid = $request->only('params.slotid');
+		$slotid = $slotid['params']['slotid'];
+
+		$fieldid = $request->only('params.fieldid');
+		$fieldid = implode(',', $fieldid['params']['fieldid']);
+// dd($slotid['params']['slotid']);
+
+		$fieldid_before = Slot2field::select('field_id')
+			->where('slot_id', $slotid)
+			->get()->toArray();
+// dd(implode(',', $fieldid_before[0]));
+
+		if (sizeof($fieldid_before) == 0) {
+			$fieldid_after = $fieldid;
+// dd($slotid);			
+			try {
+				$result = Slot2field::create([
+					'slot_id' => $slotid,
+					'field_id' => $fieldid_after
+				]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+// dd($result);
+		} else {
+			$fieldid_after = implode(',', $fieldid_before[0]) . ',' . $fieldid;
+
+			try {
+				$result = Slot2field::where('slot_id', $slotid)
+					->update([
+						'slot_id' => $slotid,
+						'field_id' => $fieldid_after
+					]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		
+		}
+// dd($fieldid_after);
+// dd($result);
+		return $result;
+
+	 }
 
 
 }
