@@ -41,9 +41,15 @@ Admin(Field) -
 													<th>id</th>
 													<th>name</th>
 													<th>type</th>
+													<th>bgcolor</th>
+													<th>readonly</th>
+													<th>value</th>
+													<th>placeholder</th>
+													<th>regexp</th>
+													<th>helpblock</th>
 													<th>created_at</th>
 													<th>updated_at</th>
-													<th>操作</th>
+													<th>操作（保留）</th>
 												</tr>
 											</thead>
 											<tbody>
@@ -51,11 +57,18 @@ Admin(Field) -
 													<td><div>@{{ val.id }}</div></td>
 													<td><div>@{{ val.name }}</div></td>
 													<td><div>@{{ val.type }}</div></td>
+													<td><div>@{{ val.bgcolor }}</div></td>
+													<td><div>@{{ val.readonly }}</div></td>
+													<td><div>@{{ val.value }}</div></td>
+													<td><div>@{{ val.placeholder }}</div></td>
+													<td><div>@{{ val.regexp }}</div></td>
+													<td><div>@{{ val.helpblock }}</div></td>
 													<td><div>@{{ val.created_at }}</div></td>
 													<td><div>@{{ val.updated_at }}</div></td>
 													<td><div>
-													<btn @click="field_detail(index)" type="primary" size="xs"><i class="fa fa-edit fa-fw"></i></btn>&nbsp;
-													<btn @click="field_delete(val.id)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
+													<btn @click="field_detail(index)" size="xs" type="primary"><i class="fa fa-edit fa-fw"></i></btn>&nbsp;
+													<button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>&nbsp;
+													<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
 												</tr>
 											</tbody>
 										</table>
@@ -106,13 +119,13 @@ Admin(Field) -
 									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
 									<div class="col-lg-8">
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>新建/编辑元素</label></div>
+											<div class="panel-heading"><label>新建元素</label></div>
 											<div class="panel-body">
 
 												<div class="col-lg-6">
 													<div class="form-group">
 														<label>名称</label>
-														<input v-model="field_add_id" type="hidden" class="form-control input-sm">
+														<input v-model="field_add_id" type="text" class="form-control input-sm" hidden="hidden">
 														<input v-model="field_add_name" type="text" class="form-control input-sm">
 													</div>
 													<div class="form-group">
@@ -302,7 +315,7 @@ Admin(Field) -
 														<br><btn @click="comboboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
 														
 														<div v-for="(item,index) in comboboxchecked" class="radio">
-															<input type="radio" name="name_comboboxgroup" :value="item.value" :checked="item.ischecked" @change="comboboxchecked_change(index)">
+															<input type="radio" name="name_comboboxgroup" :value="item.value"  @change="comboboxchecked_change(index)">
 															<input type="text" class="form-control input-sm" v-model="item.label">
 														</div>														
 													</div>
@@ -334,7 +347,7 @@ Admin(Field) -
 											<btn type="default" @click="fieldreset" size="sm">Reset</btn>
 										</div>
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>示例/结果（新建/编辑）</label></div>
+											<div class="panel-heading"><label>示例/结果（新建）</label></div>
 											<div class="panel-body">
 
 											<!--field example-->
@@ -410,9 +423,9 @@ Admin(Field) -
 												
 												<!--8-Combobox-->
 												<div v-show="show_combobox">
-													<label :style="{background: field_add_bgcolor_hex}">@{{field_add_name||'未命名'}}</label>
+													<label>@{{field_add_name||'未命名'}}</label>
 													<div class="form-group">
-														<multi-select v-model="comboboxchecked_select" :options="comboboxchecked"  @change="comboboxchecked_change(comboboxchecked_select)" :limit="1" filterable collapse-selected size="sm" :placeholder="field_add_placeholder" :disabled="field_add_readonly"/>
+														<multi-select v-model="comboboxchecked_select" :options="comboboxchecked" :limit="1" filterable collapse-selected size="sm" :placeholder="field_add_placeholder" :disabled="field_add_readonly"/>
 													</div>
 													<p class="help-block">@{{field_add_helpblock}}</p>
 												</div>
@@ -510,8 +523,8 @@ var vm_field = new Vue({
 		// 创建combobox
 		comboboxchecked_select: [],
 		comboboxchecked: [
-			{value: 1, label: '', ischecked: false},
-			{value: 2, label: '', ischecked: false}
+			{value: 1, label: ''},
+			{value: 2, label: ''}
 		],
 		// field_add_others: '',
 		// field动态示例
@@ -690,28 +703,12 @@ var vm_field = new Vue({
 		},
 		// 点击combobox后选中的状态
 		comboboxchecked_change: function (index) {
-			// console.log(index);return false;
 			// console.log(this.comboboxchecked[index]);
 			// console.log(this.comboboxchecked[index].label);
 			// console.log(this.comboboxchecked[index].value);
-			if (this.comboboxchecked[index] == undefined) {
-				this.comboboxchecked_select = [];
-				this.comboboxchecked.map(function (v,i) {
-					v.ischecked = false
-				});
-				
-			} else {
-				this.comboboxchecked_select = [
-					this.comboboxchecked[index].value
-				];
-				this.comboboxchecked.map(function (v,i) {
-					if(i==index){
-						v.ischecked = true
-					}else{
-						v.ischecked = false
-					}
-				});
-			}
+			this.comboboxchecked_select = [
+				this.comboboxchecked[index].value
+			];
 
 		},
 		// 生成combobox
@@ -722,7 +719,6 @@ var vm_field = new Vue({
 				arr.push({value: i});
 			}
 			this.comboboxchecked = arr;
-			this.comboboxchecked_select = [];
 		},
 		// 取消combobox选中状态
 		comboboxchecked_reset: function () {
@@ -736,7 +732,6 @@ var vm_field = new Vue({
 		},
 		fieldreset: function () {
 			var _this = this;
-			_this.field_add_id = '';
 			_this.field_add_name = '';
 			_this.field_selected_add_type = [];
 			_this.field_add_bgcolor = '';
@@ -871,25 +866,35 @@ var vm_field = new Vue({
 			var field_add_ischecked = _this.field_add_ischecked;
 
 			var tmpstr = '';
-			// radiogroup
+			// console.log(_this.radiochecked);
 			_this.radiochecked.map(function (v,i) {
+				// console.log(v.value);
+				// console.log(v.ischecked);
 				tmpstr += v.value + '---' + (v.ischecked?1:0) + '---';
 			});
 			var radiochecked = tmpstr.substring(0, tmpstr.length-3);
+			// console.log(radiochecked);
 
 			tmpstr = '';
-			// checkboxgroup;
+			// console.log(_this.checkboxchecked);
 			_this.checkboxchecked.map(function (v,i) {
+				// console.log(v.value);
+				// console.log(v.ischecked);
 				tmpstr += v.value + '---' + (v.ischecked?1:0) + '---';
 			});
 			var checkboxchecked = tmpstr.substring(0, tmpstr.length-3);
+			// console.log(checkboxchecked);
 
 			tmpstr = '';
-			// comboboxgroup
+			// console.log(_this.comboboxchecked_select[0]);
+			// console.log(_this.comboboxchecked);
 			_this.comboboxchecked.map(function (v,i) {
+				// console.log(v.value);
+				// console.log(v.label);
 				tmpstr += v.label + '---' + (_this.comboboxchecked_select[0]==v.value?1:0) + '---';
 			});
 			var comboboxchecked = tmpstr.substring(0, tmpstr.length-3);
+			// console.log(comboboxchecked);			
 			
 			// 分配
 			switch(field_selected_add_type)
@@ -960,32 +965,31 @@ var vm_field = new Vue({
 				if (typeof(response.data) == "undefined") {
 					_this.notification_type = 'danger';
 					_this.notification_title = 'Error';
-					_this.notification_content = 'Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
+					_this.notification_content = 'Field [' + field_add_name + '] failed to create!';
 					_this.notification_message();
 				} else {
 					_this.notification_type = 'success';
 					_this.notification_title = 'Success';
-					_this.notification_content = 'Field [' + field_add_name + '] ' + createorupdate + ' successfully!';
+					_this.notification_content = 'Field [' + field_add_name + '] created successfully!';
 					_this.notification_message();
 
-					if (createorupdate=='create') {_this.fieldreset()}
-
+					// 刷新
 				}
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
+				// _this.notification_type = 'warning';
+				// _this.notification_title = 'Warning';
 				// _this.notification_content = error.response.data.message;
-					_this.notification_content = 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
-				_this.notification_message();
+				// _this.notification_message();
 			})
 		},
 		// 3.删除field
-		field_delete: function (id) {
+		fielddelete: function () {
 			var _this = this;
-			var fieldname = _this.field_add_name;
+			var fieldname = _this.selected_selectfieldtodelete;
+			// alert(fieldname);return false;
 			
-			if (id == undefined) {
+			if(fieldname.length==0){
 				_this.notification_type = 'danger';
 				_this.notification_title = 'Error';
 				_this.notification_content = 'Please select the field(s)!';
@@ -998,7 +1002,7 @@ var vm_field = new Vue({
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					id: id
+					fieldname: fieldname
 				}
 			})
 			.then(function (response) {
@@ -1015,7 +1019,7 @@ var vm_field = new Vue({
 					_this.notification_message();
 					
 					// 刷新
-					_this.fieldgets(_this.gets.current_page, _this.gets.last_page);
+					_this.refreshview();
 				}
 			})
 			.catch(function (error) {
@@ -1024,6 +1028,14 @@ var vm_field = new Vue({
 				_this.notification_content = error.response.data.message;
 				_this.notification_message();
 			})
+		},
+		// 11.每次操作后的各部分刷新
+		refreshview: function () {
+			var _this = this;
+			_this.changeuser(_this.selected_selecteduser);
+			_this.fieldlistdelete();
+			_this.fieldlist();
+			_this.permissionlist();
 		},
 		// 12.field列表
 		fieldgets: function(page, last_page){
