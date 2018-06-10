@@ -6,19 +6,18 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Models\Config;
-use App\Models\Field;
+use App\Models\Template;
 
-
-class FieldController extends Controller
+class TemplateController extends Controller
 {
-   
+
     /**
-     * 列出field页面
+     * 列出template页面
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function fieldIndex()
+    public function templateIndex()
     {
 		// 获取JSON格式的jwt-auth用户响应
 		$me = response()->json(auth()->user());
@@ -32,35 +31,17 @@ class FieldController extends Controller
         // return view('admin.role', $config);
 		
 		$share = compact('config', 'user');
-// dd($user);
-// dd($config['SITE_TITLE']);
-        return view('admin.field', $share);
-			// ->with('user', $user);
-			// ->with('user',$user);
+
+        return view('admin.template', $share);
     }	
 	
     /**
-     * 列出field ajax
+     * template列表 ajax
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function fieldList(Request $request)
-    {
-		if (! $request->ajax()) { return null; }
-
-        // 获取field信息
-		$field = Field::pluck('name', 'id')->toArray();
-		return $field;
-    }
-	
-    /**
-     * field列表 ajax
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function fieldGets(Request $request)
+    public function templateGets(Request $request)
     {
 		if (! $request->ajax()) { return null; }
 
@@ -69,19 +50,19 @@ class FieldController extends Controller
 		$page = $request->input('page');
 		if (null == $page) $page = 1;
 
-		$field = Field::select('id', 'name', 'type', 'bgcolor', 'readonly', 'value', 'placeholder', 'regexp', 'helpblock', 'created_at', 'updated_at')
+		$template = Template::select('id', 'name', 'created_at', 'updated_at')
 			->paginate($perPage, ['*'], 'page', $page);
 
-		return $field;
+		return $template;
     }
 
     /**
-     * field create or update ajax
+     * template create or update ajax
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function fieldCreateOrUpdate(Request $request)
+    public function templateCreateOrUpdate(Request $request)
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
@@ -89,17 +70,10 @@ class FieldController extends Controller
 		// dd($postdata);
 		
 		if ('create' == $postdata['createorupdate']) {
-			// 新增field
+			// 新增template
 			try	{
-				$result = Field::create([
+				$result = Template::create([
 					'name' => $postdata['name'],
-					'type' => $postdata['type'],
-					'bgcolor' => $postdata['bgcolor'],
-					'readonly' => $postdata['readonly'],
-					'value' => $postdata['value'],
-					'placeholder' => $postdata['placeholder'],
-					'regexp' => $postdata['regexp'],
-					'helpblock' => $postdata['helpblock']
 				]);
 
 				$result = 1;
@@ -113,18 +87,11 @@ class FieldController extends Controller
 		
 		} elseif ('update' == $postdata['createorupdate']) {
 			
-			// 更新field
+			// 更新template
 			try	{
-				$result = Field::where('id', $postdata['id'])
+				$result = Template::where('id', $postdata['id'])
 					->update([
 						'name' => $postdata['name'],
-						'type' => $postdata['type'],
-						'bgcolor' => $postdata['bgcolor'],
-						'readonly' => $postdata['readonly'],
-						'value' => $postdata['value'],
-						'placeholder' => $postdata['placeholder'],
-						'regexp' => $postdata['regexp'],
-						'helpblock' => $postdata['helpblock']
 					]);
 				
 				$result = 1;
@@ -139,20 +106,19 @@ class FieldController extends Controller
     }
 	
     /**
-     * 删除field ajax
+     * 删除template ajax
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function fieldDelete(Request $request)
+    public function templateDelete(Request $request)
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
 		$id = $request->only('params.id');
 
-		$result = Field::whereIn('id', $id)->delete();
+		$result = Template::whereIn('id', $id)->delete();
 		return $result;
 
 	}
-	
 }

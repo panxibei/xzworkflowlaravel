@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTemplate2SlotsTable extends Migration
+class CreateSlot2FieldsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateTemplate2SlotsTable extends Migration
      */
     public function up()
     {
-        Schema::create('template_2_slots', function (Blueprint $table) {
+        Schema::create('slot2fields', function (Blueprint $table) {
             $table->increments('id');
-			$table->unsignedInteger('template_id')->comment('template_id');
-			$table->string('slot_id')->comment('slot_id');
+			$table->unsignedInteger('slot_id')->comment('slot_id');
+			$table->text('field_id')->comment('field_id');
             $table->timestamps();
 			$table->engine = 'InnoDB';
         });
@@ -29,6 +29,6 @@ class CreateTemplate2SlotsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('template_2_slots');
+        Schema::dropIfExists('slot2fields');
     }
 }

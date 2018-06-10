@@ -13,7 +13,7 @@ class CreateSlot2UsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('slot_2_users', function (Blueprint $table) {
+        Schema::create('slot2users', function (Blueprint $table) {
             $table->increments('id');
 			$table->unsignedInteger('slot_id')->comment('slot_id');
 			$table->string('user_id')->comment('user_id');
@@ -29,6 +29,6 @@ class CreateSlot2UsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('slot_2_users');
+        Schema::dropIfExists('slot2users');
     }
 }

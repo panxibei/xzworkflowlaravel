@@ -324,10 +324,10 @@
 						<a href="#"><i class="fa fa-chain fa-fw"></i> 元素关联 ...<span class="fa arrow"></span></a>
 						<ul class="nav nav-third-level">
 							<li>
-								<a href="{:U('Admin/Index/slot2field')}"><i class="fa fa-list-alt fa-fw"></i> Slot2Field</a>
+								<a href="{{ route('admin.slot2field.index') }}"><i class="fa fa-list-alt fa-fw"></i> Slot2Field</a>
 							</li>
 							<li>
-								<a href="{:U('Admin/Index/template2slot')}"><i class="fa fa-file-text-o fa-fw"></i> Template2Slot</a>
+								<a href="{{ route('admin.template2slot.index') }}"><i class="fa fa-file-text-o fa-fw"></i> Template2Slot</a>
 							</li>
 						</ul>
 					</li>

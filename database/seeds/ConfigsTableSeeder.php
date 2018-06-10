@@ -144,7 +144,7 @@ class ConfigsTableSeeder extends Seeder
             12 => 
             array (
                 'cfg_id' => 13,
-                'cfg_name' => 'PERPAGE_RECORDS_FOR_SOLT',
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_SLOT',
                 'cfg_value' => '1',
 				'cfg_description' => 'SOLT页每页记录数',
                 'created_at' => $nowtime,

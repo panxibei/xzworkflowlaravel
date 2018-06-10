@@ -754,17 +754,6 @@ var vm_field = new Vue({
 			_this.checkboxchecked_generate(2);
 			_this.comboboxchecked_generate(2);
 		},
-		// 把laravel返回的结果转换成select能接受的格式
-		json2selectvalue: function (json) {
-			var arr = [];
-			for (var key in json) {
-				// alert(key);
-				// alert(json[key]);
-				// arr.push({ obj.['value'] = key, obj.['label'] = json[key] });
-				arr.push({ value: key, label: json[key] });
-			}
-			return arr;
-		},
 		alert_exit: function () {
 			this.$alert({
 				title: '会话超时',
@@ -786,7 +775,7 @@ var vm_field = new Vue({
 				content: this.notification_content
 			})
 		},
-		// 1.选择不同类型
+		// 选择不同类型
 		field_add_type_change: function (value) {
 			var _this = this;
 			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
@@ -833,7 +822,7 @@ var vm_field = new Vue({
 					// _this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
 			}
 		},
-		// 2.创建或更新field
+		// 创建或更新field
 		fieldcreateorupdate: function (createorupdate) {
 			var _this = this;
 			var field_add_id = _this.field_add_id;
@@ -980,10 +969,9 @@ var vm_field = new Vue({
 				_this.notification_message();
 			})
 		},
-		// 3.删除field
+		// 删除field
 		field_delete: function (id) {
 			var _this = this;
-			var fieldname = _this.field_add_name;
 			
 			if (id == undefined) {
 				_this.notification_type = 'danger';
@@ -1025,7 +1013,7 @@ var vm_field = new Vue({
 				_this.notification_message();
 			})
 		},
-		// 12.field列表
+		// field列表
 		fieldgets: function(page, last_page){
 			var _this = this;
 			var url = "{{ route('admin.field.fieldgets') }}";
@@ -1087,7 +1075,7 @@ var vm_field = new Vue({
 	mounted: function(){
 		var _this = this;
 
-		// 显示所有角色
+		// 显示所有field
 		_this.fieldgets(1, 1); // page: 1, last_page: 1
 	}
 });
