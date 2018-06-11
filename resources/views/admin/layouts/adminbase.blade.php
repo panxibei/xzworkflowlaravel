@@ -335,13 +335,13 @@
 						<a href="#"><i class="fa fa-chain fa-fw"></i> 用户关联 ...<span class="fa arrow"></span></a>
 						<ul class="nav nav-third-level">
 							<li>
-								<a href="{:U('Admin/Index/mailinglist')}"><i class="fa fa-envelope-o fa-fw"></i> Mailing List</a>
+								<a href="{{ route('admin.mailinglist.index') }}"><i class="fa fa-envelope-o fa-fw"></i> Mailing List</a>
 							</li>
 							<li>
-								<a href="{:U('Admin/Index/slot2user')}"><i class="fa fa-envelope fa-fw"></i> Slot2User</a>
+								<a href="{{ route('admin.slot2user.index') }}"><i class="fa fa-envelope fa-fw"></i> Slot2User</a>
 							</li>
 							<li>
-								<a href="{:U('Admin/Index/user4workflow')}"><i class="fa fa-user-md fa-fw"></i> User4Workflow</a>
+								<a href="{{ route('admin.user4workflow.index') }}"><i class="fa fa-user-md fa-fw"></i> User4Workflow</a>
 							</li>						
 						</ul>
 					</li>

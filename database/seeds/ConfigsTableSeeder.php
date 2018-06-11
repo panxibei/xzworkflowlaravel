@@ -161,6 +161,16 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            14 => 
+            array (
+                'cfg_id' => 15,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_MAILINGLIST',
+                'cfg_value' => '1',
+				'cfg_description' => 'MAILINGLIST页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }

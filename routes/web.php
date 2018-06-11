@@ -122,12 +122,6 @@ Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwta
 	// slot2fieldremove
 	Route::post('slot2fieldRemove', 'Slot2fieldController@slot2fieldRemove')->name('admin.slot2field.slot2fieldremove');
 
-	// 创建slot
-	// Route::post('templateCreateOrUpdate', 'TemplateController@templateCreateOrUpdate')->name('admin.template.createorupdate');
-
-	// 删除slot
-	// Route::post('templateDelete', 'TemplateController@templateDelete')->name('admin.template.templatedelete');
-
 });
 
 // Template2slotController路由
@@ -150,6 +144,51 @@ Route::group(['prefix'=>'template2slot', 'namespace'=>'Admin', 'middleware'=>['j
 
 	// slot2fieldremove
 	Route::post('template2slotRemove', 'Template2slotController@template2slotRemove')->name('admin.template2slot.template2slotremove');
+
+});
+
+// MailinglistController路由
+Route::group(['prefix'=>'mailinglist', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+
+	// mailinglistIndex
+	Route::get('mailinglistIndex', 'MailinglistController@mailinglistIndex')->name('admin.mailinglist.index');
+
+	// mailinglistList
+	Route::get('mailinglistList', 'MailinglistController@mailinglistList')->name('admin.mailinglist.list');
+
+	// mailinglistCreate
+	Route::post('mailinglistCreate', 'MailinglistController@mailinglistCreate')->name('admin.mailinglist.create');
+
+	// mailinglistEdit
+	Route::post('mailinglistEdit', 'MailinglistController@mailinglistEdit')->name('admin.mailinglist.edit');
+
+	// mailinglistDelete
+	Route::get('mailinglistDelete', 'MailinglistController@mailinglistDelete')->name('admin.mailinglist.delete');
+
+	// mailinglistExcelexport
+	Route::get('mailinglistExcelexport', 'MailinglistController@mailinglistExcelexport')->name('admin.mailinglist.excelexport');
+
+	// loadtemplateid
+	Route::get('loadTemplateid', 'MailinglistController@loadTemplateid')->name('admin.mailinglist.loadtemplateid');
+
+
+});
+
+// Slot2userController路由
+Route::group(['prefix'=>'slot2user', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+
+	// slot2fieldremove
+	Route::get('slot2userIndex', 'Slot2userController@slot2userIndex')->name('admin.slot2user.index');
+
+
+});
+
+// User4workflowController路由
+Route::group(['prefix'=>'user4workflow', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+
+	// slot2fieldremove
+	Route::get('user4workflowIndex', 'User4workflowController@slot2userIndex')->name('admin.user4workflow.index');
+
 
 });
 
