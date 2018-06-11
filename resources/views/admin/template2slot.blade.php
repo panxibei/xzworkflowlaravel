@@ -1,7 +1,7 @@
 @extends('admin.layouts.adminbase')
 
 @section('my_title')
-Admin(slot2field) - 
+Admin(template2slot) - 
 @parent
 @endsection
 
@@ -12,33 +12,45 @@ Admin(slot2field) -
 
 @section('my_body')
 @parent
-<div id="slot2field_list" v-cloak>
+<div id="template2slot_list" v-cloak>
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
-			<h1 class="page-header">Slot2field Management</h1>
+			<h1 class="page-header">Template2slot Management</h1>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-lg-12">
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					Slot2field 管理
+					Template2slot 管理
 				</div>
 				<div class="panel-body">
 					<div class="row">
 
 					<div class="panel-body">
 						<tabs v-model="currenttabs">
-							<tab title="Slot2field List">
-								<!--slot2field列表-->
+							<tab title="Template2slot List">
+								<!--template2slot列表-->
 								<div class="col-lg-12">
 									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
 
 									<div class="col-lg-12">
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>编辑 Slot2Field</label></div>
+											<div class="panel-heading"><label>编辑 Template2Slot</label></div>
 											<div class="panel-body">
+
+												<div class="col-lg-3">
+													<div class="form-group">
+														<input placeholder="过滤器: Template 创建开始时间" type="text" class="form-control"><br>
+														<input placeholder="过滤器: Template 创建结束时间" type="text" class="form-control">
+													</div>
+													<div class="form-group">
+														<label>Select Template</label><br>
+														<multi-select @change="change_template()" v-model="template_select" :options="template_options"  :limit="1" filterable collapse-selected size="sm" />
+													</div>
+													<btn @click="template2slot_review" type="primary" size="sm">Review</btn>&nbsp;
+												</div>
 
 												<div class="col-lg-3">
 													<div class="form-group">
@@ -46,22 +58,10 @@ Admin(slot2field) -
 														<input placeholder="过滤器: Slot 创建结束时间" type="text" class="form-control">
 													</div>
 													<div class="form-group">
-														<label>Select Slot</label><br>
-														<multi-select @change="change_slot()" v-model="slot_select" :options="slot_options"  :limit="1" filterable collapse-selected size="sm" />
+														<label>Select slot(s)</label><br>
+														<multi-select v-model="slot_select" :options="slot_options"  filterable collapse-selected size="sm" />
 													</div>
-													<btn @click="slot2field_review" type="primary" size="sm">Review</btn>&nbsp;
-												</div>
-
-												<div class="col-lg-3">
-													<div class="form-group">
-														<input placeholder="过滤器: Field 创建开始时间" type="text" class="form-control"><br>
-														<input placeholder="过滤器: Field 创建结束时间" type="text" class="form-control">
-													</div>
-													<div class="form-group">
-														<label>Select field(s)</label><br>
-														<multi-select v-model="field_select" :options="field_options"  filterable collapse-selected size="sm" />
-													</div>
-													<btn @click="slot2field_add" type="primary" size="sm">Add</btn>&nbsp;
+													<btn @click="template2slot_add" type="primary" size="sm">Add</btn>&nbsp;
 												</div>
 
 												<div class="col-lg-6">
@@ -80,9 +80,9 @@ Admin(slot2field) -
 																	<td><div>@{{ index }}</div></td>
 																	<td><div>@{{ val.name }}</div></td>
 																	<td><div>
-																	<btn @click="field_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
-																	<btn @click="field_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
-																	<btn @click="slot2field_remove(index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
+																	<btn @click="slot_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
+																	<btn @click="slot_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
+																	<btn @click="template2slot_remove(index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
 																</tr>
 															</tbody>
 														</table>
@@ -103,7 +103,7 @@ Admin(slot2field) -
 									
 								</div>
 							</tab>
-							<tab title="Review Slot2field">
+							<tab title="Review Template2slot">
 								<!--操作1-->
 								<div class="col-lg-12">
 									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
@@ -134,21 +134,21 @@ Admin(slot2field) -
 @section('my_footer')
 @parent
 <script>
-var vm_slot2field = new Vue({
-    el: '#slot2field_list',
+var vm_template2slot = new Vue({
+    el: '#template2slot_list',
     data: {
 		gets: {},
-		// perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
-		slot_select: [],
-        slot_options: [
+		// perpage: {{ $config['PERPAGE_RECORDS_FOR_TEMPLATE'] }},
+		template_select: [],
+        template_options: [
 			// {value: 1, label:'Option1'},
 			// {value: 2, label:'Option2'},
 			// {value: 3, label:'Option3333333333'},
 			// {value: 4, label:'Option4'},
 			// {value: 5, label:'Option5'}
         ],
-		field_select: [],
-        field_options: [
+		slot_select: [],
+        slot_options: [
 			// {value: 1, label:'Option1'},
 			// {value: 2, label:'Option2'},
 			// {value: 3, label:'Option3333333333'},
@@ -189,46 +189,40 @@ var vm_slot2field = new Vue({
 				content: this.notification_content
 			})
 		},
-		// slot2field列表
-		slot2fieldgets: function(){
+		// template2slot列表
+		template2slotgets: function(){
 			var _this = this;
-			var url = "{{ route('admin.slot2field.slot2fieldgets') }}";
+			var url = "{{ route('admin.template2slot.template2slotgets') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url)
 			.then(function (response) {
-				// console.log(response.data);
-				// return false;
-				var json = response.data.slot;
-				_this.slot_options = _this.json2selectvalue(json);
-				json = response.data.field;
-				_this.field_options = _this.json2selectvalue(json);
-				
-				// if (typeof(response.data) == "undefined") {
-					// alert(response);
-					// _this.alert_exit();
-				// }
-				// _this.gets = response.data;
+				if (typeof(response.data) != "undefined") {
+					var json = response.data.template;
+					_this.template_options = _this.json2selectvalue(json);
+					json = response.data.slot;
+					_this.slot_options = _this.json2selectvalue(json);
+				}
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
 			})
 		},
-		// 选择slot
-		change_slot: function () {
+		// 选择template
+		change_template: function () {
 			var _this = this;
-			var slotid = _this.slot_select[0];
+			var templateid = _this.template_select[0];
 			// console.log(slotid);//return false;
-			if (slotid==undefined) {
+			if (templateid==undefined) {
 				_this.gets = {};
 				return false;
 			}
 			
-			var url = "{{ route('admin.slot2field.changeslot') }}";
+			var url = "{{ route('admin.template2slot.changetemplate') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					slotid: slotid
+					templateid: templateid
 				}
 			})
 			.then(function (response) {
@@ -243,23 +237,24 @@ var vm_slot2field = new Vue({
 			
 		},
 		// sort向前
-		field_up: function (fieldid, index) {
+		slot_up: function (slotid, index) {
 			var _this = this;
-			if (fieldid==undefined || index==0) return false;
-			var slotid = _this.slot_select[0];
-			var url = "{{ route('admin.slot2field.fieldsort') }}";
+			if (slotid==undefined || index==0) return false;
+			var templateid = _this.template_select[0];
+			
+			var url = "{{ route('admin.template2slot.slotsort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					fieldid: fieldid,
-					index: index,
 					slotid: slotid,
+					index: index,
+					templateid: templateid,
 					sort: 'up'
 				}
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_template();
 				}
 			})
 			.catch(function (error) {
@@ -268,23 +263,23 @@ var vm_slot2field = new Vue({
 			})
 		},
 		// sort向后
-		field_down: function (fieldid, index) {
+		slot_down: function (slotid, index) {
 			var _this = this;
-			if (fieldid==undefined || index==_this.gets.length-1) return false;
-			var slotid = _this.slot_select[0];
-			var url = "{{ route('admin.slot2field.fieldsort') }}";
+			if (slotid==undefined || index==_this.gets.length-1) return false;
+			var templateid = _this.template_select[0];
+			var url = "{{ route('admin.template2slot.slotsort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					fieldid: fieldid,
-					index: index,
 					slotid: slotid,
+					index: index,
+					templateid: templateid,
 					sort: 'down'
 				}
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_template();
 				}
 			})
 			.catch(function (error) {
@@ -292,27 +287,27 @@ var vm_slot2field = new Vue({
 				alert(error);
 			})
 		},
-		slot2field_remove: function (index) {
+		template2slot_remove: function (index) {
 			var _this = this;
-			var slotid = _this.slot_select[0];
+			var templateid = _this.template_select[0];
 			// console.log(slotid);
 			// console.log(fieldid);
 			// return false;
 			
-			if (slotid == undefined || index == undefined) return false;
+			if (templateid == undefined || index == undefined) return false;
 			
-			var url = "{{ route('admin.slot2field.slot2fieldremove') }}";
+			var url = "{{ route('admin.template2slot.template2slotremove') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					slotid: slotid,
+					templateid: templateid,
 					index: index
 				}
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_template();
 				}
 			})
 			.catch(function (error) {
@@ -322,28 +317,28 @@ var vm_slot2field = new Vue({
 			
 			
 		},
-		slot2field_add: function () {
+		template2slot_add: function () {
 			var _this = this;
-			var slotid = _this.slot_select[0];
-			var fieldid = _this.field_select;
+			var templateid = _this.template_select[0];
+			var slotid = _this.slot_select;
 			// console.log(slotid);
 			// console.log(fieldid);
 			// return false;
 			
-			if (slotid == undefined || fieldid == undefined) return false;
+			if (slotid == undefined || templateid == undefined) return false;
 			
-			var url = "{{ route('admin.slot2field.slot2fieldadd') }}";
+			var url = "{{ route('admin.template2slot.template2slotadd') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
 					slotid: slotid,
-					fieldid: fieldid
+					templateid: templateid
 				}
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_template();
 				}
 			})
 			.catch(function (error) {
@@ -351,13 +346,13 @@ var vm_slot2field = new Vue({
 				alert(error);
 			})
 		},
-		slot2field_review: function () {
+		template2slot_review: function () {
 			
 		}
 	},
 	mounted: function(){
-		// 显示所有slot2field
-		this.slot2fieldgets();
+		// 显示所有template2slot
+		this.template2slotgets();
 	}
 });
 </script>

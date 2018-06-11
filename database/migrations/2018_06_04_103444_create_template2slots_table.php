@@ -16,7 +16,7 @@ class CreateTemplate2SlotsTable extends Migration
         Schema::create('template2slots', function (Blueprint $table) {
             $table->increments('id');
 			$table->unsignedInteger('template_id')->comment('template_id');
-			$table->string('slot_id')->comment('slot_id');
+			$table->text('slot_id')->comment('slot_id');
             $table->timestamps();
 			$table->engine = 'InnoDB';
         });

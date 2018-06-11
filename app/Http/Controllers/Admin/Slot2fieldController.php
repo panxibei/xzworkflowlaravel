@@ -49,16 +49,18 @@ class Slot2fieldController extends Controller
 		if (! $request->ajax()) { return null; }
 		
 		$limit = $request->only('limit');
-		$limit = sizeof($limit) == 0 ? 10 : $limit;
+		$limit = empty($limit) ? 10 : $limit;
 // dd($limit);
 		// 所有的slot
-		$slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
+		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
+		$slot = Slot::limit($limit)->pluck('name', 'id')->toArray();
 
 		// 所有的field
-		$field = array_reverse(Field::limit($limit)->pluck('name', 'id')->toArray());
+		// $field = array_reverse(Field::limit($limit)->pluck('name', 'id')->toArray());
+		$field = Field::limit($limit)->pluck('name', 'id')->toArray();
 
 		$slot2field = compact('slot', 'field');
-		
+// dd($slot2field);
 		return $slot2field;
     }
 
@@ -77,11 +79,11 @@ class Slot2fieldController extends Controller
 		// 根据slotid查询相应的field
 		$fieldid = Slot2field::select('field_id')
 			->where('slot_id', $slotid)
-			->get()->toArray();
+			->first();
 // dd($fieldid);
-		if ($fieldid==[]) return 0;
+		if (empty($fieldid)) return 0;
 		
-		$arr_fieldid = explode(',', $fieldid[0]['field_id']);
+		$arr_fieldid = explode(',', $fieldid['field_id']);
 // dd($arr_fieldid);		
 		
 		// 所有的field
@@ -94,10 +96,9 @@ class Slot2fieldController extends Controller
 		foreach ($arr_fieldid as $value) {
 			$field[] = Field::select('id', 'name')
 				->where('id', $value)
-				->first()
-				->toArray();
+				->first();
+				// ->toArray();
 		}
-
 // dd($field);
 
 		return $field;
@@ -119,10 +120,10 @@ class Slot2fieldController extends Controller
 		// 1.查询所有fieldid
 		$fieldid = Slot2field::select('field_id')
 			->where('slot_id', $sortinfo['params']['slotid'])
-			->get()->toArray();
+			->first();
 		
 		// 2.所有fieldid变成一维数组
-		$arr_fieldid = explode(',', $fieldid[0]['field_id']);
+		$arr_fieldid = explode(',', $fieldid['field_id']);
 // dd($arr_fieldid);
 
 		// 3.判断是向前还是向后排序
@@ -187,10 +188,10 @@ class Slot2fieldController extends Controller
 
 		$fieldid_before = Slot2field::select('field_id')
 			->where('slot_id', $slotid)
-			->get()->toArray();
+			->first();
 // dd(implode(',', $fieldid_before[0]));
 
-		if (sizeof($fieldid_before) == 0) {
+		if (empty($fieldid_before)) {
 			$fieldid_after = $fieldid;
 // dd($slotid);			
 			try {
@@ -206,12 +207,14 @@ class Slot2fieldController extends Controller
 			}
 // dd($result);
 		} else {
-			$fieldid_after = implode(',', $fieldid_before[0]) . ',' . $fieldid;
+			$fieldid_before = explode(',', $fieldid_before['field_id']);
+
+			$fieldid_after = implode(',', $fieldid_before) . ',' . $fieldid;
 
 			try {
 				$result = Slot2field::where('slot_id', $slotid)
 					->update([
-						'slot_id' => $slotid,
+						// 'slot_id' => $slotid,
 						'field_id' => $fieldid_after
 					]);
 				$result = 1;
@@ -226,7 +229,57 @@ class Slot2fieldController extends Controller
 // dd($result);
 		return $result;
 
-	 }
+	}
 
+	/**
+     * slot2fieldRemove ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	public function slot2fieldRemove(Request $request)
+	{
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$slotid = $request->only('params.slotid');
+		$slotid = $slotid['params']['slotid'];
+
+		$index = $request->only('params.index');
+		$index = $index['params']['index'];
+		// $fieldid = implode(',', $fieldid['params']['fieldid']);
+// dd($index);
+
+		$fieldid_before = Slot2field::select('field_id')
+			->where('slot_id', $slotid)
+			->first();
+// dd($fieldid_before['field_id']);
+// dd(explode(',', $fieldid_before['field_id']));
+		$fieldid_before = explode(',', $fieldid_before['field_id']);
+
+		foreach ($fieldid_before as $key => $value) {
+			if ($key != $index) {
+				$fieldid_after[] = $value;
+			}
+		}
+// dd($fieldid_after);
+// dd(implode(',', $fieldid_after));
+		$fieldid_after = implode(',', $fieldid_after);
+
+		try {
+			$result = Slot2field::where('slot_id', $slotid)
+				->update([
+					// 'slot_id' => $slotid,
+					'field_id' => $fieldid_after
+				]);
+			$result = 1;
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+// dd($result);
+		return $result;
+
+	}
 
 }

@@ -119,6 +119,9 @@ Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwta
 	// slot2fieldadd
 	Route::post('slot2fieldAdd', 'Slot2fieldController@slot2fieldAdd')->name('admin.slot2field.slot2fieldadd');
 
+	// slot2fieldremove
+	Route::post('slot2fieldRemove', 'Slot2fieldController@slot2fieldRemove')->name('admin.slot2field.slot2fieldremove');
+
 	// 创建slot
 	// Route::post('templateCreateOrUpdate', 'TemplateController@templateCreateOrUpdate')->name('admin.template.createorupdate');
 
@@ -128,11 +131,25 @@ Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwta
 });
 
 // Template2slotController路由
-Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
+Route::group(['prefix'=>'template2slot', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
 
 	// 显示template2slot页面
 	Route::get('template2slotIndex', 'Template2slotController@template2slotIndex')->name('admin.template2slot.index');
 
+	// template2slot列表
+	Route::get('template2slotGets', 'Template2slotController@template2slotGets')->name('admin.template2slot.template2slotgets');
+
+	// changeslot
+	Route::get('changeTemplate', 'Template2slotController@changeTemplate')->name('admin.template2slot.changetemplate');
+
+	// slotsort
+	Route::post('slotSort', 'Template2slotController@slotSort')->name('admin.template2slot.slotsort');
+
+	// slot2fieldadd
+	Route::post('template2slotAdd', 'Template2slotController@template2slotAdd')->name('admin.template2slot.template2slotadd');
+
+	// slot2fieldremove
+	Route::post('template2slotRemove', 'Template2slotController@template2slotRemove')->name('admin.template2slot.template2slotremove');
 
 });
 
