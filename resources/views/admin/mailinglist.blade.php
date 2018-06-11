@@ -95,9 +95,18 @@ Admin(Mailinglist) -
 							</collapse>						
 						</div>
 
-
-						<div class="col-lg-12">
-						<progress-bar v-model="progress" type="success" striped/>
+						<div v-show="show_progress" class="col-lg-12">
+							<br><div style="background-color:#c9e2b3;height:1px"></div><br>
+							<div class="col-lg-4">
+							</div>
+							<div class="col-lg-4">
+								<progress-bar v-model="progress" striped active/>
+							</div>
+							<div class="col-lg-4">
+							</div>
+						</div>
+						
+						<div v-show="show_table" class="col-lg-12">
 							<br><div style="background-color:#c9e2b3;height:1px"></div>
 								
 							<div class="table-responsive" v-cloak>
@@ -106,7 +115,7 @@ Admin(Mailinglist) -
 										<tr>
 											<th>ID</th>
 											<th>name</th>
-											<th>template_id</th>
+											<th>template_name</th>
 											<th>isdefault</th>
 											<th>slot2user_id</th>
 											<th>created_at</th>
@@ -119,13 +128,13 @@ Admin(Mailinglist) -
 										<tr v-for="val in gets.data">
 											<td><div>@{{ val.id }}</div></td>
 											<td><div>@{{ val.name }}</div></td>
-											<td><div>@{{ val.template_id }}</div></td>
+											<td><div>@{{ val.template_name }}</div></td>
 											<td><div>@{{ val.isdefault }}</div></td>
 											<td><div>@{{ val.slot2user_id }}</div></td>
 											<td><div>@{{ val.created_at }}</div></td>
 											<td><div>@{{ val.updated_at }}</div></td>
 											<td><div>
-											&nbsp;<btn type="primary" size="xs" @click="show_editmailinglist=true;currentmailinglist=val;" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
+											&nbsp;<btn type="primary" size="xs" @click="currentmailinglist=val;selected_edit_template=[val.template_name];show_editmailinglist=true;" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
 											<tooltip text="编辑" :target="'#btneditmailinglist'+val.id"/>
 											&nbsp;<btn type="danger" size="xs" @click="deletemailinglist(val.id, val.name)" :id="'btndeletemailinglist'+val.id"><i class="fa fa-times fa-fw"></i></btn>
 											<tooltip text="删除" :target="'#btndeletemailinglist'+val.id"/>
@@ -185,16 +194,15 @@ Admin(Mailinglist) -
 	<div class="container">
 		<div class="row">
 			<div  class="col-lg-3">
-				<!--<input v-model="currentmailinglist.id" type="hidden" class="form-control input-sm">-->
 				<input :value="up2datemailinglist.id=currentmailinglist.id" type="hidden" class="form-control input-sm">
 				<div class="form-group">
 					<label>Name</label>
-					<!--<input v-model="currentmailinglist.name" type="text" class="form-control input-sm">-->
 					<input :value="up2datemailinglist.name=currentmailinglist.name" @change="forchange('name', $event.target.value)" type="text" class="form-control input-sm">
 				</div>
 				<div class="form-group">
-					<label>Template ID</label>
-					<input :value="up2datemailinglist.templateid=currentmailinglist.template_id" @change="forchange('templateid', $event.target.value)" type="text" class="form-control input-sm">
+					<label>Template ID</label><br>
+					<!--<input :value="up2datemailinglist.template_id=currentmailinglist.template_id" @change="forchange('templateid', $event.target.value)" type="text" class="form-control input-sm">-->
+					<multi-select v-model="selected_edit_template" :options="options_edit_template" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
 				</div>
 			</div>
 		</div>
@@ -219,7 +227,7 @@ Admin(Mailinglist) -
 				</div>
 				<div class="form-group">
 					<label>Template ID</label><br>
-					<multi-select v-model="selected_createmailinglist_templateid" :options="options_createmailinglist_templateid" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
+					<multi-select v-model="selected_create_template" :options="options_create_template" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
 				</div>
 			</div>
 		</div>
@@ -243,26 +251,30 @@ var vm_mailinglist = new Vue({
     data: {
 		show_progress: true,
 		progress: 100,
-		show_table: true,
+		show_table: false,
 		gets: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_MAILINGLIST'] }},
 		currentmailinglist: {
-			id: '',
-			name: '',
-			templateid: ''
+			// id: '',
+			// name: '',
+			// template_id: '',
+			// template_name: ''
 		},
 		up2datemailinglist: {
 			id: '',
 			name: '',
-			templateid: ''
+			template_id: '',
+			template_name: ''
 		},
 		// currentmailinglistpassword: '',
 		// 创建
 		show_createmailinglist: false,
 		createmailinglist_name: '',
 		createmailinglist_templateid: '',
-		selected_createmailinglist_templateid: [],
-		options_createmailinglist_templateid: [],
+		selected_create_template: [],
+		options_create_template: [],
+		selected_edit_template: [],
+		options_edit_template: [],
 		// 编辑
 		show_editmailinglist: false,
 		editmailinglist_name: '',
@@ -333,8 +345,8 @@ var vm_mailinglist = new Vue({
 					// _this.alert_exit();
 				// return false;
 					_this.gets = response.data;
-					// _this.show_progress = false;
-					// _this.show_table = true;
+					_this.show_progress = false;
+					_this.show_table = true;
 				}
 			})
 			.catch(function (error) {
@@ -365,7 +377,7 @@ var vm_mailinglist = new Vue({
 			.then(function (response) {
 				if (response.data) {
 					var json = response.data;
-					_this.options_createmailinglist_templateid = _this.json2selectvalue(json);
+					_this.options_edit_template = _this.options_create_template = _this.json2selectvalue(json);
 
 				} else {
 					_this.$notify('Templateid load failed!');
@@ -380,12 +392,9 @@ var vm_mailinglist = new Vue({
 		},
 		configperpageformailinglist: function (value) {
 			var _this = this;
-			
 			var cfg_data = {};
 			cfg_data['PERPAGE_RECORDS_FOR_MAILINGLIST'] = _this.perpage = value;
-
 			_this.changeconfig(cfg_data);			
-
 			_this.mailinglistlist(1, 1);
 		},
 		callback_createmailinglist: function (msg) {
@@ -396,13 +405,10 @@ var vm_mailinglist = new Vue({
 		createmailinglist: function () {
 			var _this = this;
 			var name = _this.createmailinglist_name;
-			var templateid = _this.selected_createmailinglist_templateid[0];
-			
-			// console.log(templateid[0]);
-			// return false;
+			var templateid = _this.selected_create_template[0];
 
 			if ( name.length == 0 || templateid.length == 0) {return false;}
-			
+
 			var url = "{{ route('admin.mailinglist.create') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
@@ -413,7 +419,7 @@ var vm_mailinglist = new Vue({
 				if (response.data) {
 					_this.$notify('Mailinglist created successfully!');
 					_this.createmailinglist_name = '';
-					_this.selected_createmailinglist_templateid = [];
+					_this.selected_create_template = [];
 					_this.mailinglistlist(_this.gets.current_page, _this.gets.last_page);
 				} else {
 					_this.$notify('Mailinglist created failed!');
@@ -429,10 +435,15 @@ var vm_mailinglist = new Vue({
 		},
 		editmailinglist: function () {
 			var _this = this;
+			console.log(_this.currentmailinglist);
+			return false;
+			
+			
 			var mailinglist = _this.up2datemailinglist;
 			console.log(mailinglist.id);
 			console.log(mailinglist.name);
-			console.log(mailinglist.templateid);
+			console.log(mailinglist.template_id);
+			console.log(mailinglist.template_name);
 			return false;
 			
 			if (mailinglist.length == 0) {return false;}

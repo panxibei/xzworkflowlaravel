@@ -64,7 +64,15 @@ class MailinglistController extends Controller
 		$mailinglist = Mailinglist::select('id', 'name', 'template_id', 'isdefault', 'slot2user_id', 'created_at', 'updated_at')
 			->where('name', 'like', '%'.$queryfilter_name.'%')
 			->paginate($perPage, ['*'], 'page', $page);
-
+			
+		foreach ($mailinglist as $key => $value) {
+			$template_name = Template::select('name')
+				->where('id', $value['template_id'])
+				->first();
+			$mailinglist[$key]['template_name'] = $template_name['name'];
+			// dd($mailinglist[$key]['template_name']);
+		}
+// dd($mailinglist[0]);
 		return $mailinglist;
     }
 
