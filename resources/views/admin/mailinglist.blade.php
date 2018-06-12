@@ -134,7 +134,7 @@ Admin(Mailinglist) -
 											<td><div>@{{ val.created_at }}</div></td>
 											<td><div>@{{ val.updated_at }}</div></td>
 											<td><div>
-											&nbsp;<btn type="primary" size="xs" @click="currentmailinglist=val;selected_edit_template=[val.template_name];show_editmailinglist=true;" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
+											&nbsp;<btn type="primary" size="xs" @click="currentmailinglist=val;selected_edit_template=[val.template_id.toString()];show_editmailinglist=true;" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
 											<tooltip text="编辑" :target="'#btneditmailinglist'+val.id"/>
 											&nbsp;<btn type="danger" size="xs" @click="deletemailinglist(val.id, val.name)" :id="'btndeletemailinglist'+val.id"><i class="fa fa-times fa-fw"></i></btn>
 											<tooltip text="删除" :target="'#btndeletemailinglist'+val.id"/>
@@ -194,15 +194,15 @@ Admin(Mailinglist) -
 	<div class="container">
 		<div class="row">
 			<div  class="col-lg-3">
-				<input :value="up2datemailinglist.id=currentmailinglist.id" type="hidden" class="form-control input-sm">
+				<input :value="currentmailinglist.id" type="hidden" class="form-control input-sm">
 				<div class="form-group">
 					<label>Name</label>
-					<input :value="up2datemailinglist.name=currentmailinglist.name" @change="forchange('name', $event.target.value)" type="text" class="form-control input-sm">
+					<input :value="currentmailinglist.name" @change="forchange('name', $event.target.value)" type="text" class="form-control input-sm">
 				</div>
 				<div class="form-group">
 					<label>Template ID</label><br>
 					<!--<input :value="up2datemailinglist.template_id=currentmailinglist.template_id" @change="forchange('templateid', $event.target.value)" type="text" class="form-control input-sm">-->
-					<multi-select v-model="selected_edit_template" :options="options_edit_template" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
+					<multi-select v-model="selected_edit_template" :options="options_edit_template" @change="forchange('template_id', selected_edit_template[0])" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
 				</div>
 			</div>
 		</div>
@@ -252,6 +252,7 @@ var vm_mailinglist = new Vue({
 		show_progress: true,
 		progress: 100,
 		show_table: false,
+		// show_update: false,
 		gets: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_MAILINGLIST'] }},
 		currentmailinglist: {
@@ -261,10 +262,10 @@ var vm_mailinglist = new Vue({
 			// template_name: ''
 		},
 		up2datemailinglist: {
-			id: '',
-			name: '',
-			template_id: '',
-			template_name: ''
+			// id: '',
+			// name: '',
+			// template_id: '',
+			// template_name: ''
 		},
 		// currentmailinglistpassword: '',
 		// 创建
@@ -301,16 +302,19 @@ var vm_mailinglist = new Vue({
 		},
 		// 表单变化后的值
 		forchange: function (key, value) {
-			// alert(value);
 			var _this = this;
-			if (key == "name") {
-				_this.up2datemailinglist.name = value
-			} else if ((key == "email")) {
-				_this.up2datemailinglist.email = value
-			} else if ((key == "password")) {
-				_this.up2datemailinglist.password = value
+			if (_this.selected_edit_template == undefined || value == undefined || value == '' || _this.up2datemailinglist.name == undefined || _this.currentmailinglist.template_id.toString() == _this.selected_edit_template[0]) {
+				// _this.show_update = false;
+			} else {
+				// _this.show_update = true;
+				
+				if (key == 'name') {
+					_this.up2datemailinglist.name = value
+				} else if ((key == 'template_id')) {
+					_this.up2datemailinglist.template_id = value
+				}
 			}
-			// alert(_this.up2datemailinglist.id);
+			
 		},
 		mailinglistlist: function(page, last_page){
 			var _this = this;
@@ -435,6 +439,9 @@ var vm_mailinglist = new Vue({
 		},
 		editmailinglist: function () {
 			var _this = this;
+			// if (_this.selected_edit_template == undefined || value == undefined || value == '' || _this.currentmailinglist.name == _this.up2datemailinglist.name || _this.currentmailinglist.template_id.toString() == _this.selected_edit_template[0]) {
+alert(_this.up2datemailinglist.name==undefined);
+alert(_this.currentmailinglist.template_id.toString() == _this.selected_edit_template[0]);
 			console.log(_this.currentmailinglist);
 			return false;
 			
