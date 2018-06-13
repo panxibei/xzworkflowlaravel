@@ -81,25 +81,17 @@ class Slot2fieldController extends Controller
 			->where('slot_id', $slotid)
 			->first();
 // dd($fieldid);
-		if (empty($fieldid)) return 0;
+		if (empty($fieldid)) return null;
+		if (trim($fieldid['field_id'])=='') return null;
 		
 		$arr_fieldid = explode(',', $fieldid['field_id']);
 // dd($arr_fieldid);		
-		
-		// 所有的field
-		// $field = Field::select('id', 'name')
-			// ->whereIn('id', $arr_fieldid)
-			// ->orderByRaw(DB::raw("FIELD(id, ".$fieldid[0]['field_id']." )"))
-			// ->get()
-			// ->toArray();
 		
 		foreach ($arr_fieldid as $value) {
 			$field[] = Field::select('id', 'name')
 				->where('id', $value)
 				->first();
-				// ->toArray();
 		}
-// dd($field);
 
 		return $field;
     }
@@ -184,51 +176,49 @@ class Slot2fieldController extends Controller
 
 		$fieldid = $request->only('params.fieldid');
 		$fieldid = implode(',', $fieldid['params']['fieldid']);
-// dd($fieldid);
 
-		$fieldid_before = Slot2field::select('field_id')
+		$fieldid_before = Slot2field::select('id', 'field_id')
 			->where('slot_id', $slotid)
 			->first();
-// dd(implode(',', $fieldid_before[0]));
-
-		if (empty($fieldid_before['field_id'])) {
+// dd($fieldid_before);
+		// 如果记录为空，则$fieldid_after直接为要添加的fieldid，并且用create
+		// if (trim($fieldid_before['field_id'])=='') {
+		if (empty($fieldid_before)) {
 			$fieldid_after = $fieldid;
-// dd($slotid);			
+
 			try {
 				$result = Slot2field::create([
 					'slot_id' => $slotid,
 					'field_id' => $fieldid_after
 				]);
-				$result = 1;
-			}
-			catch (Exception $e) {
-				// echo 'Message: ' .$e->getMessage();
-				$result = 0;
-			}
-// dd($result);
-		} else {
-			$fieldid_before = explode(',', $fieldid_before['field_id']);
-
-			$fieldid_after = implode(',', $fieldid_before) . ',' . $fieldid;
-
-			try {
-				$result = Slot2field::where('slot_id', $slotid)
-					->update([
-						// 'slot_id' => $slotid,
-						'field_id' => $fieldid_after
-					]);
-				$result = 1;
 			}
 			catch (Exception $e) {
 				// echo 'Message: ' .$e->getMessage();
 				$result = 0;
 			}
 		
-		}
-// dd($fieldid_after);
-// dd($result);
-		return $result;
+		} else {
+			// 如果有记录，则根据id更新即可
+			if (trim($fieldid_before['field_id'])=='') {
+				$fieldid_after = $fieldid;
+			} else {
+				$fieldid_after = $fieldid_before['field_id'] . ',' . $fieldid;
+			}
 
+			try {
+				$result = Slot2field::where('id', $fieldid_before['id'])
+					->update([
+						// 'slot_id' => $slotid,
+						'field_id' => $fieldid_after
+					]);
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		}
+			
+		return $result;
 	}
 
 	/**
@@ -246,46 +236,35 @@ class Slot2fieldController extends Controller
 
 		$index = $request->only('params.index');
 		$index = $index['params']['index'];
-		// $fieldid = implode(',', $fieldid['params']['fieldid']);
-// dd($index);
 
 		$fieldid_before = Slot2field::select('field_id')
 			->where('slot_id', $slotid)
 			->first();
-// dd($fieldid_before['field_id']);
-// dd(explode(',', $fieldid_before['field_id']));
 
-		if (sizeof($fieldid_before)==1 && $index==0) {
-			$fieldid_after = '';
-		} else {
+		$fieldid_before = explode(',', $fieldid_before['field_id']);
 
-			$fieldid_before = explode(',', $fieldid_before['field_id']);
-
-			foreach ($fieldid_before as $key => $value) {
-				if ($key != $index) {
-					$fieldid_after[] = $value;
-				}
+		$fieldid_after = [];
+		foreach ($fieldid_before as $key => $value) {
+			if ($key != $index) {
+				$fieldid_after[] = $value;
 			}
-// dd($fieldid_after);
-// dd(implode(',', $fieldid_after));
-			$fieldid_after = implode(',', $fieldid_after);
 		}
-// dd($fieldid_after);
+
+		$fieldid_after = implode(',', $fieldid_after);
+
 		try {
 			$result = Slot2field::where('slot_id', $slotid)
 				->update([
 					// 'slot_id' => $slotid,
 					'field_id' => $fieldid_after
 				]);
-			$result = 1;
 		}
 		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
 			$result = 0;
 		}
-// dd($result);
-		return $result;
 
+		return $result;
 	}
 
 }

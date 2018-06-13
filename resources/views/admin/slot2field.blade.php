@@ -140,21 +140,9 @@ var vm_slot2field = new Vue({
 		gets: {},
 		// perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
 		slot_select: [],
-        slot_options: [
-			// {value: 1, label:'Option1'},
-			// {value: 2, label:'Option2'},
-			// {value: 3, label:'Option3333333333'},
-			// {value: 4, label:'Option4'},
-			// {value: 5, label:'Option5'}
-        ],
+        slot_options: [],
 		field_select: [],
-        field_options: [
-			// {value: 1, label:'Option1'},
-			// {value: 2, label:'Option2'},
-			// {value: 3, label:'Option3333333333'},
-			// {value: 4, label:'Option4'},
-			// {value: 5, label:'Option5'}
-        ],
+        field_options: [],
 
 		// tabs索引
 		currenttabs: 0
@@ -232,8 +220,11 @@ var vm_slot2field = new Vue({
 				}
 			})
 			.then(function (response) {
-				if (response.data != undefined) {
+				// console.log(_this.gets);return false;
+				if (response.data != undefined && response.data != null) {
 					_this.gets = response.data;
+				} else {
+					_this.gets = '';
 				}
 			})
 			.catch(function (error) {
