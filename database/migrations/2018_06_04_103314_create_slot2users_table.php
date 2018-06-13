@@ -16,7 +16,7 @@ class CreateSlot2UsersTable extends Migration
         Schema::create('slot2users', function (Blueprint $table) {
             $table->increments('id');
 			$table->unsignedInteger('slot_id')->comment('slot_id');
-			$table->string('user_id')->comment('user_id');
+			$table->text('user_id')->comment('user_id');
             $table->timestamps();
 			$table->engine = 'InnoDB';
         });

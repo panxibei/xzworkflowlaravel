@@ -184,14 +184,14 @@ class Slot2fieldController extends Controller
 
 		$fieldid = $request->only('params.fieldid');
 		$fieldid = implode(',', $fieldid['params']['fieldid']);
-// dd($slotid['params']['slotid']);
+// dd($fieldid);
 
 		$fieldid_before = Slot2field::select('field_id')
 			->where('slot_id', $slotid)
 			->first();
 // dd(implode(',', $fieldid_before[0]));
 
-		if (empty($fieldid_before)) {
+		if (empty($fieldid_before['field_id'])) {
 			$fieldid_after = $fieldid;
 // dd($slotid);			
 			try {
@@ -254,17 +254,23 @@ class Slot2fieldController extends Controller
 			->first();
 // dd($fieldid_before['field_id']);
 // dd(explode(',', $fieldid_before['field_id']));
-		$fieldid_before = explode(',', $fieldid_before['field_id']);
 
-		foreach ($fieldid_before as $key => $value) {
-			if ($key != $index) {
-				$fieldid_after[] = $value;
+		if (sizeof($fieldid_before)==1 && $index==0) {
+			$fieldid_after = '';
+		} else {
+
+			$fieldid_before = explode(',', $fieldid_before['field_id']);
+
+			foreach ($fieldid_before as $key => $value) {
+				if ($key != $index) {
+					$fieldid_after[] = $value;
+				}
 			}
-		}
 // dd($fieldid_after);
 // dd(implode(',', $fieldid_after));
-		$fieldid_after = implode(',', $fieldid_after);
-
+			$fieldid_after = implode(',', $fieldid_after);
+		}
+// dd($fieldid_after);
 		try {
 			$result = Slot2field::where('slot_id', $slotid)
 				->update([

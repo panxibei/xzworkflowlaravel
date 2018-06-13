@@ -85,7 +85,7 @@ class MailinglistController extends Controller
     public function loadTemplateid(Request $request)
     {
 		if (! $request->ajax()) { return null; }
-		$templateid = Template::pluck('name', 'id');
+		$templateid = Template::orderBy('id', 'desc')->pluck('name', 'id');
 		return $templateid;
     }
 	
@@ -123,34 +123,21 @@ class MailinglistController extends Controller
         //
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
-		$tmp = $request->only('mailinglist.id', 'mailinglist.name', 'mailinglist.templateid');
-		$update = $tmp['mailinglist'];
-// dump(isset($updateuser['password']));
-dd($update);
+		$update = $request->only('id', 'name', 'template_id');
 
 		try	{
-			// 如果password为空，则不更新密码
-			if (isset($updateuser['password'])) {
-				$result = User::where('id', $updateuser['id'])
-					->update([
-						'name'=>$updateuser['name'],
-						'email'=>$updateuser['email'],
-						'password'=>bcrypt($updateuser['password'])
-					]);
-			} else {
-				$result = User::where('id', $updateuser['id'])
-					->update([
-						'name'=>$updateuser['name'],
-						'email'=>$updateuser['email']
-					]);
-			}
+			$result = Mailinglist::where('id', $update['id'])
+				->update([
+					'name'=>$update['name'],
+					'template_id'=>$update['template_id'],
+				]);
+
 		}
-		catch (Exception $e) {//捕获异常
+		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
 			$result = 0;
 		}
 		
-// dd($result);
 		return $result;
     }
 	

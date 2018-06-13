@@ -177,9 +177,23 @@ Route::group(['prefix'=>'mailinglist', 'namespace'=>'Admin', 'middleware'=>['jwt
 // Slot2userController路由
 Route::group(['prefix'=>'slot2user', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
 
-	// slot2fieldremove
+	// slot2userIndex
 	Route::get('slot2userIndex', 'Slot2userController@slot2userIndex')->name('admin.slot2user.index');
 
+	// slot2user列表
+	Route::get('slot2userGets', 'Slot2userController@slot2userGets')->name('admin.slot2user.slot2usergets');
+
+	// changemailinglist
+	Route::get('changeMailinglist', 'Slot2userController@changeMailinglist')->name('admin.slot2user.changemailinglist');
+
+	// fieldsort
+	Route::post('fieldSort', 'Slot2userController@fieldSort')->name('admin.slot2user.fieldsort');
+
+	// slot2fieldadd
+	Route::post('slot2userAdd', 'Slot2userController@slot2userAdd')->name('admin.slot2user.slot2useradd');
+
+	// slot2fieldremove
+	Route::post('slot2userRemove', 'Slot2userController@slot2userRemove')->name('admin.slot2user.slot2userremove');
 
 });
 

@@ -129,14 +129,14 @@ Admin(Mailinglist) -
 											<td><div>@{{ val.id }}</div></td>
 											<td><div>@{{ val.name }}</div></td>
 											<td><div>@{{ val.template_name }}</div></td>
-											<td><div>@{{ val.isdefault }}</div></td>
+											<td><div>@{{ val.isdefault==1?'★':'' }}</div></td>
 											<td><div>@{{ val.slot2user_id }}</div></td>
 											<td><div>@{{ val.created_at }}</div></td>
 											<td><div>@{{ val.updated_at }}</div></td>
 											<td><div>
-											&nbsp;<btn type="primary" size="xs" @click="currentmailinglist=val;selected_edit_template=[val.template_id.toString()];show_editmailinglist=true;" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
+											&nbsp;<btn type="primary" size="xs" @click="editmailinglist(val)" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
 											<tooltip text="编辑" :target="'#btneditmailinglist'+val.id"/>
-											&nbsp;<btn type="danger" size="xs" @click="deletemailinglist(val.id, val.name)" :id="'btndeletemailinglist'+val.id"><i class="fa fa-times fa-fw"></i></btn>
+											&nbsp;<btn type="danger" size="xs" @click="deletemailinglist(val)" :id="'btndeletemailinglist'+val.id"><i class="fa fa-times fa-fw"></i></btn>
 											<tooltip text="删除" :target="'#btndeletemailinglist'+val.id"/>
 											</div></td>
 										</tr>
@@ -194,15 +194,14 @@ Admin(Mailinglist) -
 	<div class="container">
 		<div class="row">
 			<div  class="col-lg-3">
-				<input :value="currentmailinglist.id" type="hidden" class="form-control input-sm">
+				<input v-model="edit_id" ref="ref_edit_id" type="hidden" class="form-control input-sm">
 				<div class="form-group">
 					<label>Name</label>
-					<input :value="currentmailinglist.name" @change="forchange('name', $event.target.value)" type="text" class="form-control input-sm">
+					<input v-model="edit_name" ref="ref_edit_name" type="text" class="form-control input-sm">
 				</div>
 				<div class="form-group">
 					<label>Template ID</label><br>
-					<!--<input :value="up2datemailinglist.template_id=currentmailinglist.template_id" @change="forchange('templateid', $event.target.value)" type="text" class="form-control input-sm">-->
-					<multi-select v-model="selected_edit_template" :options="options_edit_template" @change="forchange('template_id', selected_edit_template[0])" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
+					<multi-select v-model="selected_edit_template" :options="options_edit_template" :limit="1" filterable collapse-selected size="sm" placeholder="请选择templateid..." />
 				</div>
 			</div>
 		</div>
@@ -210,7 +209,7 @@ Admin(Mailinglist) -
 
 	<div slot="footer">
 		<btn @click="show_editmailinglist=false">Cancel</btn>
-		<btn @click="editmailinglist()" type="primary">Update</btn>
+		<btn @click="updatemailinglist()" type="primary">Update</btn>
 	</div>	
 </modal>
 
@@ -255,18 +254,10 @@ var vm_mailinglist = new Vue({
 		// show_update: false,
 		gets: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_MAILINGLIST'] }},
-		currentmailinglist: {
-			// id: '',
-			// name: '',
-			// template_id: '',
-			// template_name: ''
-		},
-		up2datemailinglist: {
-			// id: '',
-			// name: '',
-			// template_id: '',
-			// template_name: ''
-		},
+		// 编辑时值
+		edit_id: '',
+		edit_name: '',
+		currentmailinglist_name: '',
 		// currentmailinglistpassword: '',
 		// 创建
 		show_createmailinglist: false,
@@ -293,28 +284,9 @@ var vm_mailinglist = new Vue({
 		json2selectvalue: function (json) {
 			var arr = [];
 			for (var key in json) {
-				// alert(key);
-				// alert(json[key]);
-				// arr.push({ obj.['value'] = key, obj.['label'] = json[key] });
 				arr.push({ value: key, label: json[key] });
 			}
-			return arr;
-		},
-		// 表单变化后的值
-		forchange: function (key, value) {
-			var _this = this;
-			if (_this.selected_edit_template == undefined || value == undefined || value == '' || _this.up2datemailinglist.name == undefined || _this.currentmailinglist.template_id.toString() == _this.selected_edit_template[0]) {
-				// _this.show_update = false;
-			} else {
-				// _this.show_update = true;
-				
-				if (key == 'name') {
-					_this.up2datemailinglist.name = value
-				} else if ((key == 'template_id')) {
-					_this.up2datemailinglist.template_id = value
-				}
-			}
-			
+			return arr.reverse();
 		},
 		mailinglistlist: function(page, last_page){
 			var _this = this;
@@ -437,40 +409,40 @@ var vm_mailinglist = new Vue({
 		callback_editmailinglist: function (msg) {
 			// this.$notify(`Modal dismissed with msg '${msg}'.`)
 		},
-		editmailinglist: function () {
+		editmailinglist: function (val) {
 			var _this = this;
-			// if (_this.selected_edit_template == undefined || value == undefined || value == '' || _this.currentmailinglist.name == _this.up2datemailinglist.name || _this.currentmailinglist.template_id.toString() == _this.selected_edit_template[0]) {
-alert(_this.up2datemailinglist.name==undefined);
-alert(_this.currentmailinglist.template_id.toString() == _this.selected_edit_template[0]);
-			console.log(_this.currentmailinglist);
-			return false;
+			_this.edit_id = val.id;
+			_this.edit_name = val.name;
+			_this.selected_edit_template=[val.template_id.toString()];
+			_this.show_editmailinglist=true;
+		},
+		updatemailinglist: function () {
+			var _this = this;
+			// console.log(_this.edit_id);
+			// console.log(_this.edit_name);
+			// console.log(_this.selected_edit_template[0]);
+			// return false;
 			
+			var id = _this.edit_id;
+			var name = _this.edit_name;
+			var template_id = _this.selected_edit_template[0];
 			
-			var mailinglist = _this.up2datemailinglist;
-			console.log(mailinglist.id);
-			console.log(mailinglist.name);
-			console.log(mailinglist.template_id);
-			console.log(mailinglist.template_name);
-			return false;
-			
-			if (mailinglist.length == 0) {return false;}
-
-			if (mailinglist.name.trim().length == 0 || mailinglist.templateid.trim().length == 0) {
-				_this.$notify('Please input mailinglistname and templateid!');
+			if (id == undefined || name == undefined || name.length == 0 || template_id == undefined) {
+				_this.$notify('Values are incorrect!');
 				return false;
 			}
-
 
 			var url = "{{ route('admin.mailinglist.edit') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
-				mailinglist: mailinglist
+				id: id,
+				name: name,
+				template_id: template_id
 			})
 			.then(function (response) {
 				if (response.data) {
 					_this.show_editmailinglist = false;
 					_this.$notify('Mailinglist updated successfully!');
-					// _this.currentmailinglist.password = '';
 					_this.mailinglistlist(_this.gets.current_page, _this.gets.last_page);
 				} else {
 					_this.$notify('Mailinglist updated failed!');
