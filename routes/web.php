@@ -186,8 +186,11 @@ Route::group(['prefix'=>'slot2user', 'namespace'=>'Admin', 'middleware'=>['jwtau
 	// changemailinglist
 	Route::get('changeMailinglist', 'Slot2userController@changeMailinglist')->name('admin.slot2user.changemailinglist');
 
-	// fieldsort
-	Route::post('fieldSort', 'Slot2userController@fieldSort')->name('admin.slot2user.fieldsort');
+	// changeslot
+	Route::get('changeSlot', 'Slot2userController@changeSlot')->name('admin.slot2user.changeslot');
+
+	// usersort
+	Route::post('userSort', 'Slot2userController@userSort')->name('admin.slot2user.usersort');
 
 	// slot2fieldadd
 	Route::post('slot2userAdd', 'Slot2userController@slot2userAdd')->name('admin.slot2user.slot2useradd');

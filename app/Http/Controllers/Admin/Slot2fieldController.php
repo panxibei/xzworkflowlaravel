@@ -180,9 +180,8 @@ class Slot2fieldController extends Controller
 		$fieldid_before = Slot2field::select('id', 'field_id')
 			->where('slot_id', $slotid)
 			->first();
-// dd($fieldid_before);
+
 		// 如果记录为空，则$fieldid_after直接为要添加的fieldid，并且用create
-		// if (trim($fieldid_before['field_id'])=='') {
 		if (empty($fieldid_before)) {
 			$fieldid_after = $fieldid;
 
@@ -208,7 +207,6 @@ class Slot2fieldController extends Controller
 			try {
 				$result = Slot2field::where('id', $fieldid_before['id'])
 					->update([
-						// 'slot_id' => $slotid,
 						'field_id' => $fieldid_after
 					]);
 			}
@@ -255,7 +253,6 @@ class Slot2fieldController extends Controller
 		try {
 			$result = Slot2field::where('slot_id', $slotid)
 				->update([
-					// 'slot_id' => $slotid,
 					'field_id' => $fieldid_after
 				]);
 		}

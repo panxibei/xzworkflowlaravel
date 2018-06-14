@@ -226,8 +226,10 @@ var vm_template2slot = new Vue({
 				}
 			})
 			.then(function (response) {
-				if (response.data != undefined) {
+				if (response.data != undefined && response.data != null) {
 					_this.gets = response.data;
+				} else {
+					_this.gets = '';
 				}
 			})
 			.catch(function (error) {

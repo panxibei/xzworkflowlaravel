@@ -40,20 +40,15 @@ Admin(slot2user) -
 											<div class="panel-heading"><label>编辑 Slot2Field</label></div>
 											<div class="panel-body">
 
-												<div class="col-lg-3">
+												<div class="col-lg-4">
 													<div class="form-group">
 														<label>Select Mailing List</label><br>
-														<multi-select @change="change_mailinglist()" v-model="mailinglist_select" :options="mailinglist_options"  :limit="1" filterable collapse-selected size="sm" />
+														<multi-select @change="change_mailinglist()" v-model="mailinglist_select" :options="mailinglist_options" :limit="1" filterable collapse-selected size="sm" />
 													</div>
-													<btn @click="slot2user_review" type="primary" size="sm">Review</btn>&nbsp;
-												</div>
-
-												<div class="col-lg-3">
 													<div class="form-group">
 														<label>Select slot</label><br>
-														<multi-select v-model="slot_select" :options="slot_options"  filterable collapse-selected size="sm" />
+														<multi-select @change="change_slot()" v-model="slot_select" :options="slot_options" :limit="1" filterable collapse-selected size="sm" />
 													</div>
-													<btn @click="slot2user_add" type="primary" size="sm">Add</btn>&nbsp;
 												</div>
 
 												<div class="col-lg-3">
@@ -64,7 +59,7 @@ Admin(slot2user) -
 													<btn @click="slot2user_add" type="primary" size="sm">Add</btn>&nbsp;
 												</div>
 
-												<div class="col-lg-3">
+												<div class="col-lg-5">
 
 													<div class="table-responsive">
 														<table class="table table-condensed">
@@ -80,8 +75,8 @@ Admin(slot2user) -
 																	<td><div>@{{ index }}</div></td>
 																	<td><div>@{{ val.name }}</div></td>
 																	<td><div>
-																	<btn @click="field_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
-																	<btn @click="field_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
+																	<btn @click="user_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
+																	<btn @click="user_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
 																	<btn @click="slot2user_remove(index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
 																</tr>
 															</tbody>
@@ -158,6 +153,13 @@ var vm_slot2user = new Vue({
 			}
 			return arr.reverse();
 		},
+		json2gets: function (json) {
+			var arr = [];
+			for (var key in json) {
+				arr.push({ id: key, name: json[key] });
+			}
+			return arr;
+		},
 		alert_exit: function () {
 			this.$alert({
 				title: '会话超时',
@@ -204,13 +206,12 @@ var vm_slot2user = new Vue({
 				alert(error);
 			})
 		},
-		// 选择slot
+		// 通过mailinglist选择slot
 		change_mailinglist: function () {
 			var _this = this;
 			var mailinglistid = _this.mailinglist_select[0];
-			// console.log(slotid);//return false;
+			// console.log(mailinglistid);return false;
 			if (mailinglistid==undefined) {
-				// _this.gets = {};
 				return false;
 			}
 			
@@ -223,7 +224,43 @@ var vm_slot2user = new Vue({
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.gets = response.data;
+					var json = response.data;
+					_this.slot_options = _this.json2selectvalue(json);
+				}
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+			
+		},
+		// 通过slot选择user
+		change_slot: function () {
+			var _this = this;
+			var slotid = _this.slot_select[0];
+			// console.log(mailinglistid);return false;
+			if (slotid==undefined) {
+				return false;
+			}
+			
+			var url = "{{ route('admin.slot2user.changeslot') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					slotid: slotid
+				}
+			})
+			.then(function (response) {
+				if (response.data != undefined) {
+					var json = response.data.user_unselected;
+					_this.user_options = _this.json2selectvalue(json);
+
+					var json = response.data.user_selected;
+					if (json != undefined) {
+						_this.gets = JSON.parse(json);
+					} else {
+						_this.gets = '';
+					}
 				}
 			})
 			.catch(function (error) {
@@ -233,15 +270,15 @@ var vm_slot2user = new Vue({
 			
 		},
 		// sort向前
-		field_up: function (fieldid, index) {
+		user_up: function (userid, index) {
 			var _this = this;
-			if (fieldid==undefined || index==0) return false;
-			var slotid = _this.mailinglist_select[0];
-			var url = "{{ route('admin.slot2user.fieldsort') }}";
+			if (userid==undefined || index==0) return false;
+			var slotid = _this.slot_select[0];
+			var url = "{{ route('admin.slot2user.usersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					fieldid: fieldid,
+					userid: userid,
 					index: index,
 					slotid: slotid,
 					sort: 'up'
@@ -249,7 +286,7 @@ var vm_slot2user = new Vue({
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.change_mailinglist();
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
@@ -258,15 +295,15 @@ var vm_slot2user = new Vue({
 			})
 		},
 		// sort向后
-		field_down: function (fieldid, index) {
+		user_down: function (userid, index) {
 			var _this = this;
-			if (fieldid==undefined || index==_this.gets.length-1) return false;
-			var slotid = _this.mailinglist_select[0];
-			var url = "{{ route('admin.slot2user.fieldsort') }}";
+			if (userid==undefined || index==_this.gets.length-1) return false;
+			var slotid = _this.slot_select[0];
+			var url = "{{ route('admin.slot2user.usersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					fieldid: fieldid,
+					userid: userid,
 					index: index,
 					slotid: slotid,
 					sort: 'down'
@@ -274,7 +311,7 @@ var vm_slot2user = new Vue({
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.change_mailinglist();
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
@@ -284,10 +321,7 @@ var vm_slot2user = new Vue({
 		},
 		slot2user_remove: function (index) {
 			var _this = this;
-			var slotid = _this.mailinglist_select[0];
-			// console.log(slotid);
-			// console.log(fieldid);
-			// return false;
+			var slotid = _this.slot_select[0];
 			
 			if (slotid == undefined || index == undefined) return false;
 			
@@ -302,7 +336,7 @@ var vm_slot2user = new Vue({
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data != undefined) {
-					_this.change_mailinglist();
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
@@ -314,26 +348,27 @@ var vm_slot2user = new Vue({
 		},
 		slot2user_add: function () {
 			var _this = this;
-			var slotid = _this.mailinglist_select[0];
-			var fieldid = _this.slot_select;
+			var slotid = _this.slot_select[0];
+			var userid = _this.user_select;
 			// console.log(slotid);
-			// console.log(fieldid);
+			// console.log(userid);
 			// return false;
 			
-			if (slotid == undefined || fieldid == undefined) return false;
+			if (slotid == undefined || userid == undefined) return false;
 			
 			var url = "{{ route('admin.slot2user.slot2useradd') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
 					slotid: slotid,
-					fieldid: fieldid
+					userid: userid
 				}
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data != undefined) {
-					_this.change_mailinglist();
+					_this.user_select = [];
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {

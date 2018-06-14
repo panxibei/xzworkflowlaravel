@@ -81,19 +81,17 @@ class Template2slotController extends Controller
 			->where('template_id', $templateid)
 			->first();
 // dd(empty($slotid));
-		if (empty($slotid)) return 0;
+		if (empty($slotid)) return null;
+		if (trim($slotid['slot_id'])=='') return null;
 		
 		$arr_slotid = explode(',', $slotid['slot_id']);
 // dd($arr_slotid);		
 		
-		// 所有的field
 		foreach ($arr_slotid as $value) {
 			$slot[] = Slot::select('id', 'name')
 				->where('id', $value)
 				->first();
-				// ->toArray();
 		}
-// dd($slot);
 
 		return $slot;
     }
@@ -179,8 +177,6 @@ class Template2slotController extends Controller
 
 		$slotid = $request->only('params.slotid');
 		$slotid = implode(',', $slotid['params']['slotid']);
-// dd($templateid);
-// dd($slotid);
 
 		$slotid_before = Template2slot::select('slot_id')
 			->where('template_id', $templateid)
@@ -195,7 +191,6 @@ class Template2slotController extends Controller
 					'template_id' => $templateid,
 					'slot_id' => $slotid_after
 				]);
-				$result = 1;
 			}
 			catch (Exception $e) {
 				// echo 'Message: ' .$e->getMessage();
@@ -203,26 +198,26 @@ class Template2slotController extends Controller
 			}
 
 		} else {
-			$slotid_before = explode(',', $slotid_before['slot_id']);
-			
-			$slotid_after = implode(',', $slotid_before) . ',' . $slotid;
+			// 如果有记录，则根据id更新即可
+			if (trim($slotid_before['slot_id'])=='') {
+				$slotid_after = $slotid;
+			} else {
+				$slotid_after = $slotid_before['slot_id'] . ',' . $slotid;
+			}
 
 			try {
 				$result = Template2slot::where('template_id', $templateid)
 					->update([
 						'slot_id' => $slotid_after
 					]);
-				$result = 1;
 			}
 			catch (Exception $e) {
 				// echo 'Message: ' .$e->getMessage();
 				$result = 0;
 			}
-		
 		}
-dd($result);
-		return $result;
 
+		return $result;
 	}
 
 	/**
@@ -247,6 +242,7 @@ dd($result);
 
 		$slotid_before = explode(',', $slotid_before['slot_id']);
 
+		$slotid_after = [];
 		foreach ($slotid_before as $key => $value) {
 			if ($key != $index) {
 				$slotid_after[] = $value;
@@ -260,7 +256,6 @@ dd($result);
 				->update([
 					'slot_id' => $slotid_after
 				]);
-			$result = 1;
 		}
 		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
