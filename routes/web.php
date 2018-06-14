@@ -204,8 +204,22 @@ Route::group(['prefix'=>'slot2user', 'namespace'=>'Admin', 'middleware'=>['jwtau
 Route::group(['prefix'=>'user4workflow', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
 
 	// slot2fieldremove
-	Route::get('user4workflowIndex', 'User4workflowController@slot2userIndex')->name('admin.user4workflow.index');
+	Route::get('user4workflowIndex', 'User4workflowController@user4workflowIndex')->name('admin.user4workflow.index');
 
+	// user4workflow列表
+	Route::get('user4workflowGets', 'User4workflowController@user4workflowGets')->name('admin.user4workflow.user4workflowgets');
+
+	// changeuser
+	Route::get('changeUser', 'User4workflowController@changeUser')->name('admin.user4workflow.changeuser');
+
+	// usersort
+	Route::post('userSort', 'User4workflowController@userSort')->name('admin.user4workflow.usersort');
+
+	// user4workflowadd
+	Route::post('user4workflowAdd', 'User4workflowController@user4workflowAdd')->name('admin.user4workflow.user4workflowadd');
+
+	// user4workflowremove
+	Route::post('user4workflowRemove', 'User4workflowController@user4workflowRemove')->name('admin.user4workflow.user4workflowremove');
 
 });
 
