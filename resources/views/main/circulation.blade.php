@@ -16,19 +16,20 @@ Main(circulation) -
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
-			<h1 class="page-header">Role Management</h1>
+			<br>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-lg-12">
+			
 			<div class="panel panel-default">
-				<div class="panel-heading">
-					角色管理
+				<div class="panel-heading" role="button" @click="show_circulation=!show_circulation;">
+					<h4 class="panel-title"><i class="fa fa-refresh fa-fw"></i> Circulation</h4>
 				</div>
-				<div class="panel-body">
-					<div class="row">
-
+				<collapse v-model="show_circulation">
 					<div class="panel-body">
+
+
 						<tabs>
 							<tab title="UserList">
 								<!--角色列表-->
@@ -135,16 +136,6 @@ Main(circulation) -
 									</div>
 									<div class="col-lg-3">
 
-		@hasallroles('role_role_page|role_permission_page')
-			我拥有访问role页面权限!
-		@else
-			我没有访问role页面权限...
-		@endrole
-		<br>
-		@can('permission_config_page')
-		  我有permission_role_page权限
-		@endcan
-
 									</div>
 								</div>
 
@@ -205,11 +196,17 @@ Main(circulation) -
 
 							</tab>
 						</tabs>
-					</div>
+
+
+
 
 					</div>
-				</div>
+				</collapse>
 			</div>
+			
+			
+			
+			
 		</div>
 	</div>
 </div>
@@ -222,6 +219,7 @@ Main(circulation) -
 var vm_role = new Vue({
     el: '#role_list',
     data: {
+		show_circulation: true,
 		notification_type: '',
 		notification_title: '',
 		notification_content: '',

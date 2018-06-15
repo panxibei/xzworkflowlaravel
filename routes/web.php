@@ -24,10 +24,29 @@ Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
 // CirculationController路由
 Route::group(['prefix' => 'circulation', 'namespace' =>'Main'], function() {
 	// Route::get('/', 'MainController@index')->name('main');
-	
+
 	// 显示circulation页面
-	Route::post('circulationIndex', 'CirculationController@circulationIndex')->name('main.circulation.index');
+	Route::get('circulationIndex', 'CirculationController@circulationIndex')->name('main.circulation.index');
+
+	
 });
+
+// TodoController路由
+Route::group(['prefix' => 'todo', 'namespace' =>'Main'], function() {
+
+	// 显示todo页面
+	Route::get('todoIndex', 'TodoController@todoIndex')->name('main.todo.index');
+
+});
+
+// ArchiveController路由
+Route::group(['prefix' => 'archive', 'namespace' =>'Main'], function() {
+
+	// 显示archive页面
+	Route::get('archiveIndex', 'ArchiveController@archiveIndex')->name('main.archive.index');
+
+});
+
 
 // AdminController路由
 Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>'jwtauth'], function() {
@@ -212,14 +231,17 @@ Route::group(['prefix'=>'user4workflow', 'namespace'=>'Admin', 'middleware'=>['j
 	// changeuser
 	Route::get('changeUser', 'User4workflowController@changeUser')->name('admin.user4workflow.changeuser');
 
-	// usersort
-	Route::post('userSort', 'User4workflowController@userSort')->name('admin.user4workflow.usersort');
+	// substituteusersort
+	Route::post('substituteuserSort', 'User4workflowController@substituteuserSort')->name('admin.user4workflow.substituteusersort');
 
 	// user4workflowadd
 	Route::post('user4workflowAdd', 'User4workflowController@user4workflowAdd')->name('admin.user4workflow.user4workflowadd');
 
 	// user4workflowremove
 	Route::post('user4workflowRemove', 'User4workflowController@user4workflowRemove')->name('admin.user4workflow.user4workflowremove');
+
+	// savesubstitutetime
+	Route::post('saveSubstitutetime', 'User4workflowController@saveSubstitutetime')->name('admin.user4workflow.savesubstitutetime');
 
 });
 

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Main;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+use App\Models\Config;
+
+
 class CirculationController extends Controller
 {
     /**
@@ -103,7 +106,7 @@ class CirculationController extends Controller
         // return view('admin.user', $config);
 		
 		$share = compact('config', 'user');
-        return view('admin.user', $share);
+        return view('main.circulation', $share);
     }
 	
 }

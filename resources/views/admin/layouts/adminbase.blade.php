@@ -254,7 +254,7 @@
 			<li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
 			</li>
 			<li class="divider"></li>
-			<li><a href="{:U('Main/Index/main')}"><i class="fa fa-home fa-fw"></i> 前台首页</a>
+			<li><a href="{{route('main.circulation.index')}}"><i class="fa fa-home fa-fw"></i> 前台首页</a>
 			</li>
 			<li><a href="{{route('admin.logout')}}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
 			</li>

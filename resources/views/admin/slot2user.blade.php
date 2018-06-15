@@ -212,6 +212,11 @@ var vm_slot2user = new Vue({
 			var mailinglistid = _this.mailinglist_select[0];
 			// console.log(mailinglistid);return false;
 			if (mailinglistid==undefined) {
+				_this.slot_select = [];
+				_this.slot_options = [];
+				_this.user_select = [];
+				_this.user_options = [];
+				_this.gets = '';
 				return false;
 			}
 			
@@ -240,6 +245,9 @@ var vm_slot2user = new Vue({
 			var slotid = _this.slot_select[0];
 			// console.log(mailinglistid);return false;
 			if (slotid==undefined) {
+				_this.user_select = [];
+				_this.user_options = [];
+				_this.gets = '';
 				return false;
 			}
 			

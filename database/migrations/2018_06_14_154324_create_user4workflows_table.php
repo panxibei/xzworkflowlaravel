@@ -18,7 +18,7 @@ class CreateUser4workflowsTable extends Migration
 			$table->unsignedInteger('user_id')->comment('user_id');
 			$table->integer('rights')->default(0)->comment('用户访问流程权限');
 			$table->text('substitute_user_id')->nullable()->default(null)->comment('代理人用户ID');
-			$table->string('substitute_time')->nullable()->default(null)->comment('代理人所需时间');
+			$table->integer('substitute_time')->default(480)->comment('代理人所需时间');
             $table->timestamps();
 			$table->engine = 'InnoDB';
         });

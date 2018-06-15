@@ -277,69 +277,7 @@
 				<!-- /input-group -->
 			</li>
 			<li>
-				<a href="{:U('Admin/Index/index')}"><i class="fa fa-dashboard fa-fw"></i> Dashboard后台首页</a>
-			</li>
-			<li>
-				<a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li>
-						<a href="flot.html">Flot Charts</a>
-					</li>
-					<li>
-						<a href="morris.html">Morris.js Charts</a>
-					</li>
-				</ul>
-				<!-- /.nav-second-level -->
-			</li>
-			<li>
-				<a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
-			</li>
-			<li>
-				<a href="{{ route('admin.config.index') }}"><i class="fa fa-gear fa-fw"></i> 系统配置</a>
-			</li>
-			<li>
-				<a href="#"><i class="fa fa-dropbox fa-fw"></i> 元素管理<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li>
-						<a href="#"><i class="fa fa-magic fa-fw"></i> 基本元素 ...<span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li>
-								<a href="{:U('Admin/Index/field')}"><i class="fa fa-bars fa-fw"></i> Field</a>
-							</li>
-							<li>
-								<a href="{:U('Admin/Index/slot')}"><i class="fa fa-list-alt fa-fw"></i> Slot</a>
-							</li>
-							<li>
-								<a href="{:U('Admin/Index/template')}"><i class="fa fa-file-text-o fa-fw"></i> Template</a>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<a href="#"><i class="fa fa-chain fa-fw"></i> 元素关联 ...<span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li>
-								<a href="{:U('Admin/Index/slot2field')}"><i class="fa fa-list-alt fa-fw"></i> Slot2Field</a>
-							</li>
-							<li>
-								<a href="{:U('Admin/Index/template2slot')}"><i class="fa fa-file-text-o fa-fw"></i> Template2Slot</a>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<a href="#"><i class="fa fa-chain fa-fw"></i> 用户关联 ...<span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li>
-								<a href="{:U('Admin/Index/mailinglist')}"><i class="fa fa-envelope-o fa-fw"></i> Mailing List</a>
-							</li>
-							<li>
-								<a href="{:U('Admin/Index/slot2user')}"><i class="fa fa-envelope fa-fw"></i> Slot2User</a>
-							</li>
-							<li>
-								<a href="{:U('Admin/Index/user4workflow')}"><i class="fa fa-user-md fa-fw"></i> User4Workflow</a>
-							</li>						
-						</ul>
-					</li>
-				</ul>
+				<a href="{{ route('admin.config.index') }}"><i class="fa fa-gear fa-fw"></i> 前台首页</a>
 			</li>
 			<li>
 				<a href="#"><i class="fa fa-refresh fa-fw"></i> Circulation<span class="fa arrow"></span></a>

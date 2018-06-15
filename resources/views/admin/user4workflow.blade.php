@@ -37,7 +37,7 @@ Admin(user4workflow) -
 
 									<div class="col-lg-12">
 										<div class="panel panel-default">
-											<div class="panel-heading"><label>编辑 Slot2Field</label></div>
+											<div class="panel-heading"><label>编辑 User4workflow</label></div>
 											<div class="panel-body">
 
 												<div class="col-lg-4">
@@ -46,7 +46,7 @@ Admin(user4workflow) -
 														<multi-select @change="change_user()" v-model="user_select" :options="user_options" :limit="1" filterable collapse-selected size="sm" />
 													</div>
 													
-													
+													<div style="background-color:#c9e2b3;height:1px"></div><br>
 													<div class="form-group">
 														<label>选择权限</label>
 														<div class="checkbox">
@@ -71,11 +71,12 @@ Admin(user4workflow) -
 														</div>
 													</div>
 													
-													
+													<div style="background-color:#c9e2b3;height:1px"></div><br>
 													<div class="form-group">
 														<label>Substitute Time (minute)</label>
-														<input id="substitute_time_input" class="form-control">
+														<input v-model="substitute_time" type="number" min="480" max="2880" class="form-control">
 													</div>
+													<btn @click="save_substitute_time()" type="default" size="sm"><i class="fa fa-save fa-fw"></i> Save</btn>&nbsp;
 													
 													
 													
@@ -86,7 +87,7 @@ Admin(user4workflow) -
 														<label>Select Substitute User(s)</label><br>
 														<multi-select v-model="substituteuser_select" :options="substituteuser_options"  filterable collapse-selected size="sm" />
 													</div>
-													<btn @click="user4workflow_add" type="primary" size="sm">Add</btn>&nbsp;
+													<btn @click="user4workflow_add" type="default" size="sm"><i class="fa fa-plus fa-fw"></i> Add</btn>&nbsp;
 												</div>
 
 												<div class="col-lg-5">
@@ -105,8 +106,8 @@ Admin(user4workflow) -
 																	<td><div>@{{ index }}</div></td>
 																	<td><div>@{{ val.name }}</div></td>
 																	<td><div>
-																	<btn @click="user_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
-																	<btn @click="user_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
+																	<btn @click="substituteuser_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
+																	<btn @click="substituteuser_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
 																	<btn @click="user4workflow_remove(index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
 																</tr>
 															</tbody>
@@ -168,7 +169,7 @@ var vm_user4workflow = new Vue({
         user_options: [],
 		substituteuser_select: [],
         substituteuser_options: [],
-
+		substitute_time: '',
 		// tabs索引
 		currenttabs: 0
     },
@@ -241,6 +242,9 @@ var vm_user4workflow = new Vue({
 			var userid = _this.user_select[0];
 			// console.log(userid);return false;
 			if (userid==undefined) {
+				_this.substituteuser_select = [];
+				_this.substituteuser_options = [];
+				_this.gets = '';
 				return false;
 			}
 			
@@ -252,10 +256,19 @@ var vm_user4workflow = new Vue({
 				}
 			})
 			.then(function (response) {
-				// if (response.data != undefined) {
-					// var json = response.data;
-					// _this.slot_options = _this.json2selectvalue(json);
-				// }
+				if (response.data != undefined) {
+					var json = response.data.user_unselected;
+					_this.substituteuser_options = _this.json2selectvalue(json);
+				
+					var json = response.data.user_selected;
+					if (json != undefined) {
+						_this.gets = JSON.parse(json);
+					} else {
+						_this.gets = '';
+					}
+					
+					_this.substitute_time = response.data.user_substitute_time;
+				}
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -264,23 +277,23 @@ var vm_user4workflow = new Vue({
 			
 		},
 		// sort向前
-		user_up: function (userid, index) {
+		substituteuser_up: function (substituteuserid, index) {
 			var _this = this;
-			if (userid==undefined || index==0) return false;
-			var slotid = _this.slot_select[0];
-			var url = "{{ route('admin.user4workflow.usersort') }}";
+			if (substituteuserid==undefined || index==0) return false;
+			var userid = _this.user_select[0];
+			var url = "{{ route('admin.user4workflow.substituteusersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					userid: userid,
+					substituteuserid: substituteuserid,
 					index: index,
-					slotid: slotid,
+					userid: userid,
 					sort: 'up'
 				}
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_user();
 				}
 			})
 			.catch(function (error) {
@@ -289,23 +302,23 @@ var vm_user4workflow = new Vue({
 			})
 		},
 		// sort向后
-		user_down: function (userid, index) {
+		substituteuser_down: function (substituteuserid, index) {
 			var _this = this;
-			if (userid==undefined || index==_this.gets.length-1) return false;
-			var slotid = _this.slot_select[0];
-			var url = "{{ route('admin.user4workflow.usersort') }}";
+			if (substituteuserid==undefined || index==_this.gets.length-1) return false;
+			var userid = _this.user_select[0];
+			var url = "{{ route('admin.user4workflow.substituteusersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					userid: userid,
+					substituteuserid: substituteuserid,
 					index: index,
-					slotid: slotid,
+					userid: userid,
 					sort: 'down'
 				}
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_user();
 				}
 			})
 			.catch(function (error) {
@@ -315,22 +328,24 @@ var vm_user4workflow = new Vue({
 		},
 		user4workflow_remove: function (index) {
 			var _this = this;
-			var slotid = _this.slot_select[0];
+			var userid = _this.user_select[0];
+			// console.log(userid + ' | ' + index);
+			// return false;
 			
-			if (slotid == undefined || index == undefined) return false;
+			if (userid == undefined || index == undefined) return false;
 			
 			var url = "{{ route('admin.user4workflow.user4workflowremove') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					slotid: slotid,
+					userid: userid,
 					index: index
 				}
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data != undefined) {
-					_this.change_slot();
+					_this.change_user();
 				}
 			})
 			.catch(function (error) {
@@ -342,33 +357,64 @@ var vm_user4workflow = new Vue({
 		},
 		user4workflow_add: function () {
 			var _this = this;
-			var slotid = _this.slot_select[0];
-			var userid = _this.user_select;
-			// console.log(slotid);
+			var userid = _this.user_select[0];
+			var substituteuserid = _this.substituteuser_select;
 			// console.log(userid);
+			// console.log(substituteuserid);
 			// return false;
 			
-			if (slotid == undefined || userid == undefined) return false;
+			if (userid == undefined || substituteuserid == undefined) return false;
 			
 			var url = "{{ route('admin.user4workflow.user4workflowadd') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
-					slotid: slotid,
-					userid: userid
+					userid: userid,
+					substituteuserid: substituteuserid
 				}
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data != undefined) {
-					_this.user_select = [];
-					_this.change_slot();
+					_this.substituteuser_select = [];
+					_this.change_user();
 				}
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
 			})
+		},
+		save_substitute_time: function () {
+			var _this = this;
+			var userid = _this.user_select[0];
+			var substitute_time = _this.substitute_time;
+			
+			if (userid == undefined || isNaN(parseInt(substitute_time))) {
+				_this.$notify(`No user selected or substitute time is incorrect!`);
+				return false;
+			}
+			
+			var url = "{{ route('admin.user4workflow.savesubstitutetime') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					userid: userid,
+					substitute_time: substitute_time
+				}
+			})
+			.then(function (response) {
+				if (response.data == 0) {
+					_this.$notify(`Failed to Save!`);
+				} else {
+					_this.$notify(`Saved OK!`);
+				}
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})			
+			
 		},
 		user4workflow_review: function () {
 			
