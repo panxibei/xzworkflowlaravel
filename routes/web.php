@@ -28,6 +28,19 @@ Route::group(['prefix' => 'circulation', 'namespace' =>'Main'], function() {
 	// 显示circulation页面
 	Route::get('circulationIndex', 'CirculationController@circulationIndex')->name('main.circulation.index');
 
+	// circulation列表
+	Route::get('circulationGets', 'CirculationController@circulationGets')->name('main.circulation.circulationgets');
+
+	// gettemplateoptions
+	Route::get('getTemplateOptions', 'CirculationController@getTemplateOptions')->name('main.circulation.gettemplateoptions');
+
+	// changetemplate
+	Route::get('changeTemplate', 'CirculationController@changeTemplate')->name('main.circulation.changetemplate');
+
+	// changemailinglist
+	Route::get('changeMailinglist', 'CirculationController@changeMailinglist')->name('main.circulation.changemailinglist');
+
+	
 	
 });
 

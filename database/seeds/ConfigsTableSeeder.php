@@ -171,6 +171,16 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            15 => 
+            array (
+                'cfg_id' => 16,
+                'cfg_name' => 'PERPAGE_RECORDS_FOR_CIRCULATION',
+                'cfg_value' => '1',
+				'cfg_description' => 'CIRCULATION页每页记录数',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }

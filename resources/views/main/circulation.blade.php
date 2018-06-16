@@ -12,7 +12,7 @@ Main(circulation) -
 
 @section('my_body')
 @parent
-<div id="role_list" v-cloak>
+<div id="circulation_list" v-cloak>
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
@@ -30,9 +30,9 @@ Main(circulation) -
 					<div class="panel-body">
 
 
-						<tabs>
-							<tab title="UserList">
-								<!--角色列表-->
+						<tabs v-model="currenttabs">
+							<tab title="Circulation List">
+								<!--circulation 列表-->
 								<div class="col-lg-12">
 									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
 									<div class="table-responsive">
@@ -41,19 +41,21 @@ Main(circulation) -
 												<tr>
 													<th>id</th>
 													<th>name</th>
-													<th>guard_name</th>
+													<th>Days in process</th>
 													<th>created_at</th>
-													<th>updated_at</th>
-													<th>操作（保留）</th>
+													<th>Creator</th>
+													<th>Progress</th>
+													<th>Operation</th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr v-for="val in gets.data">
 													<td><div>@{{ val.id }}</div></td>
 													<td><div>@{{ val.name }}</div></td>
-													<td><div>@{{ val.guard_name }}</div></td>
+													<td><div>@{{ parseInt((Date.parse(new Date()) - Date.parse(val.created_at))/86400000) + ' day(s)' }}</div></td>
 													<td><div>@{{ val.created_at }}</div></td>
-													<td><div>@{{ val.updated_at }}</div></td>
+													<td><div>@{{ val.creator }}</div></td>
+													<td><div>@{{ val.progress }}</div></td>
 													<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
 													&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
 												</tr>
@@ -66,28 +68,28 @@ Main(circulation) -
 													<div>
 														<nav>
 															<ul class="pagination pagination-sm">
-																<li><a aria-label="Previous" @click="rolegets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+																<li><a aria-label="Previous" @click="circulationgets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
 
 																<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-																	<a v-if="n==1" @click="rolegets(1, gets.last_page)" href="javascript:;">1</a>
-																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="rolegets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
+																	<a v-if="n==1" @click="circulationgets(1, gets.last_page)" href="javascript:;">1</a>
+																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="circulationgets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
 																	<a v-else-if="n==2||n==gets.last_page">...</a>
 																</li>&nbsp;
 
-																<li><a aria-label="Next" @click="rolegets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
+																<li><a aria-label="Next" @click="circulationgets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
 																<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
 
 																	<div class="col-xs-2">
-																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="rolegets($event.target.value, gets.last_page)">
+																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="circulationgets($event.target.value, gets.last_page)">
 																	</div>
 
 																<div class="btn-group">
 																<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
 																<ul class="dropdown-menu">
-																<li><a @click="configperpageforrole(2)" href="javascript:;"><small>2条记录</small></a></li>
-																<li><a @click="configperpageforrole(5)" href="javascript:;"><small>5条记录</small></a></li>
-																<li><a @click="configperpageforrole(10)" href="javascript:;"><small>10条记录</small></a></li>
-																<li><a @click="configperpageforrole(20)" href="javascript:;"><small>20条记录</small></a></li>
+																<li><a @click="configperpageforcirculation(2)" href="javascript:;"><small>2条记录</small></a></li>
+																<li><a @click="configperpageforcirculation(5)" href="javascript:;"><small>5条记录</small></a></li>
+																<li><a @click="configperpageforcirculation(10)" href="javascript:;"><small>10条记录</small></a></li>
+																<li><a @click="configperpageforcirculation(20)" href="javascript:;"><small>20条记录</small></a></li>
 																</ul>
 																</div>
 															</ul>
@@ -100,99 +102,155 @@ Main(circulation) -
 									</div>
 								</div>
 							</tab>
-							<tab title="General">
-								<!--角色操作1-->
+							<tab title="Create Circulation">
+								<!--操作1-->
 								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Create role</label><br>
-											<input class="form-control input-sm" type="text" ref="rolecreateinput" placeholder="角色名称" />
-										</div>
-										<div class="form-group">
-											<button @click="rolecreate" type="button" class="btn btn-primary btn-sm">新建角色</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select role(s) to delete</label><br>
-											<multi-select v-model="selected_selectroletodelete" :options="options_selectroletodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
-										</div>
-										<div class="form-group">
-											<button @click="roledelete" type="button" class="btn btn-danger btn-sm" >删除角色</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Sync perimssion(s) to a role</label><br>
-											角色： <multi-select v-model="selected_syncrole" :options="options_syncrole" :limit="1" filterable collapse-selected size="sm" placeholder="请选择角色..." />
-										</div>
-										<div class="form-group">
-											权限： <multi-select v-model="selected_syncpermission" :options="options_syncpermission" filterable collapse-selected size="sm" placeholder="请选择权限..." />
-										</div>
-										<div class="form-group">
-											<button @click="syncpermissiontorole" type="button" class="btn btn-primary btn-sm" >同步权限到角色</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
+								<br>
 
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Select a Template</label><br>
+											<multi-select @change="change_template()" v-model="template_select" :options="template_options" :limit="1" filterable collapse-selected size="sm" />
+										</div>
 									</div>
-								</div>
-
-							</tab>
-							<tab title="Advance">
-
-								<!--角色操作2-->
-								<div class="col-lg-12">
-									<br><!--<div style="background-color:#c9e2b3;height:1px"></div><br>-->
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Select a Mailing List</label><br>
+											<multi-select @change="change_mailinglist()" v-model="mailinglist_select" :options="mailinglist_options" :limit="1" filterable collapse-selected size="sm" />
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<btn @click="review_create_circulation()" type="default" size="sm"><i class="fa fa-magic fa-fw"></i> Review & Create a circulation</btn>&nbsp;
+									</div>
+									<div class="col-lg-3">
+									</div>
 									
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select User</label><br>
-											<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
+								</div>
+								
+								<div class="col-lg-12">
+								<!--流程信息-->
+									<div style="background-color:#c9e2b3;height:1px"></div><br>
+
+									<div class="panel panel-default">
+										<div class="panel-heading" role="button" @click="show_review_template=!show_review_template;">
+											<h4 class="panel-title"><i class="fa fa-bookmark fa-fw"></i> Circulation Information</h4>
 										</div>
-										<div class="form-group">
-											<label>Select role(s) to add</label><br>
-											<multi-select v-model="selected_currentusernothasroles" :options="options_currentusernothasroles" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
-										</div>
-										<div class="form-group">
-											<button @click="rolegive" type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
-										</div>
-										<div class="form-group">
-											<label>Select role(s) to remove</label><br>
-											<multi-select v-model="selected_currentuserroles" :options="options_currentuserroles" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
-										</div>
-										<div class="form-group">
-											<button @click="roleremove" type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
-										</div>
+										<collapse v-model="show_review_template">
+											<div class="panel-body">									
+
+												<div class="row">
+													<div class="col-lg-2">
+														<div class="form-group">
+														<label>流程名称</label>
+														<p class="form-control-static">@{{ create_template }}</p>
+														</div>
+													</div>
+													<div class="col-lg-2">
+														<div class="form-group">
+															<label>创建日期</label>
+															<p class="form-control-static">@{{ create_created_at }}</p>
+														</div>
+													</div>
+													<div class="col-lg-2">
+														<div class="form-group">
+														<label>创建者</label>
+														<p class="form-control-static">@{{ create_creator }}</p>
+														</div>
+													</div>
+													<div class="col-lg-6">
+														<div class="form-group">
+															<label>详细描述</label>
+															<p class="form-control-static">@{{ create_description }}</p>
+														</div>
+													</div>
+												</div>
+
+											</div>
+										</collapse>
 									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Current user's role(s)</label><br>
-											<select v-model="selected_currentuserroles" class="form-control" size="16">
-												<option v-for="option in options_currentuserroles" v-bind:value="option.value">
-													@{{ option.label }}
-												</option>
-											</select>
+									
+								</div>
+								
+								<div class="col-lg-12">
+								<!--人员-->
+
+									<div class="panel panel-default">
+										<div class="panel-heading" role="button" @click="show_review_group=!show_review_group;">
+											<h4 class="panel-title"><i class="fa fa-group fa-fw"></i> Peoples</h4>
 										</div>
-									</div>
-									<div class="col-lg-1">
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select role to view users</label><br>
-											<multi-select v-model="selected_roletoviewuser" :options="options_roletoviewuser" :limit="1" @change="changeroletoviewuser" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
-										</div>
-										<div class="form-group">
-											<label>User(s) using current role</label><br>
-											<select v-model="selected_roletoviewuserresult" class="form-control" size="11">
-												<option v-for="option in options_roletoviewuserresult" v-bind:value="option.value">
-													@{{ option.label }}
-												</option>
-											</select>
-										</div>
+										<collapse v-model="show_review_group">
+											<div class="panel-body">									
+
+												<div class="table-responsive">
+													<table class="table table-condensed">
+														<thead>
+															<tr>
+																<th>用户名</th>
+																<th>代理人</th>
+																<th>邮箱</th>
+																<th>操作</th>
+															</tr>
+														</thead>
+														<tbody>
+															<tr v-for="val in gets_peoples">
+																<td>
+																<div v-if="val.user!='-'">@{{ val.user }}</div>
+																<div v-else></div>
+																</td>
+																<td><div v-if="val.user!='-'">b @{{ val.substitute }}</div><div v-else></div></td>
+																<td><div v-if="val.user!='-'">@{{ val.email }}</div><div v-else></div></td>
+																<td><div v-if="val.user!='-'">
+																<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+																</div><div v-else></div></td>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+
+											</div>
+										</collapse>
 									</div>
 								</div>
+
+								<div class="col-lg-12">
+								<!--流程表单-->
+
+									<div class="panel panel-default">
+										<div class="panel-heading" role="button" @click="show_review_form=!show_review_form;">
+											<h4 class="panel-title"><i class="fa fa-file-text-o fa-fw"></i> Form</h4>
+										</div>
+										<collapse v-model="show_review_form">
+											<div class="panel-body">									
+
+												<!--slot-->
+												<div class="panel panel-default">
+													<div class="panel-heading" role="button" @click="show_review_slot=!show_review_slot;">
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> Slots</h4>
+													</div>
+													<collapse v-model="show_review_slot">
+														<div class="panel-body">
+														
+														adfsfas
+
+														</div>
+													</collapse>
+												</div>
+											
+											</div>
+										</collapse>
+									</div>
+
+								</div>
+								
+								
+								
+							</tab>
+							<tab title="Review Circulation">
+								<!--操作2-->
+
 
 							</tab>
 						</tabs>
@@ -216,58 +274,44 @@ Main(circulation) -
 @section('my_footer')
 @parent
 <script>
-var vm_role = new Vue({
-    el: '#role_list',
+var vm_circulation = new Vue({
+    el: '#circulation_list',
     data: {
 		show_circulation: true,
+		show_review_template: true,
+		show_review_group: true,
+		show_review_form: true,
+		show_review_slot: true,
 		notification_type: '',
 		notification_title: '',
 		notification_content: '',
 		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_ROLE'] }},
-		// 选择用户
-		selected_selecteduser: [],
-        options_selecteduser: [],
-		// 选择要删除的角色
-		selected_selectroletodelete: [],
-        options_selectroletodelete: [],
-		// 选择用户后显示当前用户拥有的角色
-		selected_currentuserroles: [],
-        options_currentuserroles: [],
-		// 当前用户没有拥有的角色
-		selected_currentusernothasroles: [],
-        options_currentusernothasroles: [],
-		// 选择角色查看哪些用户使用
-		selected_roletoviewuser: [],
-        options_roletoviewuser: [],
-		selected_roletoviewuserresult: [],
-        options_roletoviewuserresult: [],
-		// 同步哪些权限到指定角色
-		selected_syncrole: [],
-        options_syncrole: [],
-		selected_syncpermission: [],
-        options_syncpermission: [],
-		// select样例
-		selected: [],
-        options: [
-			{value: 1, label:'Option1'},
-			{value: 2, label:'Option2'},
-			{value: 3, label:'Option3333333333'},
-			{value: 4, label:'Option4'},
-			{value: 5, label:'Option5'}
-        ]
+		perpage: {{ $config['PERPAGE_RECORDS_FOR_CIRCULATION'] }},
+		template_select: [],
+		template_options: [],
+		mailinglist_select: [],
+		mailinglist_options: [],
+		// 创建相关元素
+		create_template: '',
+		create_created_at: '',
+		create_creator: '',
+		create_description: '',
+		gets_peoples: {},
+		// tabs索引
+		currenttabs: 1
     },
 	methods: {
 		// 把laravel返回的结果转换成select能接受的格式
-		json2selectvalue: function (json) {
+		json2selectvalue: function (json, reverse) {
 			var arr = [];
 			for (var key in json) {
-				// alert(key);
-				// alert(json[key]);
-				// arr.push({ obj.['value'] = key, obj.['label'] = json[key] });
 				arr.push({ value: key, label: json[key] });
 			}
-			return arr;
+			if (reverse) {
+				return arr.reverse();
+			} else {
+				return arr;
+			}
 		},
 		alert_exit: function () {
 			this.$alert({
@@ -290,344 +334,10 @@ var vm_role = new Vue({
 				content: this.notification_content
 			})
 		},
-		// 1.创建角色
-		rolecreate: function () {
+		// circulation列表 ok
+		circulationgets: function(page, last_page){
 			var _this = this;
-			var rolename = _this.$refs.rolecreateinput.value;
-			var url = "{{ route('admin.role.create') }}";
-
-			if(rolename.length==0){
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please input the role name!';
-				_this.notification_message();
-				return false;
-			}
-			
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					rolename: rolename
-				}
-			})
-			.then(function (response) {
-				// console.log(response);
-				if (typeof(response.data) == "undefined") {
-					// _this.alert_message('WARNING', 'Role [' + rolename + '] failed to create!');
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Role [' + rolename + '] failed to create!';
-					_this.notification_message();
-				} else {
-					// _this.alert_message('SUCCESS', 'Role [' + rolename + '] created successfully!');
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Role [' + rolename + '] created successfully!';
-					_this.notification_message();
-
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				// console.log(error);
-				// alert(error.response.data.message);
-				// _this.alert_message('ERROR', error.response.data.message);
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
-		// 2.删除角色
-		roledelete: function () {
-			var _this = this;
-			var rolename = _this.selected_selectroletodelete;
-			// alert(rolename);return false;
-			
-			if(rolename.length==0){
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please select the role(s)!';
-				_this.notification_message();
-				return false;
-			}
-			
-			var url = "{{ route('admin.role.roledelete') }}";
-			// alert(url);return false;
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					rolename: rolename
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to delete!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) deleted successfully!';
-					_this.notification_message();
-					
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
-		// 3.选择用户后显示当前用户拥有的角色
-		changeuser: function (userid) {
-			var _this = this;
-			var url = "{{ route('admin.role.userhasrole') }}";
-
-			_this.options_currentuserroles = [];
-			_this.selected_currentuserroles = [];
-			_this.options_currentusernothasroles = [];
-			_this.selected_currentusernothasroles = [];
-			if(userid.length==0){
-				return false;
-			}
-
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url,{
-				params: {
-					userid: userid
-				}
-			})
-			.then(function (response) {
-				var json = response.data.userhasrole;
-				_this.options_currentuserroles = _this.json2selectvalue(json);
-
-				json = response.data.usernothasrole;
-				_this.options_currentusernothasroles = _this.json2selectvalue(json);
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
-		// 4.给用户赋予角色
-		rolegive: function () {
-			var _this = this;
-			var userid = _this.selected_selecteduser;
-			var roleid = _this.selected_currentusernothasroles;
-			
-			if (userid.length == 0 || roleid.length == 0) { return false; }
-			var url = "{{ route('admin.role.give') }}";
-
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					userid: userid,
-					roleid: roleid
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to give!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) gave successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
-		// 5.从用户移除角色
-		roleremove: function () {
-			var _this = this;
-			var userid = _this.selected_selecteduser;
-			var roleid = _this.selected_currentuserroles;
-
-			if (userid.length == 0 || roleid.length == 0) { return false; }
-			var url = "{{ route('admin.role.remove') }}";
-
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					userid: userid,
-					roleid: roleid
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to remove!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) removed successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},		
-		// 6.显示所有待删除的角色
-		rolelistdelete: function () {
-			var _this = this;
-			var url = "{{ route('admin.role.rolelistdelete') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-			})
-			.then(function (response) {
-				var json = response.data;
-				_this.options_selectroletodelete = _this.json2selectvalue(json);
-				_this.selected_selectroletodelete = [];
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		// 7.显示所有角色
-		rolelist: function () {
-			var _this = this;
-			var url = "{{ route('admin.role.rolelist') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-			})
-			.then(function (response) {
-				var json = response.data;
-				_this.options_roletoviewuser = _this.json2selectvalue(json);
-				_this.selected_roletoviewuser = [];
-				_this.options_syncrole = _this.options_roletoviewuser;
-				_this.selected_syncrole = [];
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		// 8.显示所有权限
-		permissionlist: function () {
-			var _this = this;
-			var url = "{{ route('admin.role.permissionlist') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-			})
-			.then(function (response) {
-				var json = response.data;
-				_this.options_syncpermission = _this.json2selectvalue(json);
-				_this.selected_syncpermission = [];
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		// 9.选择角色来查看哪些用户
-		changeroletoviewuser: function (roleid) {
-			var _this = this;
-			if (roleid.length == 0) {
-				_this.options_roletoviewuserresult = [];
-				_this.selected_roletoviewuserresult = [];
-				return false;
-			}
-			var url = "{{ route('admin.role.roletoviewuser') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-				params: {
-					roleid: roleid
-				}
-			})
-			.then(function (response) {
-				var json = response.data;
-				_this.options_roletoviewuserresult = _this.json2selectvalue(json);
-				_this.selected_roletoviewuserresult = [];
-			})
-			.catch(function (error) {
-				// console.log(error);
-				alert(error);
-			})
-		},
-		// 10.同步权限到指定角色
-		syncpermissiontorole: function () {
-			var _this = this;
-			var roleid = _this.selected_syncrole;
-			var permissionid = _this.selected_syncpermission;
-			// alert(roleid);alert(permissionid);return false;
-
-			if (roleid.length == 0 || permissionid.length == 0) { return false; }
-			
-			var url = "{{ route('admin.role.syncpermissiontorole') }}";
-
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					roleid: roleid,
-					permissionid: permissionid
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Permission(s) failed to sync!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Permission(s) sync successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
-		// 11.每次操作后的各部分刷新
-		refreshview: function () {
-			var _this = this;
-			_this.changeuser(_this.selected_selecteduser);
-			_this.rolelistdelete();
-			_this.rolelist();
-			_this.permissionlist();
-		},
-		// 12.角色列表
-		rolegets: function(page, last_page){
-			var _this = this;
-			var url = "{{ route('admin.role.rolegets') }}";
-			// var perPage = 1; // 有待修改，将来使用配置项
+			var url = "{{ route('main.circulation.circulationgets') }}";
 			
 			if (page > last_page) {
 				page = last_page;
@@ -643,10 +353,9 @@ var vm_role = new Vue({
 				}
 			})
 			.then(function (response) {
-				if (typeof(response.data.data) == "undefined") {
-					// alert(response);
-					_this.alert_exit();
-				}
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
 				_this.gets = response.data;
 			})
 			.catch(function (error) {
@@ -654,10 +363,11 @@ var vm_role = new Vue({
 				alert(error);
 			})
 		},
-		configperpageforrole: function (value) {
+		// 配置页数 ok
+		configperpageforcirculation: function (value) {
 			var _this = this;
 			var cfg_data = {};
-			cfg_data['PERPAGE_RECORDS_FOR_ROLE'] = value;
+			cfg_data['PERPAGE_RECORDS_FOR_CIRCULATION'] = value;
 			var url = "{{ route('admin.config.change') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
@@ -666,7 +376,7 @@ var vm_role = new Vue({
 			.then(function (response) {
 				if (response.data) {
 					_this.perpage = value;
-					_this.rolegets(1, 1);
+					_this.circulationgets(1, 1);
 				} else {
 					alert('failed');
 				}
@@ -675,30 +385,115 @@ var vm_role = new Vue({
 				alert('failed');
 				// console.log(error);
 			})
+		},
+		// gettemplateoptions ok
+		gettemplateoptions: function () {
+			var _this = this;
+			var url = "{{ route('main.circulation.gettemplateoptions') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url)
+			.then(function (response) {
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
+				var json = response.data;
+				_this.template_options = _this.json2selectvalue(json, true);
+
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		// ok
+		change_template: function () {
+			var _this = this;
+			var template_id = _this.template_select[0];
+			if (template_id==undefined) {
+				_this.mailinglist_select = [];
+				_this.mailinglist_options = [];
+				return false;
+			}
+			
+			var url = "{{ route('main.circulation.changetemplate') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					template_id: template_id
+				}
+			})
+			.then(function (response) {
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
+				var json = response.data;
+				_this.mailinglist_options = _this.json2selectvalue(json, true);
+
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		// ok
+		change_mailinglist: function () {
+			var _this = this;
+			var template_id = _this.template_select[0];
+			var mailinglist_id = _this.mailinglist_select[0];
+			if (template_id = undefined || mailinglist_id == undefined) {
+				return false;
+			}
+			
+			var url = "{{ route('main.circulation.changemailinglist') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					// template_id: template_id,
+					mailinglist_id: mailinglist_id
+				}
+			})
+			.then(function (response) {
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
+				// var json = response.data;
+				// _this.mailinglist_options = _this.json2selectvalue(json, true);
+				
+				console.log(response.data);
+				_this.gets_peoples = response.data;
+
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		// 预览创建circulation
+		review_create_circulation: function () {
+			var _this = this;
+			var template_id = _this.template_select[0];
+			var mailinglist_id = _this.mailinglist_select[0];
+			
+			console.log(template_id);
+			console.log(mailinglist_id);
+			
+			if (template_id == undefined || mailinglist_id == undefined) {
+				_this.$notify('Nothing selected!');
+				return false;
+			}
+			
+			
+			
+			
 		}
 	},
-	mounted: function(){
+	mounted: function () {
 		var _this = this;
-
-		// 显示所有用户
-		var url = "{{ route('admin.role.userlist') }}";
-		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-		axios.get(url, {
-		})
-		.then(function (response) {
-			console.log(response);
-			var json = response.data;
-			_this.options_selecteduser = _this.json2selectvalue(json);
-		})
-		.catch(function (error) {
-			console.log(error);
-			alert(error);
-		})
-		// 显示所有角色
-		_this.rolegets(1, 1); // page: 1, last_page: 1
-		_this.rolelistdelete();
-		_this.rolelist();
-		_this.permissionlist();
+		_this.circulationgets(1, 1); // page: 1, last_page: 1
+		_this.gettemplateoptions();
+		// _this.rolelistdelete();
+		// _this.rolelist();
+		// _this.permissionlist();
 	}
 });
 </script>
