@@ -181,34 +181,47 @@ Main(circulation) -
 										<collapse v-model="show_review_group">
 											<div class="panel-body">									
 
-												<div class="table-responsive">
-													<table class="table table-condensed">
-														<thead>
-															<tr>
-																<th>用户名</th>
-																<th>代理人</th>
-																<th>邮箱</th>
-																<th>操作</th>
-															</tr>
-														</thead>
-														<tbody>
-															<tr v-for="val in gets_peoples">
-																<td>
-																<div v-if="val.user!='-'">@{{ val.user }}</div>
-																<div v-else></div>
-																</td>
-																<td><div v-if="val.user!='-'">b @{{ val.substitute }}</div><div v-else></div></td>
-																<td><div v-if="val.user!='-'">@{{ val.email }}</div><div v-else></div></td>
-																<td><div v-if="val.user!='-'">
-																<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
-																<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
-																<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
-																<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
-																</div><div v-else></div></td>
-															</tr>
-														</tbody>
-													</table>
+												
+												
+												
+												<div class="col-lg-12">
+													<div class="col-lg-3">
+														<label>用户名</label>
+													</div>
+													<div class="col-lg-3">
+														<label>代理人</label>
+													</div>
+													<div class="col-lg-3">
+														<label>邮箱</label>
+													</div>
+													<div class="col-lg-3">
+														<label>操作</label>
+													</div>
 												</div>
+												
+												<div class="col-lg-12" v-for="val in gets_peoples">
+													<div v-if="val.user!='-'">
+														<div class="col-lg-3">
+															<p>@{{ val.user }}</p>
+														</div>
+														<div class="col-lg-3">
+															<p>@{{ val.substitute }}</p>
+														</div>
+														<div class="col-lg-3">
+															<p>@{{ val.email }}</p>
+														</div>
+														<div class="col-lg-3">
+															<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
+															<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
+															<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
+															<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+														</div>
+													</div>
+													<div v-else style="background-color:#c9e2b3;height:1px"></div><br>
+												</div>
+												
+												
+												
 
 											</div>
 										</collapse>
