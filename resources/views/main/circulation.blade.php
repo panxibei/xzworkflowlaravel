@@ -181,9 +181,6 @@ Main(circulation) -
 										<collapse v-model="show_review_group">
 											<div class="panel-body">									
 
-												
-												
-												
 												<div class="col-lg-12">
 													<div class="col-lg-3">
 														<label>用户名</label>
@@ -219,9 +216,6 @@ Main(circulation) -
 													</div>
 													<div v-else style="background-color:#c9e2b3;height:1px"></div><br>
 												</div>
-												
-												
-												
 
 											</div>
 										</collapse>
@@ -239,14 +233,21 @@ Main(circulation) -
 											<div class="panel-body">									
 
 												<!--slot-->
-												<div class="panel panel-default">
+												<div class="panel panel-default" v-for="value in gets_fields">
 													<div class="panel-heading" role="button" @click="show_review_slot=!show_review_slot;">
 														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> Slots</h4>
 													</div>
 													<collapse v-model="show_review_slot">
 														<div class="panel-body">
 														
-														adfsfas
+															<div v-for="val in value">
+																<div class="col-lg-3">
+																	<div class="form-group">
+																		<label>@{{ val.name }}</label>
+																		<label>@{{ val.type }}</label>
+																	</div>
+																</div>
+															</div>
 
 														</div>
 													</collapse>
@@ -299,6 +300,8 @@ var vm_circulation = new Vue({
 		notification_title: '',
 		notification_content: '',
 		gets: {},
+		gets_peoples: {},
+		gets_fields: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_CIRCULATION'] }},
 		template_select: [],
 		template_options: [],
@@ -309,7 +312,6 @@ var vm_circulation = new Vue({
 		create_created_at: '',
 		create_creator: '',
 		create_description: '',
-		gets_peoples: {},
 		// tabs索引
 		currenttabs: 1
     },
@@ -472,8 +474,10 @@ var vm_circulation = new Vue({
 				// var json = response.data;
 				// _this.mailinglist_options = _this.json2selectvalue(json, true);
 				
-				console.log(response.data);
-				_this.gets_peoples = response.data;
+				// 以下是需要的内容
+				// console.log(response.data);
+				_this.gets_peoples = response.data.userinfo;
+				_this.gets_fields = response.data.field;
 
 			})
 			.catch(function (error) {

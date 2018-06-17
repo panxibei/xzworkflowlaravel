@@ -12,6 +12,9 @@ use App\Models\Mailinglist;
 use App\Models\Template2slot;
 use App\Models\Slot2user;
 use App\Models\User;
+use App\Models\Slot2field;
+use App\Models\Field;
+use App\Models\Slot;
 
 
 class CirculationController extends Controller
@@ -197,8 +200,6 @@ class CirculationController extends Controller
 			->where('template_id', $template_id['template_id'])
 			->first();
 		$slot_id = explode(',', $slot_id['slot_id']);
-// dd($slot_id);
-
 
 		// 3. 查询Slot2user
 		foreach ($slot_id as $key => $value) {
@@ -206,7 +207,6 @@ class CirculationController extends Controller
 				->where('slot_id', $value)
 				->first();
 		}
-// dd($user_id);
 
 		// 4.查询User
 		// $user = [];
@@ -218,31 +218,63 @@ class CirculationController extends Controller
 			}
 			$user[] = '-';
 		}
-// dd($user);
 
-		$circulation = [];
+		$userinfo = [];
 		foreach ($user as $key => $value) {
 			if ($value == '-') {
-				$circulation[$key]['user'] = '-';
-				$circulation[$key]['email'] = '-';
+				$userinfo[$key]['user'] = '-';
+				$userinfo[$key]['email'] = '-';
 
-				// $circulation[] = ['user' => '-', 'email' => '-'];
-				// $circulation[]['email'] = '-';
-				// $circulation['email'][] = '-';
-				// dd($circulation);
+				// $userinfo[] = ['user' => '-', 'email' => '-'];
+				// $userinfo[]['email'] = '-';
+				// $userinfo['email'][] = '-';
+				// dd($userinfo);
 			} else {
 				$username = User::select('name', 'email')
 					->where('id', $value)
 					->first();
-				// $circulation['user'][] = $username['name'];
-				// $circulation['email'][] = $username['email'];
-				$circulation[$key]['user'] = $username['name'];
-				$circulation[$key]['email'] = $username['email'];
+				// $userinfo['user'][] = $username['name'];
+				// $userinfo['email'][] = $username['email'];
+				$userinfo[$key]['user'] = $username['name'];
+				$userinfo[$key]['email'] = $username['email'];
 			}
 		}
-// dd($circulation);
+// dd($userinfo);
 
-		return $circulation;
+		// 5.根据Slot查询fieldid
+		// dd($slot_id);
+		unset($arr_tmp);
+		foreach ($slot_id as $value) {
+				$slot_name = Slot::select('name')
+				->where('id', $value)
+				->first();
+			
+			$arr_tmp = Slot2field::select('field_id')
+				->where('slot_id', $value)
+				->first();
+			$field_id[$slot_name['name']] = $arr_tmp['field_id'];
+		}
+		// dd($field_id);
+		
+		// 6.查询field
+		unset($arr_tmp);
+		foreach ($field_id as $key => $val_filed_id) {
+			$arr_tmp = explode(',', $val_filed_id);
+			
+			foreach ($arr_tmp as $value) {
+				$field[$key][] = Field::where('id', $value)
+				->first()->toArray();
+			}
+		}
+		// dd($field);
+		
+		
+		
+		// dd($userinfo);
+		$result = compact('userinfo', 'field');
+		// dd($result);
+		
+		return $result;
     }
 	
 }
