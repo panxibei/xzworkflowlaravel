@@ -233,20 +233,61 @@ Main(circulation) -
 											<div class="panel-body">									
 
 												<!--slot-->
-												<div class="panel panel-default" v-for="value in gets_fields">
+												<div class="panel panel-default" v-for="(value, key) in gets_fields">
 													<div class="panel-heading" role="button" @click="show_review_slot=!show_review_slot;">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> Slots</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ key }}</h4>
 													</div>
 													<collapse v-model="show_review_slot">
 														<div class="panel-body">
 														
 															<div v-for="val in value">
 																<div class="col-lg-3">
+																	<!--1-Text-->
 																	<div v-if="val.type=='1-Text'" class="form-group">
-																		<label>@{{val.name}}</label>@{{val.bgcolor||''}}
+																		<label>@{{val.name||'未命名'}}</label>
 																		<!--<input type="text" class="form-control input-sm" :style="background: val.bgcolor" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
 																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
 																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--2-True/False-->
+																	<div v-else-if="val.type=='2-True/False'" class="form-group">
+																		<div class="checkbox">
+																			<label :style="{background: val.bgcolor}">
+																				<input type="checkbox" :checked="val.value==1||false" :disabled="val.readonly||false">@{{val.name||'未命名'}}
+																			</label>
+																			<p class="help-block">@{{val.helpblock}}</p>
+																		</div>
+																	</div>
+																	<!--3-Number-->
+																	<div v-else-if="val.type=='3-Number'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--4-Date-->
+																	<div v-else-if="val.type=='4-Date'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--5-Textfield-->
+																	<div v-else-if="val.type=='5-Textfield'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder"></textarea>
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--6-Radiogroup-->
+																	<div v-else-if="val.type=='6-Radiogroup'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<div class="form-group">
+																			<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0" class="radio">
+																				<label :style="{background: val.bgcolor}">
+																					<input type="radio" :name="'name_radiogroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+																					@{{item}}
+																				</label>
+																			</div>
+																			<p class="help-block">@{{val.helpblock}}</p>
+																		</div>
 																	</div>
 																</div>
 															</div>
