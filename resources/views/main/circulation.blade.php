@@ -242,9 +242,11 @@ Main(circulation) -
 														
 															<div v-for="val in value">
 																<div class="col-lg-3">
-																	<div class="form-group">
-																		<label>@{{ val.name }}</label>
-																		<label>@{{ val.type }}</label>
+																	<div v-if="val.type=='1-Text'" class="form-group">
+																		<label>@{{val.name}}</label>@{{val.bgcolor||''}}
+																		<!--<input type="text" class="form-control input-sm" :style="background: val.bgcolor" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
+																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
 																</div>
 															</div>
