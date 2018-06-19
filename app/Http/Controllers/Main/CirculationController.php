@@ -263,7 +263,7 @@ class CirculationController extends Controller
 			
 			foreach ($arr_tmp as $value) {
 				$field[$key][] = Field::where('id', $value)
-				->first()->toArray();
+				->first();
 			}
 		}
 		// dd($field);

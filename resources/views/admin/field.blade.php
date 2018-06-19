@@ -920,6 +920,7 @@ var vm_field = new Vue({
 
 				case '8-Combobox': //Combobox
 					postdata['value'] = comboboxchecked;
+					postdata['placeholder'] = field_add_placeholder;
 					break;
 
 				case '9-File': //File

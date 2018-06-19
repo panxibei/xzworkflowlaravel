@@ -232,21 +232,21 @@ Main(circulation) -
 										<collapse v-model="show_review_form">
 											<div class="panel-body">									
 
-												<!--slot-->
-												<div class="panel panel-default" v-for="(value, key) in gets_fields">
-													<div class="panel-heading" role="button" @click="show_review_slot=!show_review_slot;">
+												<!--slot，有field时显示，否则显示空的slot-->
+												<div class="panel panel-default" v-for="(value, key, index) in gets_fields" v-if="value[0]!=null">
+													<div class="panel-heading" role="button" @click="show_review_slot[key]=!show_review_slot[key];">
 														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ key }}</h4>
 													</div>
-													<collapse v-model="show_review_slot">
+													<collapse v-model="show_review_slot[key]">
 														<div class="panel-body">
 														
-															<div v-for="val in value">
+															<div v-for="(val, i) in value">
 																<div class="col-lg-3">
 																	<!--1-Text-->
 																	<div v-if="val.type=='1-Text'" class="form-group">
 																		<label>@{{val.name||'未命名'}}</label>
-																		<!--<input type="text" class="form-control input-sm" :style="background: val.bgcolor" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
-																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
+																		<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="sets[key+'_'+i]" :placeholder="val.placeholder">
 																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
 																	<!--2-True/False-->
@@ -289,9 +289,49 @@ Main(circulation) -
 																			<p class="help-block">@{{val.helpblock}}</p>
 																		</div>
 																	</div>
+																	<!--7-Checkboxgroup-->
+																	<div v-else-if="val.type=='7-Checkboxgroup'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<div class="form-group">
+																			<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">
+																				<label :style="{background: val.bgcolor}">
+																					<input type="checkbox" :name="'name_checkboxgroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+																					@{{item}}
+																				</label>
+																			</div>
+																			<p class="help-block">@{{val.helpblock}}</p>
+																		</div>
+																	</div>
+																	<!--8-Combobox-->
+																	<div v-else-if="val.type=='8-Combobox'" class="form-group">
+																		<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
+																		<div class="form-group">
+																			<!--<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">-->
+																				<!--<multi-select :v-model="select_01" :options="options_01" :limit="1" filterable collapse-selected size="sm" :placeholder="val.placeholder" :disabled="val.readonly||false"/>-->
+																				<multi-select v-model="select_01" :options="options_01" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
+																			<!--</div>-->
+																		</div>
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
 																</div>
 															</div>
 
+														</div>
+													</collapse>
+												</div>
+												<!--slot，否则显示空的slot-->
+												<div class="panel panel-default" v-else>
+													<div class="panel-heading" role="button" @click="show_review_slot[key]=!show_review_slot[key];">
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ key }}</h4>
+													</div>
+													<collapse v-model="show_review_slot[key]">
+														<div class="panel-body">
+															<div class="col-lg-12">
+															<div class="alert alert-warning">
+																These's no fields ... <a href="{{ route('admin.slot2field.index') }}" class="alert-link">Goto add field now</a>.
+															</div>
+															
+															</div>
 														</div>
 													</collapse>
 												</div>
@@ -338,7 +378,18 @@ var vm_circulation = new Vue({
 		show_review_template: true,
 		show_review_group: true,
 		show_review_form: true,
-		show_review_slot: true,
+		show_review_slot: [],
+		// select01
+		select_01: [],
+        options_01: [
+			{value: 1, label:'Option1'},
+			{value: 2, label:'Option2'},
+			{value: 3, label:'Option3333333333'},
+			{value: 4, label:'Option4'},
+			{value: 5, label:'Option5'}
+        ],
+		// 各个控件的动态变量
+		sets: {},
 		notification_type: '',
 		notification_title: '',
 		notification_content: '',
@@ -519,13 +570,39 @@ var vm_circulation = new Vue({
 				
 				// 以下是需要的内容
 				// console.log(response.data);
+				// console.log(typeof(response.data));
 				_this.gets_peoples = response.data.userinfo;
 				_this.gets_fields = response.data.field;
 
+				// 动态设定slot收放变量
+				var arr = Object.keys(_this.gets_fields);
+				var len = arr.length;
+				
+				for (var index in arr) { //以slot名称为key，设定真假
+					_this.$set(_this.show_review_slot, arr[index], true);
+				}
+				
+				// 分配各个控件的动态变量
+				
+				for (var index in _this.gets_fields) {
+					// console.log(_this.gets_fields[index]);
+					if (_this.gets_fields[index][0]!=null) {
+						for (var i in _this.gets_fields[index]) {
+							// _this.$set(_this.sets, index+'_'+i, _this.gets_fields[index][i]['name']);
+							_this.$set(_this.sets, index+'_'+i, index+'_'+i);
+						console.log(_this.sets[index+'_'+i]);
+						}
+					} else {
+						_this.$set(_this.sets, index, null);
+					}
+				}
+				
+				console.log(_this.sets);
+
+
 			})
 			.catch(function (error) {
-				console.log(error);
-				alert(error);
+				console.log('Error: ' + error);
 			})
 		},
 		// 预览创建circulation
