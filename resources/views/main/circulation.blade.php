@@ -246,7 +246,7 @@ Main(circulation) -
 																	<div v-if="val.type=='1-Text'" class="form-group">
 																		<label>@{{val.name||'未命名'}}</label>
 																		<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
-																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="sets[key+'_'+i]" :placeholder="val.placeholder">
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
 																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
 																	<!--2-True/False-->
@@ -261,13 +261,13 @@ Main(circulation) -
 																	<!--3-Number-->
 																	<div v-else-if="val.type=='3-Number'" class="form-group">
 																		<label>@{{val.name||'未命名'}}</label>
-																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
 																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
 																	<!--4-Date-->
 																	<div v-else-if="val.type=='4-Date'" class="form-group">
 																		<label>@{{val.name||'未命名'}}</label>
-																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
 																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
 																	<!--5-Textfield-->
@@ -573,8 +573,8 @@ var vm_circulation = new Vue({
 				// console.log(typeof(response.data));
 				_this.gets_peoples = response.data.userinfo;
 				_this.gets_fields = response.data.field;
-
-				// 动态设定slot收放变量
+console.log(_this.gets_fields);
+				// 动态设定slot收放变量，不对不对不对！直接使用gets_fields绑定v-model吧。
 				var arr = Object.keys(_this.gets_fields);
 				var len = arr.length;
 				
@@ -583,21 +583,23 @@ var vm_circulation = new Vue({
 				}
 				
 				// 分配各个控件的动态变量
-				
+				var count = 0;
 				for (var index in _this.gets_fields) {
 					// console.log(_this.gets_fields[index]);
 					if (_this.gets_fields[index][0]!=null) {
 						for (var i in _this.gets_fields[index]) {
 							// _this.$set(_this.sets, index+'_'+i, _this.gets_fields[index][i]['name']);
-							_this.$set(_this.sets, index+'_'+i, index+'_'+i);
-						console.log(_this.sets[index+'_'+i]);
+							_this.$set(_this.sets, count+'_'+i, count+'_'+i);
+							// console.log(_this.sets[count+'_'+i]);
+							console.log(_this.gets_fields[index][i]['value']);
 						}
 					} else {
-						_this.$set(_this.sets, index, null);
+						_this.$set(_this.sets, count, null);
 					}
+					count++;
 				}
 				
-				console.log(_this.sets);
+				// console.log(_this.sets);
 
 
 			})
