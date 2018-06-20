@@ -244,27 +244,40 @@ class CirculationController extends Controller
 		// 5.根据Slot查询fieldid
 		// dd($slot_id);
 		unset($arr_tmp);
-		foreach ($slot_id as $value) {
-				$slot_name = Slot::select('name')
+		foreach ($slot_id as $key => $value) {
+				$slot_name = Slot::select('id', 'name')
 				->where('id', $value)
 				->first();
 			
 			$arr_tmp = Slot2field::select('field_id')
 				->where('slot_id', $value)
 				->first();
-			$field_id[$slot_name['name']] = $arr_tmp['field_id'];
+			$field_id[$key]['slot_id'] = $value;
+			$field_id[$key]['slot_name'] = $slot_name['name'];
+			$field_id[$key]['field_id'] = $arr_tmp['field_id'];
 		}
 		// dd($field_id);
 		
 		// 6.查询field
 		unset($arr_tmp);
 		foreach ($field_id as $key => $val_filed_id) {
-			$arr_tmp = explode(',', $val_filed_id);
-			
-			foreach ($arr_tmp as $value) {
-				$field[$key][] = Field::where('id', $value)
-				->first();
+			$field[$key]['slot_id'] = $val_filed_id['slot_id'];
+			$field[$key]['slot_name'] = $val_filed_id['slot_name'];
+		
+			if (!empty($val_filed_id['field_id'])) {
+				$arr_tmp = explode(',', $val_filed_id['field_id']);
+				
+				foreach ($arr_tmp as $value) {
+					$field[$key]['field_id'][] = Field::where('id', $value)
+					->first()->toArray();
+				}
+				
+				
+			} else {
+				$field[$key]['field_id'][] = null;
 			}
+				
+			// }
 		}
 		// dd($field);
 		

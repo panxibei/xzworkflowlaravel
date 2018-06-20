@@ -233,14 +233,14 @@ Main(circulation) -
 											<div class="panel-body">									
 
 												<!--slot，有field时显示，否则显示空的slot-->
-												<div class="panel panel-default" v-for="(value, key, index) in gets_fields" v-if="value[0]!=null">
-													<div class="panel-heading" role="button" @click="show_review_slot[key]=!show_review_slot[key];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ key }}</h4>
+												<div class="panel panel-default" v-for="(value, key) in gets_fields" v-if="value.field_id[0]!=null">
+													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
 													</div>
-													<collapse v-model="show_review_slot[key]">
+													<collapse v-model="show_review_slot[key]['slot_id']">
 														<div class="panel-body">
 														
-															<div v-for="(val, i) in value">
+															<div v-for="(val, i) in value.field_id">
 																<div class="col-lg-3">
 																	<!--1-Text-->
 																	<div v-if="val.type=='1-Text'" class="form-group">
@@ -253,7 +253,7 @@ Main(circulation) -
 																	<div v-else-if="val.type=='2-True/False'" class="form-group">
 																		<div class="checkbox">
 																			<label :style="{background: val.bgcolor}">
-																				<input type="checkbox" :checked="val.value==1||false" :disabled="val.readonly||false">@{{val.name||'未命名'}}
+																				<input type="checkbox" v-model="val.value==1||false" @change="val.value=!val.value" :disabled="val.readonly||false">@{{val.name||'未命名'}}
 																			</label>
 																			<p class="help-block">@{{val.helpblock}}</p>
 																		</div>
@@ -282,7 +282,7 @@ Main(circulation) -
 																		<div class="form-group">
 																			<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0" class="radio">
 																				<label :style="{background: val.bgcolor}">
-																					<input type="radio" :name="'name_radiogroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+																					<input type="radio" @change="val.value=radiochecked_change(val.value, index)" :name="'name_radiogroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
 																					@{{item}}
 																				</label>
 																			</div>
@@ -295,7 +295,7 @@ Main(circulation) -
 																		<div class="form-group">
 																			<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">
 																				<label :style="{background: val.bgcolor}">
-																					<input type="checkbox" :name="'name_checkboxgroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+																					<input type="checkbox" @change="val.value=checkboxchecked_change(val.value, index)" :name="'name_checkboxgroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
 																					@{{item}}
 																				</label>
 																			</div>
@@ -321,10 +321,10 @@ Main(circulation) -
 												</div>
 												<!--slot，否则显示空的slot-->
 												<div class="panel panel-default" v-else>
-													<div class="panel-heading" role="button" @click="show_review_slot[key]=!show_review_slot[key];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ key }}</h4>
+													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
 													</div>
-													<collapse v-model="show_review_slot[key]">
+													<collapse v-model="show_review_slot[key]['slot_id']">
 														<div class="panel-body">
 															<div class="col-lg-12">
 															<div class="alert alert-warning">
@@ -550,6 +550,7 @@ var vm_circulation = new Vue({
 			var template_id = _this.template_select[0];
 			var mailinglist_id = _this.mailinglist_select[0];
 			if (template_id = undefined || mailinglist_id == undefined) {
+				_this.gets_peoples = _this.gets_fields = {};
 				return false;
 			}
 			
@@ -573,32 +574,24 @@ var vm_circulation = new Vue({
 				// console.log(typeof(response.data));
 				_this.gets_peoples = response.data.userinfo;
 				_this.gets_fields = response.data.field;
-console.log(_this.gets_fields);
+// console.log(_this.gets_fields);
+// return false;
 				// 动态设定slot收放变量，不对不对不对！直接使用gets_fields绑定v-model吧。
-				var arr = Object.keys(_this.gets_fields);
-				var len = arr.length;
+				// var arr = Object.keys(_this.gets_fields);
+				// var len = arr.length;
 				
-				for (var index in arr) { //以slot名称为key，设定真假
-					_this.$set(_this.show_review_slot, arr[index], true);
+				// for (var index in arr) { //以slot名称为key，设定真假
+					// _this.$set(_this.show_review_slot, arr[index], true);
+				// }
+				
+				for (var index in _this.gets_fields) {
+					_this.$set(_this.show_review_slot, index, {'slot_id': true});
 				}
 				
 				// 分配各个控件的动态变量
-				var count = 0;
-				for (var index in _this.gets_fields) {
-					// console.log(_this.gets_fields[index]);
-					if (_this.gets_fields[index][0]!=null) {
-						for (var i in _this.gets_fields[index]) {
-							// _this.$set(_this.sets, index+'_'+i, _this.gets_fields[index][i]['name']);
-							_this.$set(_this.sets, count+'_'+i, count+'_'+i);
-							// console.log(_this.sets[count+'_'+i]);
-							console.log(_this.gets_fields[index][i]['value']);
-						}
-					} else {
-						_this.$set(_this.sets, count, null);
-					}
-					count++;
-				}
+
 				
+				console.log(_this.show_review_slot);
 				// console.log(_this.sets);
 
 
@@ -606,6 +599,31 @@ console.log(_this.gets_fields);
 			.catch(function (error) {
 				console.log('Error: ' + error);
 			})
+		},
+		// 点击radio后选中的状态 ok
+		radiochecked_change: function (value, index) {
+			var arr = value.split('---');
+			var indextmp = index + 1;
+			for (var i=0, len=arr.length; i<len; i++) {
+				if (i%2==1) {
+					if (indextmp == i) {
+						arr[i] = 1;
+					} else {
+						arr[i] = 0;
+					}
+				}
+			}
+			return arr.join('---');
+		},
+		// 点击checkbox后选中的状态 ok
+		checkboxchecked_change: function (value, index) {
+			var arr = value.split('---');
+			if (arr[index+1] == 1) {
+				arr[index+1] = 0;
+			} else {
+				arr[index+1] = 1;
+			}
+			return arr.join('---');
 		},
 		// 预览创建circulation
 		review_create_circulation: function () {

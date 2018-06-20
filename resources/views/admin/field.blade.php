@@ -167,7 +167,7 @@ Admin(Field) -
 													<div class="form-group">
 														<label>默认值</label>
 														<div class="checkbox">
-														<label><input :checked="field_add_ischecked" @change="field_add_ischecked=!field_add_ischecked" type="checkbox">是否选中？</label>
+														<label><input :checked="field_add_ischecked==1||false" @change="field_add_ischecked=!field_add_ischecked" type="checkbox">是否选中？</label>
 														</div>
 													</div>
 													</div>
@@ -565,7 +565,7 @@ var vm_field = new Vue({
 					break;
 
 				case '2-True/False': //True/False
-					_this.field_add_ischecked = _this.gets.data[index].value ? true : false;
+					_this.field_add_ischecked = _this.gets.data[index].value == 1 ? true : false;
 					break;
 
 				case '3-Number': //Number
