@@ -253,7 +253,7 @@ Main(circulation) -
 																	<div v-else-if="val.type=='2-True/False'" class="form-group">
 																		<div class="checkbox">
 																			<label :style="{background: val.bgcolor}">
-																				<input type="checkbox" v-model="val.value==1||false" @change="val.value=!val.value" :disabled="val.readonly||false">@{{val.name||'未命名'}}
+																				<input type="checkbox" v-model.lazy="val.value==1||false" @change="val.value=val.value?0:1" :disabled="val.readonly||false">@{{val.name||'未命名'}}
 																			</label>
 																			<p class="help-block">@{{val.helpblock}}</p>
 																		</div>
@@ -273,7 +273,7 @@ Main(circulation) -
 																	<!--5-Textfield-->
 																	<div v-else-if="val.type=='5-Textfield'" class="form-group">
 																		<label>@{{val.name||'未命名'}}</label>
-																		<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder"></textarea>
+																		<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder"></textarea>
 																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
 																	<!--6-Radiogroup-->
@@ -306,9 +306,9 @@ Main(circulation) -
 																	<div v-else-if="val.type=='8-Combobox'" class="form-group">
 																		<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
 																		<div class="form-group">
+																				<multi-select :value="select_value(val.value)" :options="options_value(val.value)" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
 																			<!--<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">-->
-																				<!--<multi-select :v-model="select_01" :options="options_01" :limit="1" filterable collapse-selected size="sm" :placeholder="val.placeholder" :disabled="val.readonly||false"/>-->
-																				<multi-select v-model="select_01" :options="options_01" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
+																				<!--<multi-select v-model="select_01" :options="options_01" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>-->
 																			<!--</div>-->
 																		</div>
 																		<p class="help-block">@{{val.helpblock}}</p>
@@ -624,6 +624,28 @@ var vm_circulation = new Vue({
 				arr[index+1] = 1;
 			}
 			return arr.join('---');
+		},
+		// select控件的selected
+		select_value: function (val) {
+			var arr = val.split('---');
+			var res = [];
+			for (var i=1, len=arr.length; i<len; i+=2) {
+				if (arr[i] == 1) {
+					res = [i-1]; // multi-select要想选中，需要数组[]中加上value值，而不是label值。
+				}
+			}
+			console.log(res);
+			return res;
+		},
+		// select控件的options
+		options_value: function (val) {
+			var arr = val.split('---');
+			var res = [];
+			for (var i=0, len=arr.length; i<len; i+=2) {
+				res.push({value: i, label: arr[i]});
+			}
+			console.log(res);
+			return res;
 		},
 		// 预览创建circulation
 		review_create_circulation: function () {
