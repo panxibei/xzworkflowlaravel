@@ -101,34 +101,10 @@ Main(circulation) -
 
 									</div>
 								</div>
-							</tab>
-							<tab title="Create Circulation">
-								<!--操作1-->
-								<div class="col-lg-12">
-								<br>
-
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select a Template</label><br>
-											<multi-select @change="change_template()" v-model="template_select" :options="template_options" :limit="1" filterable collapse-selected size="sm" />
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select a Mailing List</label><br>
-											<multi-select @change="change_mailinglist()" v-model="mailinglist_select" :options="mailinglist_options" :limit="1" filterable collapse-selected size="sm" />
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<btn @click="review_create_circulation()" type="default" size="sm"><i class="fa fa-magic fa-fw"></i> Review & Create a circulation</btn>&nbsp;
-									</div>
-									<div class="col-lg-3">
-									</div>
-									
-								</div>
+								
 								
 								<div class="col-lg-12">
-								<!--流程信息-->
+								<!--流程信息 预览-->
 									<div style="background-color:#c9e2b3;height:1px"></div><br>
 
 									<div class="panel panel-default">
@@ -172,7 +148,7 @@ Main(circulation) -
 								</div>
 								
 								<div class="col-lg-12">
-								<!--人员-->
+								<!--人员 预览-->
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_review_group=!show_review_group;">
@@ -196,7 +172,7 @@ Main(circulation) -
 													</div>
 												</div>
 												
-												<div class="col-lg-12" v-for="val in gets_peoples">
+												<div class="col-lg-12" v-for="val in gets_review_peoples">
 													<div v-if="val.user!='-'">
 														<div class="col-lg-3">
 															<p>@{{ val.user }}</p>
@@ -223,7 +199,7 @@ Main(circulation) -
 								</div>
 
 								<div class="col-lg-12">
-								<!--流程表单-->
+								<!--流程表单 预览-->
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_review_form=!show_review_form;">
@@ -233,7 +209,228 @@ Main(circulation) -
 											<div class="panel-body">									
 
 												<!--slot，有field时显示，否则显示空的slot-->
-												<div class="panel panel-default" v-for="(value, key) in gets_fields" v-if="value.field_id[0]!=null">
+												<div class="panel panel-default" v-for="(value, key) in gets_review_fields" v-if="value.field_id[0]!=null">
+													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
+													</div>
+													<collapse v-model="show_review_slot[key]['slot_id']">
+														<div class="panel-body">
+														
+															<div v-for="(val, i) in value.field_id">
+																<div class="col-lg-3">
+																	<!--1-Text-->
+																	<div v-if="val.type=='1-Text'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--2-True/False-->
+																	<div v-else-if="val.type=='2-True/False'" class="form-group">
+																		<div class="checkbox">
+																			<label :style="{background: val.bgcolor}">
+																				<input type="checkbox" v-model.lazy="val.value==1||false" @change="val.value=val.value?0:1" :disabled="val.readonly||false">@{{val.name||'未命名'}}
+																			</label>
+																			<p class="help-block">@{{val.helpblock}}</p>
+																		</div>
+																	</div>
+																	<!--3-Number-->
+																	<div v-else-if="val.type=='3-Number'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--4-Date-->
+																	<div v-else-if="val.type=='4-Date'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--5-Textfield-->
+																	<div v-else-if="val.type=='5-Textfield'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder"></textarea>
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																	<!--6-Radiogroup-->
+																	<div v-else-if="val.type=='6-Radiogroup'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<div class="form-group">
+																			<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0" class="radio">
+																				<label :style="{background: val.bgcolor}">
+																					<input type="radio" @change="val.value=radiochecked_change(val.value, index)" :name="'name_radiogroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+																					@{{item}}
+																				</label>
+																			</div>
+																			<p class="help-block">@{{val.helpblock}}</p>
+																		</div>
+																	</div>
+																	<!--7-Checkboxgroup-->
+																	<div v-else-if="val.type=='7-Checkboxgroup'" class="form-group">
+																		<label>@{{val.name||'未命名'}}</label>
+																		<div class="form-group">
+																			<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">
+																				<label :style="{background: val.bgcolor}">
+																					<input type="checkbox" @change="val.value=checkboxchecked_change(val.value, index)" :name="'name_checkboxgroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+																					@{{item}}
+																				</label>
+																			</div>
+																			<p class="help-block">@{{val.helpblock}}</p>
+																		</div>
+																	</div>
+																	<!--8-Combobox-->
+																	<div v-else-if="val.type=='8-Combobox'" class="form-group">
+																		<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
+																		<div class="form-group">
+																				<multi-select @change="val.value=options_change(val.value, key, i)" v-model="select_tmp[key][i]" :options="options_value(val.value)" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
+																		</div>
+																		<p class="help-block">@{{val.helpblock}}</p>
+																	</div>
+																</div>
+															</div>
+
+														</div>
+													</collapse>
+												</div>
+												<!--slot，否则显示空的slot-->
+												<div class="panel panel-default" v-else>
+													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
+													</div>
+													<collapse v-model="show_review_slot[key]['slot_id']">
+														<div class="panel-body">
+															<div class="col-lg-12">
+															<div class="alert alert-warning">
+																These's no fields ... <a href="{{ route('admin.slot2field.index') }}" class="alert-link">Goto add field now</a>.
+															</div>
+															
+															</div>
+														</div>
+													</collapse>
+												</div>
+											
+											</div>
+										</collapse>
+									</div>
+
+								</div>
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+							</tab>
+							<tab title="Create Circulation">
+								<!--操作1-->
+								<div class="col-lg-12">
+								<br>
+
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Select a Template</label><br>
+											<multi-select @change="change_template()" v-model="template_select" :options="template_options" :limit="1" filterable collapse-selected size="sm" />
+										</div>
+									</div>
+									<div class="col-lg-3">
+										<div class="form-group">
+											<label>Select a Mailing List</label><br>
+											<multi-select @change="change_mailinglist()" v-model="mailinglist_select" :options="mailinglist_options" :limit="1" filterable collapse-selected size="sm" />
+										</div>
+									</div>
+									<div class="col-lg-6">
+										<btn @click="review_create_circulation()" type="default" size="sm"><i class="fa fa-magic fa-fw"></i> Review & Create a circulation</btn>&nbsp;
+										<p class="help-block"><i class="fa fa-long-arrow-down fa-fw"></i>Review the circulation below and Create one.</p>
+									</div>
+									
+								</div>
+								
+								<div class="col-lg-12">
+								<!--流程信息 创建-->
+									<div style="background-color:#c9e2b3;height:1px"></div><br>
+
+									<div class="panel panel-default">
+										<div class="panel-heading" role="button" @click="show_create_template=!show_create_template;">
+											<h4 class="panel-title"><i class="fa fa-bookmark fa-fw"></i> Creating circulation:  @{{ gets_create_template[template_select[0]] }}</h4>
+										</div>
+										<collapse v-model="show_create_template">
+											<div class="panel-body">									
+														<input class="form-control input-sm" id="circulation_description" placeholder="输入详细说明" type="text">
+
+											</div>
+										</collapse>
+									</div>
+									
+								</div>
+								
+								<div class="col-lg-12">
+								<!--人员 创建-->
+
+									<div class="panel panel-default">
+										<div class="panel-heading" role="button" @click="show_create_group=!show_create_group;">
+											<h4 class="panel-title"><i class="fa fa-group fa-fw"></i> Peoples</h4>
+										</div>
+										<collapse v-model="show_create_group">
+											<div class="panel-body">									
+
+												<div class="col-lg-12">
+													<div class="col-lg-3">
+														<label>用户名</label>
+													</div>
+													<div class="col-lg-3">
+														<label>代理人</label>
+													</div>
+													<div class="col-lg-3">
+														<label>邮箱</label>
+													</div>
+													<div class="col-lg-3">
+														<label>操作</label>
+													</div>
+												</div>
+												
+												<div class="col-lg-12" v-for="val in gets_create_peoples">
+													<div v-if="val.user!='-'">
+														<div class="col-lg-3">
+															<p>@{{ val.user }}</p>
+														</div>
+														<div class="col-lg-3">
+															<p>@{{ val.substitute }}</p>
+														</div>
+														<div class="col-lg-3">
+															<p>@{{ val.email }}</p>
+														</div>
+														<div class="col-lg-3">
+															<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
+															<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
+															<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
+															<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+														</div>
+													</div>
+													<div v-else style="background-color:#c9e2b3;height:1px"></div><br>
+												</div>
+
+											</div>
+										</collapse>
+									</div>
+								</div>
+
+								<div class="col-lg-12">
+								<!--流程表单 创建-->
+
+									<div class="panel panel-default">
+										<div class="panel-heading" role="button" @click="show_create_form=!show_create_form;">
+											<h4 class="panel-title"><i class="fa fa-file-text-o fa-fw"></i> Form</h4>
+										</div>
+										<collapse v-model="show_create_form">
+											<div class="panel-body">									
+
+												<!--slot，有field时显示，否则显示空的slot-->
+												<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field_id[0]!=null">
 													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
 														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
 													</div>
@@ -376,6 +573,10 @@ var vm_circulation = new Vue({
 		show_review_group: true,
 		show_review_form: true,
 		show_review_slot: [],
+		show_create_template: true,
+		show_create_group: true,
+		show_create_form: true,
+		show_create_slot: [],
 		// select01
 		select_tmp: [],
 		// select_tmp: [
@@ -410,8 +611,11 @@ var vm_circulation = new Vue({
 		notification_title: '',
 		notification_content: '',
 		gets: {},
-		gets_peoples: {},
-		gets_fields: {},
+		gets_review_peoples: {},
+		gets_review_fields: {},
+		gets_create_template: [],
+		gets_create_peoples: {},
+		gets_create_fields: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_CIRCULATION'] }},
 		template_select: [],
 		template_options: [],
@@ -521,8 +725,14 @@ var vm_circulation = new Vue({
 				// if (typeof(response.data.data) == "undefined") {
 					// _this.alert_exit();
 				// }
+				// console.log(response.data);
 				var json = response.data;
 				_this.template_options = _this.json2selectvalue(json, true);
+				
+				// 保存template数组有用
+				for (var key in json) {
+					_this.gets_create_template[key] = json[key];
+				}
 
 			})
 			.catch(function (error) {
@@ -566,7 +776,7 @@ var vm_circulation = new Vue({
 			var template_id = _this.template_select[0];
 			var mailinglist_id = _this.mailinglist_select[0];
 			if (template_id = undefined || mailinglist_id == undefined) {
-				_this.gets_peoples = _this.gets_fields = {};
+				_this.gets_create_peoples = _this.gets_create_fields = {};
 				return false;
 			}
 			
@@ -588,12 +798,12 @@ var vm_circulation = new Vue({
 				// 以下是需要的内容
 				// console.log(response.data);
 				// console.log(typeof(response.data));
-				_this.gets_peoples = response.data.userinfo;
-				_this.gets_fields = response.data.field;
-// console.log(_this.gets_fields);
+				_this.gets_create_peoples = response.data.userinfo;
+				_this.gets_create_fields = response.data.field;
+// console.log(_this.gets_create_fields);
 // return false;
-				// 动态设定slot收放变量，直接使用gets_fields绑定v-model吧
-				for (var index in _this.gets_fields) {
+				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
+				for (var index in _this.gets_create_fields) {
 					_this.$set(_this.show_review_slot, index, {'slot_id': true});
 				}
 				// console.log(_this.show_review_slot);
@@ -652,7 +862,7 @@ var vm_circulation = new Vue({
 		options_value: function (val) {
 			var _this = this;
 			var arr = val.split('---');
-			console.log('options_value');
+			// console.log('options_value');
 			var res = [];
 			for (var j=0, len=arr.length; j<len; j+=2) {
 				res.push({value: j, label: arr[j]});
