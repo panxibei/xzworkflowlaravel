@@ -306,10 +306,7 @@ Main(circulation) -
 																	<div v-else-if="val.type=='8-Combobox'" class="form-group">
 																		<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
 																		<div class="form-group">
-																				<multi-select :value="select_value(val.value)" :options="options_value(val.value)" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
-																			<!--<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">-->
-																				<!--<multi-select v-model="select_01" :options="options_01" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>-->
-																			<!--</div>-->
+																				<multi-select @change="val.value=options_change(val.value, key, i)" v-model="select_tmp[key][i]" :options="options_value(val.value)" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
 																		</div>
 																		<p class="help-block">@{{val.helpblock}}</p>
 																	</div>
@@ -380,6 +377,20 @@ var vm_circulation = new Vue({
 		show_review_form: true,
 		show_review_slot: [],
 		// select01
+		select_tmp: [],
+		// select_tmp: [
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','',''],
+			// ['','','','','','','','','','','','','','','','','','','','']
+		// ],
 		select_01: [],
         options_01: [
 			{value: 1, label:'Option1'},
@@ -388,6 +399,11 @@ var vm_circulation = new Vue({
 			{value: 4, label:'Option4'},
 			{value: 5, label:'Option5'}
         ],
+		select_value: [
+			{selected: ''},
+			{selected: ''},
+			{selected: ''}
+		],
 		// 各个控件的动态变量
 		sets: {},
 		notification_type: '',
@@ -576,28 +592,16 @@ var vm_circulation = new Vue({
 				_this.gets_fields = response.data.field;
 // console.log(_this.gets_fields);
 // return false;
-				// 动态设定slot收放变量，不对不对不对！直接使用gets_fields绑定v-model吧。
-				// var arr = Object.keys(_this.gets_fields);
-				// var len = arr.length;
-				
-				// for (var index in arr) { //以slot名称为key，设定真假
-					// _this.$set(_this.show_review_slot, arr[index], true);
-				// }
-				
+				// 动态设定slot收放变量，直接使用gets_fields绑定v-model吧
 				for (var index in _this.gets_fields) {
 					_this.$set(_this.show_review_slot, index, {'slot_id': true});
 				}
-				
-				// 分配各个控件的动态变量
-
-				
-				console.log(_this.show_review_slot);
+				// console.log(_this.show_review_slot);
 				// console.log(_this.sets);
-
 
 			})
 			.catch(function (error) {
-				console.log('Error: ' + error);
+				console.log(error);
 			})
 		},
 		// 点击radio后选中的状态 ok
@@ -625,26 +629,35 @@ var vm_circulation = new Vue({
 			}
 			return arr.join('---');
 		},
-		// select控件的selected
-		select_value: function (val) {
+		// select的change事件 ok
+		options_change: function (val, key, i) {
+			var _this = this;
+			// console.log('options_change');
+			// console.log(this.select_01);
+			
 			var arr = val.split('---');
 			var res = [];
-			for (var i=1, len=arr.length; i<len; i+=2) {
-				if (arr[i] == 1) {
-					res = [i-1]; // multi-select要想选中，需要数组[]中加上value值，而不是label值。
+			for (var j=1, len=arr.length; j<len; j+=2) {
+				if (j == _this.select_tmp[key][i][0]+1) {
+					arr[j] = 1;
+				} else {
+					arr[j] = 0;
 				}
 			}
-			console.log(res);
-			return res;
+			
+			// console.log(arr.join('---'));
+			return arr.join('---');
 		},
-		// select控件的options
+		// select控件的options ok
 		options_value: function (val) {
+			var _this = this;
 			var arr = val.split('---');
+			console.log('options_value');
 			var res = [];
-			for (var i=0, len=arr.length; i<len; i+=2) {
-				res.push({value: i, label: arr[i]});
+			for (var j=0, len=arr.length; j<len; j+=2) {
+				res.push({value: j, label: arr[j]});
 			}
-			console.log(res);
+			
 			return res;
 		},
 		// 预览创建circulation
@@ -670,9 +683,16 @@ var vm_circulation = new Vue({
 		var _this = this;
 		_this.circulationgets(1, 1); // page: 1, last_page: 1
 		_this.gettemplateoptions();
-		// _this.rolelistdelete();
-		// _this.rolelist();
-		// _this.permissionlist();
+
+		// 初始化select_tmp，20*10的方阵
+		for (var i=0;i<10;i++) {
+			_this.select_tmp.push([]);
+			for (var j=0;j<20;j++) {
+				_this.select_tmp[i].push([]);
+			}
+		}
+		// console.log(_this.select_tmp[1][0]);
+
 	}
 });
 </script>
