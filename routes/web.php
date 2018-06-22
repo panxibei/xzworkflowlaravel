@@ -40,6 +40,9 @@ Route::group(['prefix' => 'circulation', 'namespace' =>'Main'], function() {
 	// changemailinglist
 	Route::get('changeMailinglist', 'CirculationController@changeMailinglist')->name('main.circulation.changemailinglist');
 
+	// createcirculation
+	Route::post('createCirculation', 'CirculationController@createCirculation')->name('main.circulation.createcirculation');
+
 	
 	
 });

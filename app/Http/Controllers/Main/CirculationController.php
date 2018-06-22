@@ -290,4 +290,22 @@ class CirculationController extends Controller
 		return $result;
     }
 	
+    /**
+     * changeMailinglist
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	public function createCirculation(Request $request)
+	{
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$circulation = $request->only('params.template_id', 'params.mailinglist_id', 'params.description');
+		// dd($circulation);
+		
+		
+		
+	}
+	
+	
 }

@@ -136,7 +136,7 @@ Main(circulation) -
 													<div class="col-lg-6">
 														<div class="form-group">
 															<label>详细描述</label>
-															<p class="form-control-static">@{{ create_description }}</p>
+															<p class="form-control-static">@{{ review_description }}</p>
 														</div>
 													</div>
 												</div>
@@ -344,7 +344,7 @@ Main(circulation) -
 										</div>
 									</div>
 									<div class="col-lg-6">
-										<btn @click="review_create_circulation()" type="default" size="sm"><i class="fa fa-magic fa-fw"></i> Review & Create a circulation</btn>&nbsp;
+										<btn @click="create_circulation()" type="default" size="sm"><i class="fa fa-magic fa-fw"></i> Review & Create a circulation</btn>&nbsp;
 										<p class="help-block"><i class="fa fa-long-arrow-down fa-fw"></i>Review the circulation below and Create one.</p>
 									</div>
 									
@@ -360,8 +360,7 @@ Main(circulation) -
 										</div>
 										<collapse v-model="show_create_template">
 											<div class="panel-body">									
-														<input class="form-control input-sm" id="circulation_description" placeholder="输入详细说明" type="text">
-
+												<input v-model="create_description" class="form-control input-sm" placeholder="输入详细说明" type="text">
 											</div>
 										</collapse>
 									</div>
@@ -621,6 +620,11 @@ var vm_circulation = new Vue({
 		template_options: [],
 		mailinglist_select: [],
 		mailinglist_options: [],
+		// 预览相关元素
+		review_template: '',
+		review_created_at: '',
+		review_creator: '',
+		review_description: '',
 		// 创建相关元素
 		create_template: '',
 		create_created_at: '',
@@ -870,19 +874,43 @@ var vm_circulation = new Vue({
 			
 			return res;
 		},
-		// 预览创建circulation
-		review_create_circulation: function () {
+		// 创建circulation
+		create_circulation: function () {
 			var _this = this;
 			var template_id = _this.template_select[0];
 			var mailinglist_id = _this.mailinglist_select[0];
-			
-			console.log(template_id);
-			console.log(mailinglist_id);
-			
+
 			if (template_id == undefined || mailinglist_id == undefined) {
 				_this.$notify('Nothing selected!');
 				return false;
 			}
+			
+			var description = _this.create_description;
+			var user_id =  "{{ $user['id'] }}";
+			var creator =  "{{ $user['name'] }}";
+			console.log(creator);return false;
+
+			var url = "{{ route('main.circulation.createcirculation') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					template_id: template_id,
+					mailinglist_id: mailinglist_id,
+					description: description
+				}
+			})
+			.then(function (response) {
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
+				// var json = response.data;
+				// _this.mailinglist_options = _this.json2selectvalue(json, true);
+
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
 			
 			
 			
