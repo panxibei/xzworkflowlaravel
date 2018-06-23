@@ -300,10 +300,72 @@ class CirculationController extends Controller
 	{
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$circulation = $request->only('params.template_id', 'params.mailinglist_id', 'params.description');
+		$circulation = $request->only(
+		'params.template_id',
+		'params.mailinglist_id',
+		'params.description',
+		// 'params.user_id',
+		'params.creator'
+		);
 		// dd($circulation);
 		
+		// 1.查找template名称
+		$template_name = Template::select('name')
+			->where('id', $circulation['params']['template_id'])
+			->first();
+		$template_name = $template_name['name'];
+		// dd($template_name);
 		
+		// 2.查找template2slot，获取第一个[slotid]
+		$slot_id = Template2slot::select('slot_id')
+			->where('template_id', $circulation['params']['template_id'])
+			->first();
+		$slot_id = explode(',', $slot_id['slot_id']);
+		$slot_id = $slot_id[0];
+		// dd($slot_id);
+		
+		// 3.查找slot2user，获取[slot2user_id]以及第一个[userid]
+		$user_id = Slot2user::select('id', 'user_id')
+			->where('slot_id', $slot_id)
+			->first();
+		$slot2user_id = $user_id['id'];
+		$user_id = explode(',', $user_id['user_id']);
+		$user_id = $user_id[0];
+		// dd($slot2user_id);
+		
+		// 4.查找user名称
+		$user_name = User::select('name')
+			->where('id', $user_id)
+			->first();
+		$user_name = $user_name['name'];
+		dd($user_name);
+		
+		
+		
+		// 最后写入数据库
+		try	{
+			$result = Circulation::create([
+				'guid'	=> $guid,
+				'name'	=> $template_name,
+				'template_id'	=> $circulation['params']['template_id'],
+				'mailinglist_id'	=> $circulation['params']['mailinglist_id'],
+				'slot2user_id'	=> $slot2user_id,
+				'slot_id'	=> $slot_id,
+				'user_id'	=> $user_id,
+				'current_station'	=> $user_name,
+				'creator'	=> $circulation['params']['creator'],
+				'todo_time'	=> date("Y-m-d H:i:s",time()),
+				'progress'	=> '0%',
+				'description'	=> $circulation['params']['mailinglist_id'],
+				'is_archived'	=> 0,
+			]);
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+
+		return $result;
 		
 	}
 	

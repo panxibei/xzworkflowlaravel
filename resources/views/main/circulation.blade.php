@@ -888,7 +888,7 @@ var vm_circulation = new Vue({
 			var description = _this.create_description;
 			var user_id =  "{{ $user['id'] }}";
 			var creator =  "{{ $user['name'] }}";
-			console.log(creator);return false;
+			// console.log(creator);return false;
 
 			var url = "{{ route('main.circulation.createcirculation') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
@@ -896,7 +896,9 @@ var vm_circulation = new Vue({
 				params: {
 					template_id: template_id,
 					mailinglist_id: mailinglist_id,
-					description: description
+					description: description,
+					// user_id: user_id,
+					creator: creator
 				}
 			})
 			.then(function (response) {
