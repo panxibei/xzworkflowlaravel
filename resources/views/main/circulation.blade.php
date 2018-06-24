@@ -618,9 +618,6 @@ var vm_circulation = new Vue({
 		],
 		// 各个控件的动态变量
 		sets: {},
-		notification_type: '',
-		notification_title: '',
-		notification_content: '',
 		gets: {},
 		gets_review_peoples: {},
 		gets_review_fields: {},
@@ -672,11 +669,11 @@ var vm_circulation = new Vue({
 				// },1000);
 			})
 		},
-		notification_message: function () {
+		notification_message: function (type, title, content) {
 			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
+				type: type,
+				title: title,
+				content: content
 			})
 		},
 		// circulation列表 ok
@@ -953,7 +950,7 @@ var vm_circulation = new Vue({
 			}
 			
 			var description = _this.create_description;
-			var user_id =  "{{ $user['id'] }}";
+			// var user_id =  "{{ $user['id'] }}";
 			var creator =  "{{ $user['name'] }}";
 			// console.log(creator);return false;
 
@@ -969,20 +966,15 @@ var vm_circulation = new Vue({
 				}
 			})
 			.then(function (response) {
-				// if (typeof(response.data.data) == "undefined") {
-					// _this.alert_exit();
-				// }
-				// var json = response.data;
-				// _this.mailinglist_options = _this.json2selectvalue(json, true);
+				if (response.data != undefined) {
+					_this.notification_message('success', 'Success', 'Circulation created successfully!');
+				}
 
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
 			})
-			
-			
-			
 			
 		}
 	},

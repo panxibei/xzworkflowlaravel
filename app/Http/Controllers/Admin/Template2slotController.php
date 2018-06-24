@@ -53,11 +53,11 @@ class Template2slotController extends Controller
 // dd($limit);
 		// 所有的slot
 		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
-		$template = Template::limit($limit)->pluck('name', 'id')->toArray();
+		$template = Template::orderBy('id', 'desc')->limit($limit)->pluck('name', 'id')->toArray();
 
 		// 所有的field
 		// $field = array_reverse(Field::limit($limit)->pluck('name', 'id')->toArray());
-		$slot = Slot::limit($limit)->pluck('name', 'id')->toArray();
+		$slot = Slot::orderBy('id', 'desc')->limit($limit)->pluck('name', 'id')->toArray();
 
 		$template2slot = compact('template', 'slot');
 		

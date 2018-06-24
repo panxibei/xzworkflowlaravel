@@ -53,11 +53,11 @@ class Slot2fieldController extends Controller
 // dd($limit);
 		// 所有的slot
 		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
-		$slot = Slot::limit($limit)->pluck('name', 'id')->toArray();
+		$slot = Slot::orderBy('id', 'desc')->limit($limit)->pluck('name', 'id')->toArray();
 
 		// 所有的field
 		// $field = array_reverse(Field::limit($limit)->pluck('name', 'id')->toArray());
-		$field = Field::limit($limit)->pluck('name', 'id')->toArray();
+		$field = Field::orderBy('id', 'desc')->limit($limit)->pluck('name', 'id')->toArray();
 
 		$slot2field = compact('slot', 'field');
 // dd($slot2field);
@@ -92,7 +92,7 @@ class Slot2fieldController extends Controller
 				->where('id', $value)
 				->first();
 		}
-
+// dd($field);
 		return $field;
     }
 

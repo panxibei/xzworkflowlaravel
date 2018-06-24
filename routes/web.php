@@ -22,7 +22,7 @@ Route::group(['prefix' => 'login', 'namespace' =>'Home'], function() {
 });
 
 // CirculationController路由
-Route::group(['prefix' => 'circulation', 'namespace' =>'Main'], function() {
+Route::group(['prefix' => 'circulation', 'namespace' =>'Main', 'middleware'=>'jwtauth'], function() {
 	// Route::get('/', 'MainController@index')->name('main');
 
 	// 显示circulation页面
