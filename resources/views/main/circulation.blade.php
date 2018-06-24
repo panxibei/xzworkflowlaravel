@@ -41,8 +41,9 @@ Main(circulation) -
 												<tr>
 													<th>id</th>
 													<th>name</th>
+													<th>Current station</th>
 													<th>Days in process</th>
-													<th>created_at</th>
+													<th>Sending date</th>
 													<th>Creator</th>
 													<th>Progress</th>
 													<th>Operation</th>
@@ -52,12 +53,15 @@ Main(circulation) -
 												<tr v-for="val in gets.data">
 													<td><div>@{{ val.id }}</div></td>
 													<td><div>@{{ val.name }}</div></td>
+													<td><div>@{{ val.current_station }}</div></td>
 													<td><div>@{{ parseInt((Date.parse(new Date()) - Date.parse(val.created_at))/86400000) + ' day(s)' }}</div></td>
-													<td><div>@{{ val.created_at }}</div></td>
+													<td><div>@{{ val.todo_time }}</div></td>
 													<td><div>@{{ val.creator }}</div></td>
 													<td><div>@{{ val.progress }}</div></td>
-													<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
-													&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
+													<td><div>
+													<btn @click="review_circulation(val.guid)" type="primary" size="xs"><i class="fa fa-file-text fa-fw"></i></btn>&nbsp;
+													<btn type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn>
+													</div></td>
 												</tr>
 											</tbody>
 										</table>
@@ -115,25 +119,31 @@ Main(circulation) -
 											<div class="panel-body">									
 
 												<div class="row">
-													<div class="col-lg-2">
+													<div class="col-lg-3">
 														<div class="form-group">
 														<label>流程名称</label>
-														<p class="form-control-static">@{{ create_template }}</p>
+														<p class="form-control-static">@{{ review_template }}</p>
 														</div>
 													</div>
-													<div class="col-lg-2">
+													<div class="col-lg-5">
+														<div class="form-group">
+														<label>GUID</label>
+														<p class="form-control-static">@{{ review_guid }}</p>
+														</div>
+													</div>
+													<div class="col-lg-4">
 														<div class="form-group">
 															<label>创建日期</label>
-															<p class="form-control-static">@{{ create_created_at }}</p>
+															<p class="form-control-static">@{{ review_created_at }}</p>
 														</div>
 													</div>
-													<div class="col-lg-2">
+													<div class="col-lg-3">
 														<div class="form-group">
 														<label>创建者</label>
-														<p class="form-control-static">@{{ create_creator }}</p>
+														<p class="form-control-static">@{{ review_creator }}</p>
 														</div>
 													</div>
-													<div class="col-lg-6">
+													<div class="col-lg-9">
 														<div class="form-group">
 															<label>详细描述</label>
 															<p class="form-control-static">@{{ review_description }}</p>
@@ -175,7 +185,7 @@ Main(circulation) -
 												<div class="col-lg-12" v-for="val in gets_review_peoples">
 													<div v-if="val.user!='-'">
 														<div class="col-lg-3">
-															<p>@{{ val.user }}</p>
+															<p>@{{ val.user }} <span v-html="current_user(val.user)"></span></p>
 														</div>
 														<div class="col-lg-3">
 															<p>@{{ val.substitute }}</p>
@@ -190,7 +200,7 @@ Main(circulation) -
 															<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
 														</div>
 													</div>
-													<div v-else style="background-color:#c9e2b3;height:1px"></div><br>
+													<div v-else style="background-color:#c9e2b3;height:1px"></div><p></p>
 												</div>
 
 											</div>
@@ -203,17 +213,19 @@ Main(circulation) -
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_review_form=!show_review_form;">
-											<h4 class="panel-title"><i class="fa fa-file-text-o fa-fw"></i> Form</h4>
+											<h4 class="panel-title"><i class="fa fa-file-text fa-fw"></i> Form</h4>
 										</div>
 										<collapse v-model="show_review_form">
 											<div class="panel-body">									
 
 												<!--slot，有field时显示，否则显示空的slot-->
-												<div class="panel panel-default" v-for="(value, key) in gets_review_fields" v-if="value.field_id[0]!=null">
+												<!--<div class="panel panel-default" v-for="(value, key) in gets_review_fields" v-if="value.field_id[0]!=null">-->
+												<div :class="current_slot(value.slot_id)" v-for="(value, key) in gets_review_fields" v-if="value.field_id[0]!=null">
 													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
+														<h4 class="panel-title"><i :class="current_slot_flag(value.slot_id)"></i> @{{ value.slot_name }}</h4>
 													</div>
 													<collapse v-model="show_review_slot[key]['slot_id']">
+														<!--<div class="panel-body" :style="current_slot(value.slot_id)">-->
 														<div class="panel-body">
 														
 															<div v-for="(val, i) in value.field_id">
@@ -410,7 +422,7 @@ Main(circulation) -
 															<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
 														</div>
 													</div>
-													<div v-else style="background-color:#c9e2b3;height:1px"></div><br>
+													<div v-else style="background-color:#c9e2b3;height:1px"></div><p></p>
 												</div>
 
 											</div>
@@ -423,17 +435,17 @@ Main(circulation) -
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_create_form=!show_create_form;">
-											<h4 class="panel-title"><i class="fa fa-file-text-o fa-fw"></i> Form</h4>
+											<h4 class="panel-title"><i class="fa fa-file-text fa-fw"></i> Form</h4>
 										</div>
 										<collapse v-model="show_create_form">
 											<div class="panel-body">									
 
 												<!--slot，有field时显示，否则显示空的slot-->
 												<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field_id[0]!=null">
-													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
+													<div class="panel-heading" role="button" @click="show_create_slot[key]['slot_id']=!show_create_slot[key]['slot_id'];">
 														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
 													</div>
-													<collapse v-model="show_review_slot[key]['slot_id']">
+													<collapse v-model="show_create_slot[key]['slot_id']">
 														<div class="panel-body">
 														
 															<div v-for="(val, i) in value.field_id">
@@ -514,10 +526,10 @@ Main(circulation) -
 												</div>
 												<!--slot，否则显示空的slot-->
 												<div class="panel panel-default" v-else>
-													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
+													<div class="panel-heading" role="button" @click="show_create_slot[key]['slot_id']=!show_create_slot[key]['slot_id'];">
 														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
 													</div>
-													<collapse v-model="show_review_slot[key]['slot_id']">
+													<collapse v-model="show_create_slot[key]['slot_id']">
 														<div class="panel-body">
 															<div class="col-lg-12">
 															<div class="alert alert-warning">
@@ -621,17 +633,17 @@ var vm_circulation = new Vue({
 		mailinglist_select: [],
 		mailinglist_options: [],
 		// 预览相关元素
+		review_guid: '',
 		review_template: '',
 		review_created_at: '',
 		review_creator: '',
 		review_description: '',
+		review_current_user: '',
+		review_current_slot: '',
 		// 创建相关元素
-		create_template: '',
-		create_created_at: '',
-		create_creator: '',
 		create_description: '',
 		// tabs索引
-		currenttabs: 1
+		currenttabs: 0
     },
 	methods: {
 		// 把laravel返回的结果转换成select能接受的格式
@@ -744,6 +756,61 @@ var vm_circulation = new Vue({
 				alert(error);
 			})
 		},
+		// 预览circulation
+		review_circulation: function (guid) {
+			var _this = this;
+
+			if (guid == undefined) {
+				_this.gets_review_peoples = _this.gets_review_fields = {};
+				return false;
+			}
+			
+			var url = "{{ route('main.circulation.reviewcirculation') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					guid: guid
+				}
+			})
+			.then(function (response) {
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
+
+				_this.review_guid = response.data.circulation.guid;
+				_this.review_template = response.data.circulation.name;
+				_this.review_created_at = response.data.circulation.created_at;
+				_this.review_creator = response.data.circulation.creator;
+				_this.review_description = response.data.circulation.description;
+				_this.review_current_user = response.data.circulation.current_station;
+				_this.review_current_slot = response.data.circulation.slot_id;
+				
+				
+				_this.gets_review_peoples = response.data.userinfo;
+				_this.gets_review_fields = response.data.field;
+
+				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
+				for (var index in _this.gets_review_fields) {
+					_this.$set(_this.show_review_slot, index, {'slot_id': true});
+				}
+
+			})
+			.catch(function (error) {
+				console.log(error);
+			})
+		},
+		// ok
+		current_user: function (user) {
+			return this.review_current_user == user ? '<i class="fa fa-hand-o-left fa-fw"></i>' : '';
+		},
+		//
+		current_slot: function (slot_id) {
+			return this.review_current_slot == slot_id ? 'panel panel-primary' : 'panel panel-default';
+		},
+		//
+		current_slot_flag: function (slot_id) {
+			return this.review_current_slot == slot_id ? 'fa fa-flag-o fa-fw' : 'fa fa-flag fa-fw';
+		},
 		// ok
 		change_template: function () {
 			var _this = this;
@@ -808,9 +875,9 @@ var vm_circulation = new Vue({
 // return false;
 				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
 				for (var index in _this.gets_create_fields) {
-					_this.$set(_this.show_review_slot, index, {'slot_id': true});
+					_this.$set(_this.show_create_slot, index, {'slot_id': true});
 				}
-				// console.log(_this.show_review_slot);
+				// console.log(_this.show_create_slot);
 				// console.log(_this.sets);
 
 			})
