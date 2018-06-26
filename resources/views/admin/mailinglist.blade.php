@@ -117,7 +117,6 @@ Admin(Mailinglist) -
 											<th>name</th>
 											<th>template_name</th>
 											<th>isdefault</th>
-											<th>slot2user_id</th>
 											<th>created_at</th>
 											<th>updated_at</th>
 											<th>操作</th>
@@ -130,13 +129,12 @@ Admin(Mailinglist) -
 											<td><div>@{{ val.name }}</div></td>
 											<td><div>@{{ val.template_name }}</div></td>
 											<td><div>@{{ val.isdefault==1?'★':'' }}</div></td>
-											<td><div>@{{ val.slot2user_id }}</div></td>
 											<td><div>@{{ val.created_at }}</div></td>
 											<td><div>@{{ val.updated_at }}</div></td>
 											<td><div>
 											&nbsp;<btn type="primary" size="xs" @click="editmailinglist(val)" :id="'btneditmailinglist'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
 											<tooltip text="编辑" :target="'#btneditmailinglist'+val.id"/>
-											&nbsp;<btn type="danger" size="xs" @click="deletemailinglist(val)" :id="'btndeletemailinglist'+val.id"><i class="fa fa-times fa-fw"></i></btn>
+											&nbsp;<btn type="danger" size="xs" @click="deletemailinglist(val.id, val.name)" :id="'btndeletemailinglist'+val.id"><i class="fa fa-times fa-fw"></i></btn>
 											<tooltip text="删除" :target="'#btndeletemailinglist'+val.id"/>
 											</div></td>
 										</tr>
@@ -456,16 +454,16 @@ var vm_mailinglist = new Vue({
 		callback_deletemailinglist: function (msg) {
 			// this.$notify(`Modal dismissed with msg '${msg}'.`)
 		},
-		deletemailinglist: function (mailinglistid, mailinglistname) {
+		deletemailinglist: function (mailinglist_id, mailinglist_name) {
 			var _this = this;
-			if (mailinglistid == undefined || mailinglistid.length == 0) {return false;}
+			if (mailinglist_id == undefined || mailinglist_id.length == 0) {return false;}
 			
 			_this.$confirm({
 				okText: '删除',
 				okType: 'danger',
 				cancelText: '取消',
 				title: '危险',
-				content: '即将完全删除用户 [' + mailinglistname + ']，确认吗？'
+				content: '即将完全删除用户 [' + mailinglist_name + ']，确认吗？'
 			})
 			.then(function () {
 				// this.$notify({
@@ -476,7 +474,7 @@ var vm_mailinglist = new Vue({
 				var url = "{{ route('admin.mailinglist.delete') }}";
 				axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 				axios.post(url, {
-					mailinglistid: mailinglistid
+					mailinglist_id: mailinglist_id
 				})
 				.then(function (response) {
 					if (response.data) {

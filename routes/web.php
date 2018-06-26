@@ -201,7 +201,7 @@ Route::group(['prefix'=>'mailinglist', 'namespace'=>'Admin', 'middleware'=>['jwt
 	Route::post('mailinglistEdit', 'MailinglistController@mailinglistEdit')->name('admin.mailinglist.edit');
 
 	// mailinglistDelete
-	Route::get('mailinglistDelete', 'MailinglistController@mailinglistDelete')->name('admin.mailinglist.delete');
+	Route::post('mailinglistDelete', 'MailinglistController@mailinglistDelete')->name('admin.mailinglist.delete');
 
 	// mailinglistExcelexport
 	Route::get('mailinglistExcelexport', 'MailinglistController@mailinglistExcelexport')->name('admin.mailinglist.excelexport');

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Config;
 use App\Models\Template;
+use App\Models\Template2slot;
+use App\Models\Slot2user;
 use App\Models\Mailinglist;
 
 class MailinglistController extends Controller
@@ -103,9 +105,35 @@ class MailinglistController extends Controller
 
 		$new = $request->only('name', 'templateid');
 		
+		// 1.查询template指向哪些slot
+		$slot_id = Template2slot::select('slot_id')
+			->where('template_id', $new['templateid'])
+			->first();
+		$slot_id = explode(',', $slot_id['slot_id']);
+
+		// 2.添加相应的slot_id和空user_id到slot2user中去
+		foreach ($slot_id as $value) {
+			try {
+				$result = Slot2user::create([
+					'slot_id'	=> $value,
+					'user_id'	=> ''
+				]);
+			} catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				return null;
+			}
+			$slot2user_id[] = $result['id'];
+		}
+		// dd($slot2user_id);
+		
+		// 3.收集slot2user_id
+		$new['slot2user_id'] = implode(',', $slot2user_id);
+		
+		// 4.添加到mailinglist中去
 		$result = Mailinglist::create([
 			'name'	=> $new['name'],
 			'template_id'	=> $new['templateid'],
+			'slot2user_id'	=> $new['slot2user_id']
 		]);
 
 		return $result;
@@ -136,6 +164,31 @@ class MailinglistController extends Controller
 		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
 			$result = 0;
+		}
+		
+		return $result;
+    }
+
+
+    /**
+     * mailinglistDelete
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function mailinglistDelete(Request $request)
+    {
+        //
+		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+
+		$mailinglist_id = $request->only('mailinglist_id');
+
+		try	{
+			$result = Mailinglist::where('id', $mailinglist_id['mailinglist_id'])->delete();
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = null;
 		}
 		
 		return $result;
