@@ -10,6 +10,7 @@ use App\Models\Template;
 use App\Models\Template2slot;
 use App\Models\Slot2user;
 use App\Models\Mailinglist;
+use DB;
 
 class MailinglistController extends Controller
 {
@@ -182,15 +183,45 @@ class MailinglistController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
 		$mailinglist_id = $request->only('mailinglist_id');
+		
+		// 1.删除mailinglist相关的slot2user项
+		$slot2user_id = Mailinglist::select('slot2user_id')
+			->where('id', $mailinglist_id['mailinglist_id'])
+			->first();
+		
+		DB::beginTransaction();
+		if (! empty($slot2user_id['slot2user_id'])) {
+		
+			$slot2user_id = explode(',', $slot2user_id['slot2user_id']);
+		
+			foreach ($slot2user_id as $value) {
+				try {
+					$result = Slot2user::where('id', $value)->delete();
+				}
+				catch (Exception $e) {
+					// echo 'Message: ' .$e->getMessage();
+					DB::rollBack();
+					return null;
+				}
 
+				if (! $result) {
+					DB::rollBack();
+					return null;
+				}
+			}
+		}
+
+		// 2.删除mailinglist本身
 		try	{
 			$result = Mailinglist::where('id', $mailinglist_id['mailinglist_id'])->delete();
 		}
 		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
-			$result = null;
+			DB::rollBack();
+			return null;
 		}
 		
+		DB::commit();
 		return $result;
     }
 	
