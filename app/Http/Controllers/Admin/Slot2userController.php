@@ -273,14 +273,13 @@ class Slot2userController extends Controller
 	{
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$slotid = $request->only('params.slotid');
-		$slotid = $slotid['params']['slotid'];
+		$slot2user_id = $request->only('slot2user_id');
 
-		$index = $request->only('params.index');
-		$index = $index['params']['index'];
+		$index = $request->only('index');
+		$index = $index['index'];
 
 		$userid_before = Slot2user::select('user_id')
-			->where('slot_id', $slotid)
+			->where('id', $slot2user_id['slot2user_id'])
 			->first();
 
 		$userid_before = explode(',', $userid_before['user_id']);
@@ -295,7 +294,7 @@ class Slot2userController extends Controller
 		$userid_after = implode(',', $userid_after);
 
 		try {
-			$result = Slot2user::where('slot_id', $slotid)
+			$result = Slot2user::where('id', $slot2user_id['slot2user_id'])
 				->update([
 					'user_id' => $userid_after
 				]);

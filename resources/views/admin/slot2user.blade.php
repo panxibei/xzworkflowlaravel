@@ -77,7 +77,7 @@ Admin(slot2user) -
 																	<td><div>
 																	<btn @click="user_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
 																	<btn @click="user_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
-																	<btn @click="slot2user_remove(index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
+																	<btn @click="slot2user_remove(val.id,index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
 																</tr>
 															</tbody>
 														</table>
@@ -325,19 +325,16 @@ var vm_slot2user = new Vue({
 				alert(error);
 			})
 		},
-		slot2user_remove: function (index) {
+		slot2user_remove: function (slot2user_id, index) {
 			var _this = this;
-			var slotid = _this.slot_select[0];
 			
-			if (slotid == undefined || index == undefined) return false;
+			if (slot2user_id == undefined || index == undefined) return false;
 			
 			var url = "{{ route('admin.slot2user.slot2userremove') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					slotid: slotid,
-					index: index
-				}
+				slot2user_id: slot2user_id,
+				index: index
 			})
 			.then(function (response) {
 				// console.log(response.data);
