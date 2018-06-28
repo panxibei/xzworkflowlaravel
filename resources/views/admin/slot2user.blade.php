@@ -209,9 +209,9 @@ var vm_slot2user = new Vue({
 		// 通过mailinglist选择slot
 		change_mailinglist: function () {
 			var _this = this;
-			var mailinglistid = _this.mailinglist_select[0];
+			var mailinglist_id = _this.mailinglist_select[0];
 			// console.log(mailinglistid);return false;
-			if (mailinglistid==undefined) {
+			if (mailinglist_id == undefined) {
 				_this.slot_select = [];
 				_this.slot_options = [];
 				_this.user_select = [];
@@ -224,7 +224,7 @@ var vm_slot2user = new Vue({
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					mailinglistid: mailinglistid
+					mailinglist_id: mailinglist_id
 				}
 			})
 			.then(function (response) {
@@ -242,9 +242,9 @@ var vm_slot2user = new Vue({
 		// 通过slot选择user
 		change_slot: function () {
 			var _this = this;
-			var slotid = _this.slot_select[0];
-			// console.log(mailinglistid);return false;
-			if (slotid==undefined) {
+			var slot2user_id = _this.slot_select[0];
+			// console.log(slot2user_id);return false;
+			if (slot2user_id == undefined) {
 				_this.user_select = [];
 				_this.user_options = [];
 				_this.gets = '';
@@ -255,7 +255,7 @@ var vm_slot2user = new Vue({
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					slotid: slotid
+					slot2user_id: slot2user_id
 				}
 			})
 			.then(function (response) {
@@ -278,19 +278,18 @@ var vm_slot2user = new Vue({
 			
 		},
 		// sort向前
-		user_up: function (userid, index) {
+		user_up: function (slot2user_id, index) {
+			// console.log(slot2user_id);return false;
 			var _this = this;
-			if (userid==undefined || index==0) return false;
-			var slotid = _this.slot_select[0];
+			if (slot2user_id==undefined || index==0) return false;
+			var slot_id = _this.slot_select[0];
 			var url = "{{ route('admin.slot2user.usersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					userid: userid,
-					index: index,
-					slotid: slotid,
-					sort: 'up'
-				}
+				slot2user_id: slot2user_id,
+				index: index,
+				slot_id: slot_id,
+				sort: 'up'
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
@@ -303,19 +302,18 @@ var vm_slot2user = new Vue({
 			})
 		},
 		// sort向后
-		user_down: function (userid, index) {
+		user_down: function (slot2user_id, index) {
+			// console.log(slot2user_id);return false;
 			var _this = this;
-			if (userid==undefined || index==_this.gets.length-1) return false;
-			var slotid = _this.slot_select[0];
+			if (slot2user_id==undefined || index==_this.gets.length-1) return false;
+			var slot_id = _this.slot_select[0];
 			var url = "{{ route('admin.slot2user.usersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					userid: userid,
-					index: index,
-					slotid: slotid,
-					sort: 'down'
-				}
+				slot2user_id: slot2user_id,
+				index: index,
+				slot_id: slot_id,
+				sort: 'down'
 			})
 			.then(function (response) {
 				if (response.data != undefined) {
@@ -356,23 +354,22 @@ var vm_slot2user = new Vue({
 		},
 		slot2user_add: function () {
 			var _this = this;
-			var slotid = _this.slot_select[0];
+			var slot2userid = _this.slot_select[0];
 			var userid = _this.user_select;
-			// console.log(slotid);
+			// console.log(slot2userid);
 			// console.log(userid);
 			// return false;
 			
-			if (slotid == undefined || userid == undefined) return false;
+			if (slot2userid == undefined || userid == undefined) return false;
 			
 			var url = "{{ route('admin.slot2user.slot2useradd') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					slotid: slotid,
-					userid: userid
-				}
+				slot2userid: slot2userid,
+				userid: userid
 			})
 			.then(function (response) {
+				// return false;
 				// console.log(response.data);
 				if (response.data != undefined) {
 					_this.user_select = [];

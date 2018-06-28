@@ -68,30 +68,33 @@ class Slot2userController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 
-		$mailinglistid = $request->only('mailinglistid');
+		$mailinglist_id = $request->only('mailinglist_id');
 
-		// 根据slotid查询相应的field
-		$template_id = Mailinglist::select('template_id')
-			->where('id', $mailinglistid['mailinglistid'])
+		// 1.查询slot2user_id
+		$slot2user_id = Mailinglist::select('slot2user_id')
+			->where('id', $mailinglist_id['mailinglist_id'])
 			->first();
-// dd($template_id['template_id']);
-		if (trim($template_id['template_id'])=='') return null;
+
+		if (trim($slot2user_id['slot2user_id'])=='') return null;
 		
-		$slot_id = Template2slot::select('slot_id')
-			->where('template_id', $template_id['template_id'])
-			->first();
-// dd($slot_id['slot_id']);
+		$slot2user_id = explode(',', $slot2user_id['slot2user_id']);
+		// dd($slot2user_id);
 		
-		$arr_slotid = explode(',', $slot_id['slot_id']);
-// dd($arr_slotid);		
-		
-		foreach ($arr_slotid as $value) {
-			$slot[] = Slot::select('id', 'name')
+		// 2.查询slot_id及user_id
+		foreach ($slot2user_id as $key => $value) {
+			$slot_and_user_id[$key] = Slot2user::select('id', 'slot_id')
 				->where('id', $value)
 				->first();
+			
+			$tmp = Slot::select('name')
+				->where('id', $slot_and_user_id[$key]['slot_id'])
+				->first();
+			$slot_and_user_id[$key]['name'] = $tmp['name'];
 		}
-		$slot = array_column($slot, 'name', 'id');
-
+		
+// dd($slot_and_user_id);
+		$slot = array_column($slot_and_user_id, 'name', 'id');
+		
 		return $slot;
     }
 
@@ -105,14 +108,14 @@ class Slot2userController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 
-		$slotid = $request->only('slotid');
+		$slot2user_id = $request->only('slot2user_id');
 		
 		// 1.所有user
 		$all_user = User::pluck('name', 'id')->toArray();
 
 		// 2.根据slotid查询相应的user
 		$user_id = Slot2user::select('user_id')
-			->where('slot_id', $slotid['slotid'])
+			->where('id', $slot2user_id['slot2user_id'])
 			->first();
 
 		// 如果没有被选择的用户，则返回所有用户
@@ -137,10 +140,11 @@ class Slot2userController extends Controller
 		// json化，防止返回后乱序
 		$user_selected = [];
 		foreach ($user_selected_tmp2 as $k => $v) {
-			array_push($user_selected, array("id" => $k, "name" => $v));
+			// array_push($user_selected, array("id" => $k, "name" => $v));
+			array_push($user_selected, array("id" => $slot2user_id['slot2user_id'], "name" => $v));
 		}
 		$user_selected_json = json_encode($user_selected);	
-
+// dd($user_selected_json);
 		// 5.未被选择的用户（步3和步4差集）
 		$user_unselected = array_diff($all_user, $user_selected_tmp2);
 
@@ -162,38 +166,38 @@ class Slot2userController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$sortinfo = $request->only('params.userid', 'params.index', 'params.slotid', 'params.sort');
-// dd($sortinfo['params']['index']);
+		$sortinfo = $request->only('slot2user_id', 'index', 'slot_id', 'sort');
+// dd($sortinfo['slot2user_id']);
 
-		// 1.查询所有userid
-		$userid = Slot2user::select('user_id')
-			->where('slot_id', $sortinfo['params']['slotid'])
+		// 1.查询现有userid
+		$user_id = Slot2user::select('user_id')
+			->where('id', $sortinfo['slot2user_id'])
 			->first();
 		
 		// 2.所有查询所有userid变成一维数组
-		$arr_userid = explode(',', $userid['user_id']);
+		$arr_userid = explode(',', $user_id['user_id']);
 // dd($arr_userid);
 
 		// 3.判断是向前还是向后排序
 		$arr_temp = [];
-		if ('up' == $sortinfo['params']['sort']) {
+		if ('up' == $sortinfo['sort']) {
 
 			foreach ($arr_userid as $index => $value) {
-				if ($index == $sortinfo['params']['index']-1) {
+				if ($index == $sortinfo['index']-1) {
 					$arr_temp[] = $arr_userid[$index+1];
-				} elseif ($index == $sortinfo['params']['index']) {
+				} elseif ($index == $sortinfo['index']) {
 					$arr_temp[] = $arr_userid[$index-1];
 				} else {
 					$arr_temp[] = $value;
 				}
 			}
 
-		} elseif ('down' == $sortinfo['params']['sort']) {
+		} elseif ('down' == $sortinfo['sort']) {
 
 			foreach ($arr_userid as $index => $value) {
-				if ($index == $sortinfo['params']['index']) {
+				if ($index == $sortinfo['index']) {
 					$arr_temp[] = $arr_userid[$index+1];
-				} elseif ($index == $sortinfo['params']['index']+1) {
+				} elseif ($index == $sortinfo['index']+1) {
 					$arr_temp[] = $arr_userid[$index-1];
 				} else {
 					$arr_temp[] = $value;
@@ -204,13 +208,13 @@ class Slot2userController extends Controller
 			return 0;
 		}
 		
-		$userid = implode(',', $arr_temp);
-// dd($fieldid);
+		$user_id = implode(',', $arr_temp);
+// dd($user_id);
 		
-		// 根据slotid查询相应的user
-		$result = Slot2user::where('slot_id', $sortinfo['params']['slotid'])
+		// 4.排序好后写入数据库
+		$result = Slot2user::where('id', $sortinfo['slot2user_id'])
 			->update([
-				'user_id' => $userid
+				'user_id' => $user_id
 			]);
 // dd($result);
 		
@@ -227,49 +231,33 @@ class Slot2userController extends Controller
 	 {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$slotid = $request->only('params.slotid');
-		$slotid = $slotid['params']['slotid'];
+		$slot2userid = $request->only('slot2userid');
 
-		$userid = $request->only('params.userid');
-		$userid = implode(',', $userid['params']['userid']);
+		$userid = $request->only('userid');
+		$userid = implode(',', $userid['userid']);
 
-		$userid_before = Slot2user::select('id', 'user_id')
-			->where('slot_id', $slotid)
+		// 1.先取出要添加用户的slot2user表的user_id
+		$userid_before = Slot2user::select('user_id')
+			->where('id', $slot2userid['slot2userid'])
 			->first();
 
-		// 如果记录为空，则$fieldid_after直接为要添加的userid，并且用create
-		if (empty($userid_before)) {
+		// 2.如果记录为空，则$fieldid_after直接添加userid
+		if (trim($userid_before['user_id']) == 0) {
 			$userid_after = $userid;
+		} else {
+			$userid_after = $userid_before['user_id'] . ',' . $userid;
+		}
 
-			try {
-				$result = Slot2user::create([
-					'slot_id' => $slotid,
+		// 3.写入数据
+		try {
+			$result = Slot2user::where('id', $slot2userid['slot2userid'])
+				->update([
 					'user_id' => $userid_after
 				]);
-			}
-			catch (Exception $e) {
-				// echo 'Message: ' .$e->getMessage();
-				$result = 0;
-			}
-		
-		} else {
-			// 如果有记录，则根据id更新即可
-			if (trim($userid_before['user_id'])=='') {
-				$userid_after = $userid;
-			} else {
-				$userid_after = $userid_before['user_id'] . ',' . $userid;
-			}
-
-			try {
-				$result = Slot2user::where('id', $userid_before['id'])
-					->update([
-						'user_id' => $userid_after
-					]);
-			}
-			catch (Exception $e) {
-				// echo 'Message: ' .$e->getMessage();
-				$result = 0;
-			}
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
 		}
 			
 		return $result;
