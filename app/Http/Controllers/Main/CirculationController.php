@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\Slot2field;
 use App\Models\Field;
 use App\Models\Slot;
+use App\Models\User4workflow;
 
 
 class CirculationController extends Controller
@@ -187,26 +188,103 @@ class CirculationController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 		
-		// $template_id = $request->only('template_id');
 		$mailinglist_id = $request->only('mailinglist_id');
 
-		// 1.查询Mailinglist
-		$template_id = Mailinglist::select('template_id')
+		// 1.查询Mailinglist，得到slot2user_id
+		$slot2user_id = Mailinglist::select('slot2user_id')
 			->where('id', $mailinglist_id['mailinglist_id'])
 			->first();
+		$slot2user_id = explode(',', $slot2user_id['slot2user_id']);
 
-		// 2.查询template2slot
-		$slot_id = Template2slot::select('slot_id')
-			->where('template_id', $template_id['template_id'])
-			->first();
-		$slot_id = explode(',', $slot_id['slot_id']);
-
-		// 3. 查询Slot2user
-		foreach ($slot_id as $key => $value) {
-			$user_id[] = Slot2user::select('user_id')
-				->where('slot_id', $value)
+		// 2.查询Slot2user，得到slot_id和user_id
+		foreach ($slot2user_id as $value) {
+			$slot_and_user_id[] = Slot2user::select('slot_id', 'user_id')
+				->where('id', $value)
 				->first();
+			// $slot_id = explode(',', $slot_id['slot_id']);
 		}
+		// dd($slot_and_user_id);
+
+		// 3. 查询slot相关的user及field
+		// array:3 [
+		// 		0 => array:2 [
+		// 			"slot_id" => 1
+		// 			"user_id" => "2,8,6"
+		// ]
+		foreach ($slot_and_user_id as $key => $value) {
+			//a. user信息
+			$user_id = explode(',', $value['user_id']);
+				foreach ($user_id as $key_user => $val_user) {
+					$result[$key]['user'][$key_user] = User::select('id', 'name', 'email')
+						->where('id', $val_user)
+						->first()->toArray();
+					
+					// $result[$key]['user'][$key_user]['substitute'] = '&nbsp;';
+					// d. substitute信息
+					$substitute_tmp = User4workflow::select('id', 'substitute_user_id')
+						->where('user_id', $val_user)
+						->first();
+					
+					if (! empty($substitute_tmp['substitute_user_id'])) {
+					$substitute_arr = explode(',', $substitute_tmp['substitute_user_id']);
+					// dd($substitute_arr);
+					foreach ($substitute_arr as $key_substitute => $value_substitute) {
+						$substitute_name = User::select('id', 'name')
+							->where('id', $value_substitute)
+							->first()->toArray();
+						
+						$substitute_final[$key_substitute]['u4w_id'] = $substitute_tmp['id'];
+						$substitute_final[$key_substitute]['id'] = $substitute_name['id'];
+						$substitute_final[$key_substitute]['name'] = $substitute_name['name'];
+						// $substitute_final[] = $substitute_name['name'];
+					}
+					// dd($substitute_final);
+					// foreach ($substitute_final as $val_substitute_final) {
+						// $result[$key]['user'][$key_user]['substitute'][][$substitute_tmp['id']] = $val_substitute_final;
+					// }
+					
+					// $rr = User::pluck('name', 'id')->toArray();
+					// dd($rr);
+					// $result[$key]['user'][$key_user]['substitute'] = array_column($substitute_final, 'name', 'id');
+					$result[$key]['user'][$key_user]['substitute'] = array_column($substitute_final, 'name', 'id');
+					// dd($result[$key]['user'][$key_user]['substitute']);
+					
+					} else {
+						$result[$key]['user'][$key_user]['substitute'] = null;
+					}
+					
+					
+				}
+				// dd($result);
+			
+			// b. slot信息
+			$result[$key]['slot'] = Slot::select('id', 'name')
+				->where('id', $value['slot_id'])
+				->first()->toArray();
+			// dd($result);
+			
+			
+			// c. field信息
+			$field_id = Slot2field::select('field_id')
+				->where('slot_id', $value['slot_id'])
+				->first()->toArray();
+// dd(empty($field_id['field_id']));
+			if (! empty($field_id['field_id'])) {
+				$field_id = explode(',', $field_id['field_id']);
+				
+				foreach ($field_id as $val_field) {
+					$result[$key]['slot']['field'][] = Field::where('id', $val_field)->first()->toArray();
+				}
+			
+			} else {
+				$result[$key]['slot']['field'][] = null;
+			}
+			// dd($result);
+			
+		}
+		// dd($result);
+		
+		return $result;
 
 		// 4.查询User
 		// $user = [];

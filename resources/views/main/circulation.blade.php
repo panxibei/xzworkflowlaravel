@@ -399,30 +399,40 @@ Main(circulation) -
 													<div class="col-lg-3">
 														<label>邮箱</label>
 													</div>
-													<div class="col-lg-3">
+													<div class="col-lg-2">
 														<label>操作</label>
 													</div>
 												</div>
 												
-												<div class="col-lg-12" v-for="val in gets_create_peoples">
-													<div v-if="val.user!='-'">
+												<div class="col-lg-12" v-for="(value, key) in gets_create_peoples">
+													<!--<div v-if="val.user!='-'">-->
+														<div class="col-lg-12">
+															<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ ++key }}</strong></p>
+														</div>
+													
+													<div v-for="val in value">
 														<div class="col-lg-3">
-															<p>@{{ val.user }}</p>
+															<p>@{{ val.name }}</p>
 														</div>
 														<div class="col-lg-3">
-															<p>@{{ val.substitute }}</p>
+														<div v-for="v in val.substitute" v-if="val.substitute!=null">
+															<p>@{{ console.log(v) }}</p>
+														</div>
 														</div>
 														<div class="col-lg-3">
 															<p>@{{ val.email }}</p>
 														</div>
 														<div class="col-lg-3">
-															<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
-															<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
-															<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
-															<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+															<p>
+																<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+															</p>
 														</div>
 													</div>
-													<div v-else style="background-color:#c9e2b3;height:1px"></div><p></p>
+													<!--</div>-->
+													<div style="background-color:#c9e2b3;height:1px"></div><p></p>
 												</div>
 
 											</div>
@@ -441,14 +451,15 @@ Main(circulation) -
 											<div class="panel-body">									
 
 												<!--slot，有field时显示，否则显示空的slot-->
-												<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field_id[0]!=null">
+												<!--<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field[0]!=null">-->
+												<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field[0]!=null">
 													<div class="panel-heading" role="button" @click="show_create_slot[key]['slot_id']=!show_create_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}</h4>
 													</div>
 													<collapse v-model="show_create_slot[key]['slot_id']">
 														<div class="panel-body">
 														
-															<div v-for="(val, i) in value.field_id">
+															<div v-for="(val, i) in value.field">
 																<div class="col-lg-3">
 																	<!--1-Text-->
 																	<div v-if="val.type=='1-Text'" class="form-group">
@@ -527,7 +538,7 @@ Main(circulation) -
 												<!--slot，否则显示空的slot-->
 												<div class="panel panel-default" v-else>
 													<div class="panel-heading" role="button" @click="show_create_slot[key]['slot_id']=!show_create_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}</h4>
 													</div>
 													<collapse v-model="show_create_slot[key]['slot_id']">
 														<div class="panel-body">
@@ -640,7 +651,7 @@ var vm_circulation = new Vue({
 		// 创建相关元素
 		create_description: '',
 		// tabs索引
-		currenttabs: 0
+		currenttabs: 1
     },
 	methods: {
 		// 把laravel返回的结果转换成select能接受的格式
@@ -841,10 +852,10 @@ var vm_circulation = new Vue({
 		// ok
 		change_mailinglist: function () {
 			var _this = this;
-			var template_id = _this.template_select[0];
 			var mailinglist_id = _this.mailinglist_select[0];
-			if (template_id = undefined || mailinglist_id == undefined) {
-				_this.gets_create_peoples = _this.gets_create_fields = {};
+			if (mailinglist_id == undefined) {
+				_this.gets_create_peoples = {};
+				_this.gets_create_fields = {};
 				return false;
 			}
 			
@@ -852,11 +863,11 @@ var vm_circulation = new Vue({
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					// template_id: template_id,
 					mailinglist_id: mailinglist_id
 				}
 			})
 			.then(function (response) {
+				// console.log(response.data);return false;
 				// if (typeof(response.data.data) == "undefined") {
 					// _this.alert_exit();
 				// }
@@ -866,10 +877,16 @@ var vm_circulation = new Vue({
 				// 以下是需要的内容
 				// console.log(response.data);
 				// console.log(typeof(response.data));
-				_this.gets_create_peoples = response.data.userinfo;
-				_this.gets_create_fields = response.data.field;
-// console.log(_this.gets_create_fields);
-// return false;
+				for (i in response.data) {
+					_this.$set(_this.gets_create_peoples, i, response.data[i]['user']);
+					_this.$set(_this.gets_create_fields, i, response.data[i]['slot']);
+				}
+				console.log(_this.gets_create_peoples[0]);
+				// return false;
+				
+				// _this.gets_create_peoples = response.data.user;
+				// _this.gets_create_fields = response.data.field;
+
 				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
 				for (var index in _this.gets_create_fields) {
 					_this.$set(_this.show_create_slot, index, {'slot_id': true});

@@ -335,7 +335,7 @@
 <!-- 底部 -->
 @section('my_footer')
 <div class="text-center">
-	<a href="{:U('Home/Index/index')}">{{$config['SITE_TITLE']}}</a>&nbsp;|&nbsp;{{$config['SITE_COPYRIGHT']}}
+	<a href="{{route('main.circulation.index')}}">{{$config['SITE_TITLE']}}</a>&nbsp;|&nbsp;{{$config['SITE_COPYRIGHT']}}
 </div>
 <br>
 <script src="{{ asset('js/vue.min.js') }}"></script>
