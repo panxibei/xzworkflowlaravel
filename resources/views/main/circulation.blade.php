@@ -410,14 +410,16 @@ Main(circulation) -
 															<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ ++key }}</strong></p>
 														</div>
 													
-													<div v-for="val in value">
+													<div v-for="(val, k) in value">
 														<div class="col-lg-3">
 															<p>@{{ val.name }}</p>
 														</div>
 														<div class="col-lg-3">
-														<div v-for="v in val.substitute" v-if="val.substitute!=null">
-															<p>@{{ console.log(v) }}</p>
-														</div>
+														
+														<!--<div v-for="(v, k) in val.substitute" v-if="val.substitute!=null">-->
+															<multi-select v-model="select_substitute" :options="options_substitute[k]" :limit="1" filterable collapse-selected size="sm"/>
+														<!--</div>-->
+														
 														</div>
 														<div class="col-lg-3">
 															<p>@{{ val.email }}</p>
@@ -627,6 +629,8 @@ var vm_circulation = new Vue({
 			{selected: ''},
 			{selected: ''}
 		],
+		select_substitute: [],
+		options_substitute: [],
 		// 各个控件的动态变量
 		sets: {},
 		gets: {},
@@ -657,6 +661,7 @@ var vm_circulation = new Vue({
 		// 把laravel返回的结果转换成select能接受的格式
 		json2selectvalue: function (json, reverse) {
 			var arr = [];
+			if (json.length == 0) return [];
 			for (var key in json) {
 				arr.push({ value: key, label: json[key] });
 			}
@@ -868,21 +873,42 @@ var vm_circulation = new Vue({
 			})
 			.then(function (response) {
 				// console.log(response.data);return false;
-				// if (typeof(response.data.data) == "undefined") {
+				if (response.data == undefined) {
 					// _this.alert_exit();
-				// }
+					_this.options_substitute = [];
+					_this.gets_create_peoples = {};
+					_this.gets_create_fields = {};
+					return false;
+				}
 				// var json = response.data;
 				// _this.mailinglist_options = _this.json2selectvalue(json, true);
 				
 				// 以下是需要的内容
 				// console.log(response.data);
 				// console.log(typeof(response.data));
+				var json = '';
 				for (i in response.data) {
 					_this.$set(_this.gets_create_peoples, i, response.data[i]['user']);
+					
+					for (j in _this.gets_create_peoples[i]) {
+						if (_this.gets_create_peoples[i][j]['substitute'] != null) {
+							json = _this.gets_create_peoples[i][j]['substitute'];
+							_this.$set(_this.options_substitute, j, _this.json2selectvalue(json, true));
+							// _this.options_substitute = _this.json2selectvalue(json, true);
+							// console.log(_this.gets_create_peoples[i][j]['substitute']);
+						} else {
+							_this.$set(_this.options_substitute, j, []);
+						}
+					}
+					// _this.$set(_this.options_substitute, i, _this.json2selectvalue(json, true));
+					
 					_this.$set(_this.gets_create_fields, i, response.data[i]['slot']);
 				}
-				console.log(_this.gets_create_peoples[0]);
+				// console.log(_this.gets_create_peoples[i]['substitute']);
+				// console.log('fdasdfad: ' + _this.options_substitute);
 				// return false;
+				
+				
 				
 				// _this.gets_create_peoples = response.data.user;
 				// _this.gets_create_fields = response.data.field;
