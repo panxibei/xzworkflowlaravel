@@ -162,7 +162,7 @@ Main(circulation) -
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_review_group=!show_review_group;">
-											<h4 class="panel-title"><i class="fa fa-group fa-fw"></i> Peoples</h4>
+											<h4 class="panel-title"><i class="fa fa-group fa-fw"></i> Peoples<span style="float:right" v-html="show_up_or_down(show_review_group)"></span></h4>
 										</div>
 										<collapse v-model="show_review_group">
 											<div class="panel-body">									
@@ -182,25 +182,35 @@ Main(circulation) -
 													</div>
 												</div>
 												
-												<div class="col-lg-12" v-for="val in gets_review_peoples">
-													<div v-if="val.user!='-'">
+												<div class="col-lg-12" v-for="(value, key) in gets_review_peoples">
+														<div class="col-lg-12">
+															<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ parseInt(key)+1 }}</strong></p>
+														</div>
+													
+													<div v-for="(val, k) in value">
 														<div class="col-lg-3">
-															<p>@{{ val.user }} <span v-html="current_user(val.user)"></span></p>
+															<p>@{{ val.name }}</p>
 														</div>
 														<div class="col-lg-3">
-															<p>@{{ val.substitute }}</p>
+														
+														<!--<div v-for="(v, k) in val.substitute" v-if="val.substitute!=null">-->
+															<multi-select v-model="select_substitute_review[key][k]" :options="options_substitute_review[k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
+														<!--</div>-->
+														
 														</div>
 														<div class="col-lg-3">
 															<p>@{{ val.email }}</p>
 														</div>
 														<div class="col-lg-3">
-															<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
-															<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
-															<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
-															<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+															<p>
+																<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
+																<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+															</p>
 														</div>
 													</div>
-													<div v-else style="background-color:#c9e2b3;height:1px"></div><p></p>
+													<div style="background-color:#c9e2b3;height:1px"></div><p></p>
 												</div>
 
 											</div>
@@ -213,22 +223,21 @@ Main(circulation) -
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_review_form=!show_review_form;">
-											<h4 class="panel-title"><i class="fa fa-file-text fa-fw"></i> Form</h4>
+											<h4 class="panel-title"><i class="fa fa-file-text fa-fw"></i> Form<span style="float:right" v-html="show_up_or_down(show_review_form)"></span></h4>
 										</div>
 										<collapse v-model="show_review_form">
 											<div class="panel-body">									
 
 												<!--slot，有field时显示，否则显示空的slot-->
 												<!--<div class="panel panel-default" v-for="(value, key) in gets_review_fields" v-if="value.field_id[0]!=null">-->
-												<div :class="current_slot(value.slot_id)" v-for="(value, key) in gets_review_fields" v-if="value.field_id[0]!=null">
+												<div :class="current_slot(value.id)" v-for="(value, key) in gets_review_fields" v-if="value.field[0]!=null">
 													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i :class="current_slot_flag(value.slot_id)"></i> @{{ value.slot_name }}</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}<span style="float:right" v-html="show_up_or_down(show_review_slot[key]['slot_id'])"></span></h4>
 													</div>
 													<collapse v-model="show_review_slot[key]['slot_id']">
-														<!--<div class="panel-body" :style="current_slot(value.slot_id)">-->
 														<div class="panel-body">
 														
-															<div v-for="(val, i) in value.field_id">
+															<div v-for="(val, i) in value.field">
 																<div class="col-lg-3">
 																	<!--1-Text-->
 																	<div v-if="val.type=='1-Text'" class="form-group">
@@ -307,7 +316,7 @@ Main(circulation) -
 												<!--slot，否则显示空的slot-->
 												<div class="panel panel-default" v-else>
 													<div class="panel-heading" role="button" @click="show_review_slot[key]['slot_id']=!show_review_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.slot_name }}</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}<span style="float:right" v-html="show_up_or_down(show_review_slot[key]['slot_id'])"></span></h4>
 													</div>
 													<collapse v-model="show_review_slot[key]['slot_id']">
 														<div class="panel-body">
@@ -320,7 +329,7 @@ Main(circulation) -
 														</div>
 													</collapse>
 												</div>
-											
+
 											</div>
 										</collapse>
 									</div>
@@ -384,7 +393,7 @@ Main(circulation) -
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_create_group=!show_create_group;">
-											<h4 class="panel-title"><i class="fa fa-group fa-fw"></i> Peoples</h4>
+											<h4 class="panel-title"><i class="fa fa-group fa-fw"></i> Peoples<span style="float:right" v-html="show_up_or_down(show_create_group)"></span></h4>
 										</div>
 										<collapse v-model="show_create_group">
 											<div class="panel-body">									
@@ -417,7 +426,7 @@ Main(circulation) -
 														<div class="col-lg-3">
 														
 														<!--<div v-for="(v, k) in val.substitute" v-if="val.substitute!=null">-->
-															<multi-select v-model="select_substitute[key][k]" :options="options_substitute[k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
+															<multi-select v-model="select_substitute_create[key][k]" :options="options_substitute_create[k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
 														<!--</div>-->
 														
 														</div>
@@ -447,7 +456,7 @@ Main(circulation) -
 
 									<div class="panel panel-default">
 										<div class="panel-heading" role="button" @click="show_create_form=!show_create_form;">
-											<h4 class="panel-title"><i class="fa fa-file-text fa-fw"></i> Form</h4>
+											<h4 class="panel-title"><i class="fa fa-file-text fa-fw"></i> Form<span style="float:right" v-html="show_up_or_down(show_create_form)"></span></h4>
 										</div>
 										<collapse v-model="show_create_form">
 											<div class="panel-body">									
@@ -456,7 +465,7 @@ Main(circulation) -
 												<!--<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field[0]!=null">-->
 												<div class="panel panel-default" v-for="(value, key) in gets_create_fields" v-if="value.field[0]!=null">
 													<div class="panel-heading" role="button" @click="show_create_slot[key]['slot_id']=!show_create_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}<span style="float:right" v-html="show_up_or_down(show_create_slot[key]['slot_id'])"></span></h4>
 													</div>
 													<collapse v-model="show_create_slot[key]['slot_id']">
 														<div class="panel-body">
@@ -540,7 +549,7 @@ Main(circulation) -
 												<!--slot，否则显示空的slot-->
 												<div class="panel panel-default" v-else>
 													<div class="panel-heading" role="button" @click="show_create_slot[key]['slot_id']=!show_create_slot[key]['slot_id'];">
-														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}</h4>
+														<h4 class="panel-title"><i class="fa fa-flag-o fa-fw"></i> @{{ value.name }}<span style="float:right" v-html="show_up_or_down(show_create_slot[key]['slot_id'])"></span></h4>
 													</div>
 													<collapse v-model="show_create_slot[key]['slot_id']">
 														<div class="panel-body">
@@ -629,8 +638,10 @@ var vm_circulation = new Vue({
 			{selected: ''},
 			{selected: ''}
 		],
-		select_substitute: [],
-		options_substitute: [],
+		select_substitute_create: [],
+		options_substitute_create: [],
+		select_substitute_review: [],
+		options_substitute_review: [],
 		// 各个控件的动态变量
 		sets: {},
 		gets: {},
@@ -655,7 +666,7 @@ var vm_circulation = new Vue({
 		// 创建相关元素
 		create_description: '',
 		// tabs索引
-		currenttabs: 1
+		currenttabs: 0
     },
 	methods: {
 		// 把laravel返回的结果转换成select能接受的格式
@@ -774,7 +785,8 @@ var vm_circulation = new Vue({
 			var _this = this;
 
 			if (guid == undefined) {
-				_this.gets_review_peoples = _this.gets_review_fields = {};
+				_this.gets_review_peoples = {};
+				_this.gets_review_fields = {};
 				return false;
 			}
 			
@@ -786,6 +798,7 @@ var vm_circulation = new Vue({
 				}
 			})
 			.then(function (response) {
+				// return false;
 				// if (typeof(response.data.data) == "undefined") {
 					// _this.alert_exit();
 				// }
@@ -799,8 +812,39 @@ var vm_circulation = new Vue({
 				_this.review_current_slot = response.data.circulation.slot_id;
 				
 				
-				_this.gets_review_peoples = response.data.userinfo;
-				_this.gets_review_fields = response.data.field;
+				// _this.gets_review_peoples = response.data.userinfo;
+				// _this.gets_review_fields = response.data.field;
+				
+				// return false;
+				var json = '';
+				for (i in response.data.slot) {
+					_this.$set(_this.gets_review_peoples, i, response.data.slot[i]['user']);
+					
+					// _this.select_substitute_create[i] = [];
+					// _this.options_substitute_create[i] = [];
+					
+					for (j in _this.gets_review_peoples[i]) {
+						_this.$set(_this.select_substitute_review[i], j, []);
+						if (_this.gets_review_peoples[i][j]['substitute'] != null) {
+							json = _this.gets_review_peoples[i][j]['substitute'];
+							_this.$set(_this.options_substitute_review, j, JSON.parse(json));
+						} else {
+							_this.$set(_this.options_substitute_review, j, []);
+						}
+					}
+					// _this.$set(_this.options_substitute_create, i, _this.json2selectvalue(json, true));
+					
+					_this.$set(_this.gets_review_fields, i, response.data.slot[i]['slot']);
+				}				
+				
+				
+				
+				
+				
+				
+				
+				
+				
 
 				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
 				for (var index in _this.gets_review_fields) {
@@ -876,7 +920,7 @@ var vm_circulation = new Vue({
 				
 				if (response.data == undefined) {
 					// _this.alert_exit();
-					_this.options_substitute = [];
+					_this.options_substitute_create = [];
 					_this.gets_create_peoples = {};
 					_this.gets_create_fields = {};
 					return false;
@@ -886,8 +930,6 @@ var vm_circulation = new Vue({
 					_this.notification_message('warning', 'Warning', 'No slot or user in the mailinglist!');
 					return false;
 				}
-				// var json = response.data;
-				// _this.mailinglist_options = _this.json2selectvalue(json, true);
 				
 				// 以下是需要的内容
 				// console.log(response.data);
@@ -896,30 +938,26 @@ var vm_circulation = new Vue({
 				for (i in response.data) {
 					_this.$set(_this.gets_create_peoples, i, response.data[i]['user']);
 					
-					// _this.select_substitute[i] = [];
-					// _this.options_substitute[i] = [];
+					// _this.select_substitute_create[i] = [];
+					// _this.options_substitute_create[i] = [];
 					
 					for (j in _this.gets_create_peoples[i]) {
-						_this.$set(_this.select_substitute[i], j, []);
+						_this.$set(_this.select_substitute_create[i], j, []);
 						if (_this.gets_create_peoples[i][j]['substitute'] != null) {
 							json = _this.gets_create_peoples[i][j]['substitute'];
-							_this.$set(_this.options_substitute, j, JSON.parse(json));
+							_this.$set(_this.options_substitute_create, j, JSON.parse(json));
 						} else {
-							_this.$set(_this.options_substitute, j, []);
+							_this.$set(_this.options_substitute_create, j, []);
 						}
 					}
-					// _this.$set(_this.options_substitute, i, _this.json2selectvalue(json, true));
+					// _this.$set(_this.options_substitute_create, i, _this.json2selectvalue(json, true));
 					
 					_this.$set(_this.gets_create_fields, i, response.data[i]['slot']);
 				}
 				// console.log(_this.gets_create_peoples[i]['substitute']);
-				// console.log('fdasdfad: ' + _this.options_substitute);
+				// console.log('fdasdfad: ' + _this.options_substitute_create);
 				// return false;
 				
-				
-				
-				// _this.gets_create_peoples = response.data.user;
-				// _this.gets_create_fields = response.data.field;
 
 				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
 				for (var index in _this.gets_create_fields) {
@@ -1027,6 +1065,9 @@ var vm_circulation = new Vue({
 				alert(error);
 			})
 			
+		},
+		show_up_or_down: function (up_or_down) {
+			return up_or_down ? '<i class="fa fa-caret-up fa-fw"></i>' : '<i class="fa fa-caret-down fa-fw"></i>';
 		}
 	},
 	mounted: function () {
@@ -1045,20 +1086,37 @@ var vm_circulation = new Vue({
 
 		// 初始化select_substitute，20*10的方阵
 		for (var i=0;i<10;i++) {
-			_this.select_substitute.push([]);
+			_this.select_substitute_create.push([]);
 			for (var j=0;j<20;j++) {
-				_this.select_substitute[i].push([]);
+				_this.select_substitute_create[i].push([]);
 			}
 		}
 
 		// 初始化options_substitute，20*10的方阵
 		for (var i=0;i<10;i++) {
-			_this.options_substitute.push([]);
+			_this.options_substitute_create.push([]);
 			for (var j=0;j<20;j++) {
-				_this.options_substitute[i].push([]);
+				_this.options_substitute_create[i].push([]);
 			}
 		}
-		// console.log(_this.options_substitute[1][0]);
+		// console.log(_this.options_substitute_create[1][0]);
+
+		// 初始化select_substitute，20*10的方阵
+		for (var i=0;i<10;i++) {
+			_this.select_substitute_review.push([]);
+			for (var j=0;j<20;j++) {
+				_this.select_substitute_review[i].push([]);
+			}
+		}
+
+		// 初始化options_substitute，20*10的方阵
+		for (var i=0;i<10;i++) {
+			_this.options_substitute_review.push([]);
+			for (var j=0;j<20;j++) {
+				_this.options_substitute_review[i].push([]);
+			}
+		}
+		// console.log(_this.options_substitute_review[1][0]);
 
 	}
 });

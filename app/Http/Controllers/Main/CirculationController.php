@@ -385,33 +385,125 @@ class CirculationController extends Controller
 		// 1.查询circulation信息
 		$circulation = Circulation::select('guid', 'name', 'mailinglist_id', 'slot_id', 'current_station', 'creator', 'description', 'created_at')
 		->where('guid', $guid['guid'])
-		->first();
+		->first()->toArray();
 		
+		$result['circulation'] = $circulation;
 		// dd($circulation);
 		
 
 		// 1.查询Mailinglist
-		$template_id = Mailinglist::select('template_id')
+		$slot2user_id = Mailinglist::select('slot2user_id')
 			->where('id', $circulation['mailinglist_id'])
-			->first();
+			->first()->toArray();
+		// dd($slot2user_id);
+		// array:1 [
+			// "slot2user_id" => "19,20,21"
+		// ]
 
 		// 2.查询template2slot
-		$slot_id = Template2slot::select('slot_id')
-			->where('template_id', $template_id['template_id'])
-			->first();
-		$slot_id = explode(',', $slot_id['slot_id']);
+		// $slot_id = Slot2user::select('slot_id')
+			// ->where('template_id', $slot2user_id['slot2user_id'])
+			// ->first();
+		// $slot_id = explode(',', $slot_id['slot_id']);
 
 		// 3. 查询Slot2user
-		foreach ($slot_id as $key => $value) {
-			$user_id[] = Slot2user::select('user_id')
-				->where('slot_id', $value)
-				->first();
+		if (empty($slot2user_id['slot2user_id'])) {
+			return 'no slot2user';
 		}
+		
+		$slot2user_id_arr = explode(',', $slot2user_id['slot2user_id']);
+
+		foreach ($slot2user_id_arr as $value) {
+			$slot_and_user_id[] = Slot2user::select('slot_id', 'user_id')
+				->where('id', $value)
+				->first()->toArray();
+		}
+		// dd($slot_and_user_id);
+		
+		
+		// 查询slot和user
+		foreach ($slot_and_user_id as $key => $value) {
+			//a. user信息
+			$user_id = explode(',', $value['user_id']);
+				foreach ($user_id as $key_user => $val_user) {
+					$result['slot'][$key]['user'][$key_user] = User::select('id', 'name', 'email')
+						->where('id', $val_user)
+						->first()->toArray();
+					
+					// $result['slot'][$key]['user'][$key_user]['substitute'] = '&nbsp;';
+					// d. substitute信息
+					$substitute_tmp = User4workflow::select('id', 'substitute_user_id')
+						->where('user_id', $val_user)
+						->first();
+					
+					if (! empty($substitute_tmp['substitute_user_id'])) {
+						$substitute_arr = explode(',', $substitute_tmp['substitute_user_id']);
+						// dd($substitute_arr);
+						
+						$substitute_final = [];
+						foreach ($substitute_arr as $key_substitute => $value_substitute) {
+							$substitute_name = User::select('id', 'name')
+								->where('id', $value_substitute)
+								->first()->toArray();
+							
+							// $substitute_final[$key_substitute]['u4w_id'] = $substitute_tmp['id'];
+							// $substitute_final[$key_substitute]['id'] = $substitute_name['id'];
+							// $substitute_final[$key_substitute]['name'] = $substitute_name['name'];
+							array_push($substitute_final, array("value" => $substitute_name['id'], "label" => $substitute_name['name']));
+						}
+						$substitute_final_json = json_encode($substitute_final);	
+						// dd($substitute_final_json);
+						
+						// $result['slot'][$key]['user'][$key_user]['substitute'] = array_column($substitute_final, 'name', 'id');
+						$result['slot'][$key]['user'][$key_user]['substitute'] = $substitute_final_json;
+						// dd($result['slot'][$key]['user'][$key_user]['substitute']);
+					
+					} else {
+						$result['slot'][$key]['user'][$key_user]['substitute'] = null;
+					}
+					
+					
+				}
+				// dd($result);
+			
+			// b. slot信息
+			$result['slot'][$key]['slot'] = Slot::select('id', 'name')
+				->where('id', $value['slot_id'])
+				->first()->toArray();
+			// dd($result);
+			
+			
+			// c. field信息
+			$field_id = Slot2field::select('field_id')
+				->where('slot_id', $value['slot_id'])
+				->first()->toArray();
+// dd(empty($field_id['field_id']));
+			if (! empty($field_id['field_id'])) {
+				$field_id = explode(',', $field_id['field_id']);
+				
+				foreach ($field_id as $val_field) {
+					$result['slot'][$key]['slot']['field'][] = Field::where('id', $val_field)->first()->toArray();
+				}
+			
+			} else {
+				$result['slot'][$key]['slot']['field'][] = null;
+			}
+			// dd($result);
+			
+		}
+		// dd($result);
+
+return $result;		
+		
+		
+		
+		
+		
 
 		// 4.查询User
 		// $user = [];
-		foreach ($user_id as $val_user1) {
-			$user1 = explode(',', $val_user1['user_id']);
+		foreach ($slot_and_user_id['user_id'] as $val_user1) {
+			$user1 = explode(',', $val_user1);
 			
 			foreach ($user1 as $val_user2) {
 				$user[] = $val_user2;
