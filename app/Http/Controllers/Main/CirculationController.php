@@ -203,7 +203,11 @@ class CirculationController extends Controller
 				->first();
 			// $slot_id = explode(',', $slot_id['slot_id']);
 		}
+		// dd(empty($slot_and_user_id[0]));
 		// dd($slot_and_user_id);
+		if (empty($slot_and_user_id[0])) {
+			return 'no slot2user';
+		}
 
 		// 3. 查询slot相关的user及field
 		// array:3 [
@@ -226,28 +230,26 @@ class CirculationController extends Controller
 						->first();
 					
 					if (! empty($substitute_tmp['substitute_user_id'])) {
-					$substitute_arr = explode(',', $substitute_tmp['substitute_user_id']);
-					// dd($substitute_arr);
-					foreach ($substitute_arr as $key_substitute => $value_substitute) {
-						$substitute_name = User::select('id', 'name')
-							->where('id', $value_substitute)
-							->first()->toArray();
+						$substitute_arr = explode(',', $substitute_tmp['substitute_user_id']);
+						// dd($substitute_arr);
 						
-						$substitute_final[$key_substitute]['u4w_id'] = $substitute_tmp['id'];
-						$substitute_final[$key_substitute]['id'] = $substitute_name['id'];
-						$substitute_final[$key_substitute]['name'] = $substitute_name['name'];
-						// $substitute_final[] = $substitute_name['name'];
-					}
-					// dd($substitute_final);
-					// foreach ($substitute_final as $val_substitute_final) {
-						// $result[$key]['user'][$key_user]['substitute'][][$substitute_tmp['id']] = $val_substitute_final;
-					// }
-					
-					// $rr = User::pluck('name', 'id')->toArray();
-					// dd($rr);
-					// $result[$key]['user'][$key_user]['substitute'] = array_column($substitute_final, 'name', 'id');
-					$result[$key]['user'][$key_user]['substitute'] = array_column($substitute_final, 'name', 'id');
-					// dd($result[$key]['user'][$key_user]['substitute']);
+						$substitute_final = [];
+						foreach ($substitute_arr as $key_substitute => $value_substitute) {
+							$substitute_name = User::select('id', 'name')
+								->where('id', $value_substitute)
+								->first()->toArray();
+							
+							// $substitute_final[$key_substitute]['u4w_id'] = $substitute_tmp['id'];
+							// $substitute_final[$key_substitute]['id'] = $substitute_name['id'];
+							// $substitute_final[$key_substitute]['name'] = $substitute_name['name'];
+							array_push($substitute_final, array("value" => $substitute_name['id'], "label" => $substitute_name['name']));
+						}
+						$substitute_final_json = json_encode($substitute_final);	
+						// dd($substitute_final_json);
+						
+						// $result[$key]['user'][$key_user]['substitute'] = array_column($substitute_final, 'name', 'id');
+						$result[$key]['user'][$key_user]['substitute'] = $substitute_final_json;
+						// dd($result[$key]['user'][$key_user]['substitute']);
 					
 					} else {
 						$result[$key]['user'][$key_user]['substitute'] = null;

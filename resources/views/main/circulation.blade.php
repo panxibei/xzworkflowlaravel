@@ -407,7 +407,7 @@ Main(circulation) -
 												<div class="col-lg-12" v-for="(value, key) in gets_create_peoples">
 													<!--<div v-if="val.user!='-'">-->
 														<div class="col-lg-12">
-															<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ ++key }}</strong></p>
+															<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ parseInt(key)+1 }}</strong></p>
 														</div>
 													
 													<div v-for="(val, k) in value">
@@ -417,7 +417,7 @@ Main(circulation) -
 														<div class="col-lg-3">
 														
 														<!--<div v-for="(v, k) in val.substitute" v-if="val.substitute!=null">-->
-															<multi-select v-model="select_substitute" :options="options_substitute[k]" :limit="1" filterable collapse-selected size="sm"/>
+															<multi-select v-model="select_substitute[key][k]" :options="options_substitute[k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
 														<!--</div>-->
 														
 														</div>
@@ -872,12 +872,18 @@ var vm_circulation = new Vue({
 				}
 			})
 			.then(function (response) {
-				// console.log(response.data);return false;
+				// console.log(response.data=='no slot2user');return false;
+				
 				if (response.data == undefined) {
 					// _this.alert_exit();
 					_this.options_substitute = [];
 					_this.gets_create_peoples = {};
 					_this.gets_create_fields = {};
+					return false;
+				}
+				
+				if (response.data == 'no slot2user') {
+					_this.notification_message('warning', 'Warning', 'No slot or user in the mailinglist!');
 					return false;
 				}
 				// var json = response.data;
@@ -890,12 +896,14 @@ var vm_circulation = new Vue({
 				for (i in response.data) {
 					_this.$set(_this.gets_create_peoples, i, response.data[i]['user']);
 					
+					// _this.select_substitute[i] = [];
+					// _this.options_substitute[i] = [];
+					
 					for (j in _this.gets_create_peoples[i]) {
+						_this.$set(_this.select_substitute[i], j, []);
 						if (_this.gets_create_peoples[i][j]['substitute'] != null) {
 							json = _this.gets_create_peoples[i][j]['substitute'];
-							_this.$set(_this.options_substitute, j, _this.json2selectvalue(json, true));
-							// _this.options_substitute = _this.json2selectvalue(json, true);
-							// console.log(_this.gets_create_peoples[i][j]['substitute']);
+							_this.$set(_this.options_substitute, j, JSON.parse(json));
 						} else {
 							_this.$set(_this.options_substitute, j, []);
 						}
@@ -1034,6 +1042,23 @@ var vm_circulation = new Vue({
 			}
 		}
 		// console.log(_this.select_tmp[1][0]);
+
+		// 初始化select_substitute，20*10的方阵
+		for (var i=0;i<10;i++) {
+			_this.select_substitute.push([]);
+			for (var j=0;j<20;j++) {
+				_this.select_substitute[i].push([]);
+			}
+		}
+
+		// 初始化options_substitute，20*10的方阵
+		for (var i=0;i<10;i++) {
+			_this.options_substitute.push([]);
+			for (var j=0;j<20;j++) {
+				_this.options_substitute[i].push([]);
+			}
+		}
+		// console.log(_this.options_substitute[1][0]);
 
 	}
 });

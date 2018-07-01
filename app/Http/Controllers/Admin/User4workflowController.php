@@ -102,7 +102,7 @@ class User4workflowController extends Controller
 		foreach ($user_selected_tmp2 as $k => $v) {
 			array_push($user_selected, array("id" => $k, "name" => $v));
 		}
-		$user_selected_json = json_encode($user_selected);	
+		$user_selected_json = json_encode($user_selected);
 
 		// 5.未被选择的用户（步3和步4差集）
 		$user_unselected = array_diff($all_user, $user_selected_tmp2);
