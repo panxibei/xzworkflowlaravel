@@ -54,7 +54,8 @@ Main(circulation) -
 													<td><div>@{{ val.id }}</div></td>
 													<td><div>@{{ val.name }}</div></td>
 													<td><div>@{{ val.current_station }}</div></td>
-													<td><div>@{{ parseInt((Date.parse(new Date()) - Date.parse(val.created_at))/86400000) + ' day(s)' }}</div></td>
+													<!--<td><div>@{{ parseInt((Date.parse(new Date()) - Date.parse(val.created_at))/86400000) + ' day(s)' }}</div></td>-->
+													<td><div>@{{ daysInProcess(val.created_at) }}</div></td>
 													<td><div>@{{ val.todo_time }}</div></td>
 													<td><div>@{{ val.creator }}</div></td>
 													<td><div>@{{ val.progress }}</div></td>
@@ -194,7 +195,7 @@ Main(circulation) -
 														<div class="col-lg-3">
 														
 														<!--<div v-for="(v, k) in val.substitute" v-if="val.substitute!=null">-->
-															<multi-select v-model="select_substitute_review[key][k]" :options="options_substitute_review[k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
+															<multi-select v-model="select_substitute_review[key][k]" :options="options_substitute_review[key][k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
 														<!--</div>-->
 														
 														</div>
@@ -426,7 +427,7 @@ Main(circulation) -
 														<div class="col-lg-3">
 														
 														<!--<div v-for="(v, k) in val.substitute" v-if="val.substitute!=null">-->
-															<multi-select v-model="select_substitute_create[key][k]" :options="options_substitute_create[k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
+															<multi-select v-model="select_substitute_create[key][k]" :options="options_substitute_create[key][k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
 														<!--</div>-->
 														
 														</div>
@@ -827,9 +828,9 @@ var vm_circulation = new Vue({
 						_this.$set(_this.select_substitute_review[i], j, []);
 						if (_this.gets_review_peoples[i][j]['substitute'] != null) {
 							json = _this.gets_review_peoples[i][j]['substitute'];
-							_this.$set(_this.options_substitute_review, j, JSON.parse(json));
+							_this.$set(_this.options_substitute_review[i], j, JSON.parse(json));
 						} else {
-							_this.$set(_this.options_substitute_review, j, []);
+							_this.$set(_this.options_substitute_review[i], j, []);
 						}
 					}
 					// _this.$set(_this.options_substitute_create, i, _this.json2selectvalue(json, true));
@@ -925,9 +926,14 @@ var vm_circulation = new Vue({
 					_this.gets_create_fields = {};
 					return false;
 				}
-				
+
 				if (response.data == 'no slot2user') {
 					_this.notification_message('warning', 'Warning', 'No slot or user in the mailinglist!');
+					return false;
+				}
+
+				if (response.data == 'no user') {
+					_this.notification_message('warning', 'Warning', 'No user in the mailinglist!');
 					return false;
 				}
 				
@@ -945,9 +951,9 @@ var vm_circulation = new Vue({
 						_this.$set(_this.select_substitute_create[i], j, []);
 						if (_this.gets_create_peoples[i][j]['substitute'] != null) {
 							json = _this.gets_create_peoples[i][j]['substitute'];
-							_this.$set(_this.options_substitute_create, j, JSON.parse(json));
+							_this.$set(_this.options_substitute_create[i], j, JSON.parse(json));
 						} else {
-							_this.$set(_this.options_substitute_create, j, []);
+							_this.$set(_this.options_substitute_create[i], j, []);
 						}
 					}
 					// _this.$set(_this.options_substitute_create, i, _this.json2selectvalue(json, true));
@@ -1068,6 +1074,12 @@ var vm_circulation = new Vue({
 		},
 		show_up_or_down: function (up_or_down) {
 			return up_or_down ? '<i class="fa fa-caret-up fa-fw"></i>' : '<i class="fa fa-caret-down fa-fw"></i>';
+		},
+		daysInProcess: function (created_at) {
+			var now = new Date().Format('yyyy/MM/dd HH:mm:ss');//.toString().replace(/-/g,"/");
+			var time = created_at.replace(/-/g,"/");//.toString().replace(/-/g,"/");
+			var result = parseInt((Date.parse(now) - Date.parse(time))/86400000) + ' day(s)';
+			return result;
 		}
 	},
 	mounted: function () {

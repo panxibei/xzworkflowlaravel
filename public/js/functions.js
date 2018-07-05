@@ -6,13 +6,51 @@ function clickme(){
 	alert("aaaaaa");
 }
 
+
+/**
+ * JS关于Date函数的格式化输出
+ * @param  {fmt} format    格式
+ * @return {string}        格式化的时间字符串
+ * var time1 = new Date().Format("yyyy-MM-dd");
+ * var time2 = new Date().Format("yyyy-MM-dd HH:mm:ss"); 
+ */
+Date.prototype.Format = function(fmt){
+	var o = {
+		 "M+": this.getMonth()+1,
+		 "d+": this.getDate(),
+		 "H+": this.getHours(),
+		 "m+": this.getMinutes(),
+		 "s+": this.getSeconds(),
+		 "S+": this.getMilliseconds()
+	};
+ 
+	//因位date.getFullYear()出来的结果是number类型的,所以为了让结果变成字符串型，下面有两种方法：
+ 
+	if(/(y+)/.test(fmt)){
+		//第一种：利用字符串连接符“+”给date.getFullYear()+""，加一个空字符串便可以将number类型转换成字符串。
+ 
+		fmt=fmt.replace(RegExp.$1,(this.getFullYear()+"").substr(4-RegExp.$1.length));
+	}
+	for(var k in o){
+		if (new RegExp("(" + k +")").test(fmt)){
+ 
+			//第二种：使用String()类型进行强制数据类型转换String(date.getFullYear())，这种更容易理解。
+ 
+			fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(String(o[k]).length)));
+		}
+	}	
+	return fmt;
+}
+
+
+
 /**
  * 和PHP一样的时间戳格式化函数
  * @param  {string} format    格式
  * @param  {int}    timestamp 要格式化的时间 默认为当前时间
  * @return {string}           格式化的时间字符串
  */
-function date(format, timestamp){ 
+function dateFormat(format, timestamp){ 
 	// var a, jsdate=((timestamp) ? new Date(timestamp*1000) : new Date());
 	var a, jsdate=((timestamp) ? new Date(timestamp*1000) : new Date(0));
 	var pad = function(n, c){

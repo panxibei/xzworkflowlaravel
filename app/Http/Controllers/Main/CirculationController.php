@@ -221,8 +221,12 @@ class CirculationController extends Controller
 				foreach ($user_id as $key_user => $val_user) {
 					$result[$key]['user'][$key_user] = User::select('id', 'name', 'email')
 						->where('id', $val_user)
-						->first()->toArray();
+						->first();
 					
+					if (empty($result[$key]['user'][$key_user])) {
+						return 'no user';
+					}
+
 					// $result[$key]['user'][$key_user]['substitute'] = '&nbsp;';
 					// d. substitute信息
 					$substitute_tmp = User4workflow::select('id', 'substitute_user_id')
