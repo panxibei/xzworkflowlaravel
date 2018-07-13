@@ -136,9 +136,12 @@ class CirculationController extends Controller
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 
-		$circulation = Circulation::select('id', 'guid', 'name', 'template_id', 'mailinglist_id', 'slot2user_id', 'slot_id', 'user_id', 'current_station', 'creator', 'todo_time', 'progress', 'description', 'is_archived', 'created_at')
+		$circulation = Circulation::select('id', 'guid', 'name', 'template_id', 'mailinglist_id', 'slot2user_id', 'slot_id', 'user_id', 'current_station as currentstation', 'creator', 'todo_time', 'progress', 'description', 'is_archived', 'created_at as sendingdate')
 			->paginate($perPage, ['*'], 'page', $page);
-// dd($circulation);
+		
+		// $circulation = Circulation::select('id', 'guid', 'name', 'template_id', 'mailinglist_id', 'slot2user_id', 'slot_id', 'user_id', 'current_station as currentstation', 'creator', 'todo_time', 'progress', 'description', 'is_archived', 'created_at as sendingdate')
+			// ->get()->toArray();
+
 		return $circulation;
     }
 	

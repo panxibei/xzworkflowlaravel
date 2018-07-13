@@ -2,10 +2,12 @@
  * 这里是公共js函数调用库(2014/06/21)
  * 
  */
-function clickme(){
-	alert("aaaaaa");
-}
 
+// 给日期类对象添加日期差方法，返回日期与diff参数日期的时间差，单位为天
+Date.prototype.diff = function(date){
+  // return (getTime() - date.getTime())/(24 * 60 * 60 * 1000);
+  return parseInt((Date.parse(new Date()) - Date.parse(date))/86400000);
+}
 
 /**
  * JS关于Date函数的格式化输出

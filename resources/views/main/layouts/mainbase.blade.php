@@ -104,15 +104,32 @@
                             <!--Item 4-->
                         </Menu-item>
                         <Menu-item name="5">
-                            <Icon type="person" size="24"></Icon>
+                            
                             <!--Item 5-->
+							
+							<Dropdown trigger="click" @click.native="event => dropdownuser(event.target.innerText.trim())">
+								<!--<a href="javascript:;">-->
+									<Icon type="person" size="24"></Icon>
+									<Icon type="arrow-down-b"></Icon>
+								<!--</a>-->
+								<Dropdown-menu slot="list">
+									<Dropdown-item>Unknown User</Dropdown-item>
+									<Dropdown-item><Icon type="person"></Icon> {{ $user['name'] or 'Unknown User'}}</Dropdown-item>
+									<Dropdown-item divided><Icon type="home"></Icon> <a href="{{route('main.circulation.index')}}">前台首页</a></Dropdown-item>
+									<Dropdown-item><Icon type="android-exit"></Icon> <a href="{{route('admin.logout')}}">Logout</a></Dropdown-item>
+								</Dropdown-menu>
+							</Dropdown>
+							
+							
+							
+							
                         </Menu-item>
                     </div>
                 </i-menu>
 				</Layout>
 
-				<!--头部标签组-->
-				<Layout :style="{padding: '0 2px', marginLeft: '20px'}">
+				<!--上部标签组-->
+				<Layout :style="{padding: '0 2px', marginLeft: '10px'}">
 					<div>
 						@section('my_tag')
 						<Tag type="dot">首页</Tag>
@@ -166,9 +183,9 @@
 			</Layout>
 			
 			<div><br><br><br><br></div>
-			<Layout :style="{padding: '0 24px 24px', marginLeft: '200px'}">
+			<Layout :style="{padding: '0 12px 24px', marginLeft: '200px'}">
 				<!--内容主体-->
-				<Content :style="{padding: '24px 24px', minHeight: '280px', background: '#fff'}">
+				<Content :style="{padding: '24px 12px', minHeight: '280px', background: '#fff'}">
 				<br>
 				<!-- 主体 -->
 				@yield('my_body')
