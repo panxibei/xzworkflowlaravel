@@ -50,9 +50,11 @@
     left: 20px;
 }
 .layout-nav{
+	float: right;
+	position: relative;
     width: 420px;
     margin: 0 auto;
-    margin-right: 120px;
+    margin-right: 10px;
 }
 .layout-footer-center{
     text-align: center;
@@ -73,7 +75,7 @@
 			<div style="z-index: 999;">
             <Header :style="{position: 'fixed', width: '100%', marginLeft: '200px'}">
                 <Layout>
-				<i-menu mode="horizontal" theme="light" active-name="1">
+				<i-menu mode="horizontal" theme="light" active-name="3">
                     <!--<div class="layout-logo">qqqqqqqqqqqq</div>-->
 					
 					<!--面包屑-->
@@ -87,41 +89,48 @@
 					
 					<!--头部导航菜单-->
                     <div class="layout-nav">
+						<!--Item 1-->
                         <Menu-item name="1">
-                            <Icon type="ios-navigate" size="24"></Icon>
-                            <!--Item 1-->
-                        </Menu-item>
-                        <Menu-item name="2">
-                            <Icon type="ios-keypad" size="24"></Icon>
-                            <!--Item 2-->
-                        </Menu-item>
-                        <Menu-item name="3">
-                            <Icon type="ios-analytics" size="24"></Icon>
-                            <!--Item 3-->
-                        </Menu-item>
-                        <Menu-item name="4">
-                            <Icon type="ios-paper" size="24"></Icon>
-                            <!--Item 4-->
-                        </Menu-item>
-                        <Menu-item name="5">
+							<Badge dot>
+								<Icon type="email" size="24"></Icon>
+							</Badge>
                             
-                            <!--Item 5-->
-							
+                        </Menu-item>
+						<!--Item 2-->
+                        <Menu-item name="2">
+							<Dropdown trigger="click" @click.native="event => dropdownuser(event.target.innerText.trim())">
+								<Badge dot>
+									<Icon type="document-text" size="24"></Icon>
+								</Badge>
+								<Dropdown-menu slot="list" style="width: 260px">
+									<Dropdown-item>
+									<strong>Task: xxxxx1</strong>
+										<i-progress :percent="55" status="active"></i-progress>
+									</Dropdown-item>
+									<Dropdown-item divided>
+									<strong>Task: xxxxx2</strong>
+										<i-progress :percent="55" status="active"></i-progress>
+									</Dropdown-item>
+									<Dropdown-item divided>
+									<strong>Task: xxxxx3</strong>
+										<i-progress :percent="55" status="active"></i-progress>
+									</Dropdown-item>
+								</Dropdown-menu>
+							</Dropdown>
+                        </Menu-item>
+						<!--Item 3-->
+                        <Menu-item name="3">
 							<Dropdown trigger="click" @click.native="event => dropdownuser(event.target.innerText.trim())">
 								<!--<a href="javascript:;">-->
 									<Icon type="person" size="24"></Icon>
 									<Icon type="arrow-down-b"></Icon>
 								<!--</a>-->
 								<Dropdown-menu slot="list">
-									<Dropdown-item>Unknown User</Dropdown-item>
 									<Dropdown-item><Icon type="person"></Icon> {{ $user['name'] or 'Unknown User'}}</Dropdown-item>
-									<Dropdown-item divided><Icon type="home"></Icon> <a href="{{route('main.circulation.index')}}">前台首页</a></Dropdown-item>
-									<Dropdown-item><Icon type="android-exit"></Icon> <a href="{{route('admin.logout')}}">Logout</a></Dropdown-item>
+									<Dropdown-item divided><Icon type="home"></Icon> Home</Dropdown-item>
+									<Dropdown-item><Icon type="android-exit"></Icon> Logout</Dropdown-item>
 								</Dropdown-menu>
 							</Dropdown>
-							
-							
-							
 							
                         </Menu-item>
                     </div>

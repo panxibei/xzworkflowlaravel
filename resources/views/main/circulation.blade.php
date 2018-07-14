@@ -291,11 +291,14 @@ var vm_app = new Vue({
 			})
 		},
 		dropdownuser: function (text) {
-			alert(text);
-			if (text == 'admin') {
-				alert('xxx'+text);
-			} else if () {
-				
+			if (text == '') {
+				return false;
+			} else if (text == "{{$user['name']}}") {
+				alert("{{$user['name']}}");
+			} else if (text == "Home") {
+				window.location.href = "{{route('main.circulation.index')}}";
+			} else if (text == "Logout") {
+				window.location.href = "{{route('admin.logout')}}";
 			}
 			
 		}
