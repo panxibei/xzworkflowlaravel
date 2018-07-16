@@ -12,16 +12,40 @@ Main(circulation) -
 
 @section('my_tag')
 @parent
-<Tag type="dot" closable>标签三</Tag>
+
+<Tag type="dot" @click.native="homeclick()">首页</Tag>
+<Tag v-for="(item, index) in tagcount" type="dot" closable @on-close="tagclose(index)" @click.native="tagclick(item.id)">@{{ item.name }}</Tag>
+
 @endsection
 
 @section('my_body')
 @parent
 
-<!--<Spin size="large" v-if="spinShow"></Spin>-->
+<span v-if="showtable">
 <i-table height="360" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
 <br>
 <Page :current="pagecurrent" :total="pagetotal" :page-size="pagepagesize" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" size="small" show-total show-elevator show-sizer :page-size-opts="pagesizeopts"></Page>
+</span>
+
+<span v-if="showcirculation">
+<Collapse v-model="valuecollapse">
+	<Panel name="c1">
+		Circulation Info
+		<p slot="content">
+		<i-table :columns="infocolumns" :data="infodata"></i-table>
+		</p>
+	</Panel>
+	<Panel name="c2">
+		斯蒂夫·盖瑞·沃兹尼亚克
+		<p slot="content">斯蒂夫·盖瑞·沃兹尼亚克（Stephen Gary Wozniak），美国电脑工程师，曾与史蒂夫·乔布斯合伙创立苹果电脑（今之苹果公司）。斯蒂夫·盖瑞·沃兹尼亚克曾就读于美国科罗拉多大学，后转学入美国著名高等学府加州大学伯克利分校（UC Berkeley）并获得电机工程及计算机（EECS）本科学位（1987年）。</p>
+	</Panel>
+	<Panel name="c3">
+		乔纳森·伊夫
+		<p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+	</Panel>
+</Collapse>
+</span>
+
 @endsection
 
 @section('my_footer')
@@ -139,7 +163,8 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.showperson(params.index)
+									// vm_app.viewcirculation(params.index)
+									vm_app.viewcirculation(params.row.id, params.row.name)
 								}
 							}
 						}, 'View'),
@@ -151,7 +176,7 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.removeperson(params.index)
+									vm_app.removecirculation(params.row.id)
 								}
 							}
 						}, 'Delete')
@@ -179,11 +204,56 @@ var vm_app = new Vue({
 				// progress: '10%'
 			// }
 		],
+		
+		// circulation info
+		infocolumns: [
+			{
+				title: '流程名称',
+				key: 'name'
+			},
+			{
+				title: 'GUID',
+				key: 'guid'
+			},
+			{
+				title: '创建日期',
+				key: 'created_at'
+			},
+			{
+				title: '创建者',
+				key: 'creator'
+			},
+			{
+				title: '详细描述',
+				key: 'description'
+			}
+		],
+		infodata: [
+			{
+				name: 'John Brown',
+				guid: 18,
+				created_at: 'New York No. 1 Lake Park',
+				creator: '2016-10-03',
+				description: '2016-10-03'
+			}
+
+		],
+		
 		// 页码
 		pagecurrent: 1,
 		pagetotal: 1,
 		pagepagesize: {{ $config['PERPAGE_RECORDS_FOR_CIRCULATION'] }},
 		pagesizeopts: [1, 5, 10, 20],
+		
+		// 显示表格或预览流程
+		showtable: false,
+		showcirculation: true,
+		
+		// tag
+		tagcount: [],
+		
+		// 折叠面板
+		valuecollapse: ['c1', 'c2', 'c3']
 
 		
 	},
@@ -290,6 +360,8 @@ var vm_app = new Vue({
 				_this.loadingbarerror();
 			})
 		},
+		
+		// 下拉菜单（user）
 		dropdownuser: function (text) {
 			if (text == '') {
 				return false;
@@ -301,7 +373,123 @@ var vm_app = new Vue({
 				window.location.href = "{{route('admin.logout')}}";
 			}
 			
-		}
+		},
+		
+		// 查看流程
+		viewcirculation: function (id, name) {
+			console.log(id);
+			var _this = this;
+			
+			// 显示tag
+			_this.tagcount.push({id: id, name: name+' [ID: '+id+']'});
+			_this.tagclick(id);
+		},
+		
+		// 删除流程
+		removecirculation: function (id) {
+			
+		},
+		
+		// 关闭Tag
+		tagclose: function (index) {
+			this.tagcount.splice(index, 1);
+		},
+		
+		// click tag
+		tagclick: function (id) {
+			this.showtable = false;
+			this.showcirculation = true;
+			
+			this.review_circulation(id);
+		},
+		
+		// click home
+		homeclick: function () {
+			this.showtable = true;
+			this.showcirculation = false;
+		},
+		
+		// 读取流程内容
+		review_circulation: function (id) {
+			var _this = this;
+
+			if (id == undefined) {
+				// _this.gets_review_peoples = {};
+				// _this.gets_review_fields = {};
+				return false;
+			}
+			
+			alert('here is ' + id);
+			return false;
+			
+			var url = "{{ route('main.circulation.reviewcirculation') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					guid: guid
+				}
+			})
+			.then(function (response) {
+				// return false;
+				// if (typeof(response.data.data) == "undefined") {
+					// _this.alert_exit();
+				// }
+
+				_this.review_guid = response.data.circulation.guid;
+				_this.review_template = response.data.circulation.name;
+				_this.review_created_at = response.data.circulation.created_at;
+				_this.review_creator = response.data.circulation.creator;
+				_this.review_description = response.data.circulation.description;
+				_this.review_current_user = response.data.circulation.current_station;
+				_this.review_current_slot = response.data.circulation.slot_id;
+				
+				
+				// _this.gets_review_peoples = response.data.userinfo;
+				// _this.gets_review_fields = response.data.field;
+				
+				// return false;
+				var json = '';
+				for (i in response.data.slot) {
+					_this.$set(_this.gets_review_peoples, i, response.data.slot[i]['user']);
+					
+					// _this.select_substitute_create[i] = [];
+					// _this.options_substitute_create[i] = [];
+					
+					for (j in _this.gets_review_peoples[i]) {
+						_this.$set(_this.select_substitute_review[i], j, []);
+						if (_this.gets_review_peoples[i][j]['substitute'] != null) {
+							json = _this.gets_review_peoples[i][j]['substitute'];
+							_this.$set(_this.options_substitute_review[i], j, JSON.parse(json));
+						} else {
+							_this.$set(_this.options_substitute_review[i], j, []);
+						}
+					}
+					// _this.$set(_this.options_substitute_create, i, _this.json2selectvalue(json, true));
+					
+					_this.$set(_this.gets_review_fields, i, response.data.slot[i]['slot']);
+				}				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
+				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
+				for (var index in _this.gets_review_fields) {
+					_this.$set(_this.show_review_slot, index, {'slot_id': true});
+				}
+
+			})
+			.catch(function (error) {
+				console.log(error);
+			})
+		},
+
+
 		
 	},
 	mounted: function () {

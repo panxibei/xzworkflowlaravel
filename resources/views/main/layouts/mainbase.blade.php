@@ -98,7 +98,7 @@
                         </Menu-item>
 						<!--Item 2-->
                         <Menu-item name="2">
-							<Dropdown trigger="click" @click.native="event => dropdownuser(event.target.innerText.trim())">
+							<Dropdown @click.native="event => dropdownuser(event.target.innerText.trim())">
 								<Badge dot>
 									<Icon type="document-text" size="24"></Icon>
 								</Badge>
@@ -120,7 +120,7 @@
                         </Menu-item>
 						<!--Item 3-->
                         <Menu-item name="3">
-							<Dropdown trigger="click" @click.native="event => dropdownuser(event.target.innerText.trim())">
+							<Dropdown @click.native="event => dropdownuser(event.target.innerText.trim())">
 								<!--<a href="javascript:;">-->
 									<Icon type="person" size="24"></Icon>
 									<Icon type="arrow-down-b"></Icon>
@@ -141,7 +141,7 @@
 				<Layout :style="{padding: '0 2px', marginLeft: '10px'}">
 					<div>
 						@section('my_tag')
-						<Tag type="dot">首页</Tag>
+						
 						<!--
 						<Tag type="dot">标签一</Tag>
 						<Tag type="dot" closable>标签三</Tag>
@@ -197,10 +197,10 @@
 				<Content :style="{padding: '24px 12px', minHeight: '280px', background: '#fff'}">
 				<br>
 				<!-- 主体 -->
-				@yield('my_body')
+				@section('my_body')
+				@show
 				<!-- /主体 -->
 
-				<br>bottom bottom bottom
 				</Content>
 			</Layout>
 
