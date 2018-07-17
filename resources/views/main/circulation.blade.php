@@ -28,20 +28,84 @@ Main(circulation) -
 </span>
 
 <span v-if="showcirculation">
-<Collapse v-model="valuecollapse">
+<Collapse v-model="valuecollapsemain">
 	<Panel name="c1">
 		Circulation Info
-		<p slot="content">
-		<i-table :columns="infocolumns" :data="infodata"></i-table>
-		</p>
+		<div slot="content">
+			<i-table :columns="infocolumns" :data="infodata" size="small"></i-table>
+		</div>
 	</Panel>
 	<Panel name="c2">
-		斯蒂夫·盖瑞·沃兹尼亚克
-		<p slot="content">斯蒂夫·盖瑞·沃兹尼亚克（Stephen Gary Wozniak），美国电脑工程师，曾与史蒂夫·乔布斯合伙创立苹果电脑（今之苹果公司）。斯蒂夫·盖瑞·沃兹尼亚克曾就读于美国科罗拉多大学，后转学入美国著名高等学府加州大学伯克利分校（UC Berkeley）并获得电机工程及计算机（EECS）本科学位（1987年）。</p>
+		Slot Users
+		<div slot="content">
+			<!--<i-table :columns="usercolumns" :data="userdata" size="small"></i-table>-->
+			<span v-for="item in userdata">
+			<i-table :columns="usercolumns" :data="item" size="small"></i-table>
+			</span>
+			
+			<!--<div class="col-lg-12">
+				<div class="col-lg-3">
+					<label>用户名</label>
+				</div>
+				<div class="col-lg-3">
+					<label>代理人</label>
+				</div>
+				<div class="col-lg-3">
+					<label>邮箱</label>
+				</div>
+				<div class="col-lg-3">
+					<label>操作</label>
+				</div>
+			</div>
+			
+			<div class="col-lg-12" v-for="(value, key) in gets_review_users">
+					<div class="col-lg-12">
+						<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ parseInt(key)+1 }}</strong></p>
+					</div>
+				
+				<div v-for="(val, k) in value">
+					<div class="col-lg-3">
+						<p>@{{ val.name }}</p>
+					</div>
+					<div class="col-lg-3">
+					
+						<multi-select v-model="select_substitute_review[key][k]" :options="options_substitute_review[key][k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
+					
+					</div>
+					<div class="col-lg-3">
+						<p>@{{ val.email }}</p>
+					</div>
+					<div class="col-lg-3">
+						<p>
+							<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
+							<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
+							<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
+							<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
+						</p>
+					</div>
+				</div>
+				<div style="background-color:#c9e2b3;height:1px"></div><p></p>
+			</div>-->
+			
+			
+			
+			
+		</div>
 	</Panel>
 	<Panel name="c3">
-		乔纳森·伊夫
-		<p slot="content">乔纳森·伊夫是一位工业设计师，现任Apple公司设计师兼资深副总裁，英国爵士。他曾参与设计了iPod，iMac，iPhone，iPad等众多苹果产品。除了乔布斯，他是对苹果那些著名的产品最有影响力的人。</p>
+		Slot Fields
+		<div slot="content">
+		
+			<Collapse v-model="valuecollapsefield">
+				<Panel name="c1">
+					Circulation field
+					<p slot="content">
+
+					</p>
+				</Panel>
+			</Collapse>
+		
+		</div>
 	</Panel>
 </Collapse>
 </span>
@@ -229,14 +293,57 @@ var vm_app = new Vue({
 			}
 		],
 		infodata: [
+			// {
+				// name: 'John Brown',
+				// guid: 18,
+				// created_at: 'New York No. 1 Lake Park',
+				// creator: '2016-10-03',
+				// description: '2016-10-03'
+			// }
+		],
+
+		// circulation user
+		usercolumns: [
+			{
+				title: '用户',
+				key: 'name'
+			},
+			{
+				title: '代理人',
+				key: 'substitute'
+			},
+			{
+				title: '邮箱',
+				key: 'email'
+			}
+		],
+		// usercolumns: [
+			// {
+				// title: 'Slot1',
+				// key: 'slot1',
+				// align: 'center',
+				// children: [
+					// {
+						// title: '用户',
+						// key: 'name'
+					// },
+					// {
+						// title: '代理人',
+						// key: 'substitute'
+					// },
+					// {
+						// title: '邮箱',
+						// key: 'email'
+					// }
+				// ]
+			// }
+		// ],
+		userdata: [
 			{
 				name: 'John Brown',
-				guid: 18,
-				created_at: 'New York No. 1 Lake Park',
-				creator: '2016-10-03',
-				description: '2016-10-03'
+				substitute: 18,
+				email: 'New York No. 1 Lake Park'
 			}
-
 		],
 		
 		// 页码
@@ -253,7 +360,9 @@ var vm_app = new Vue({
 		tagcount: [],
 		
 		// 折叠面板
-		valuecollapse: ['c1', 'c2', 'c3']
+		valuecollapsemain: ['c1', 'c2', 'c3'],
+		valuecollapseuser: ['c1'],
+		valuecollapsefield: ['c1'],
 
 		
 	},
@@ -377,7 +486,7 @@ var vm_app = new Vue({
 		
 		// 查看流程
 		viewcirculation: function (id, name) {
-			console.log(id);
+			// console.log(id);
 			var _this = this;
 			
 			// 显示tag
@@ -419,18 +528,56 @@ var vm_app = new Vue({
 				return false;
 			}
 			
-			alert('here is ' + id);
-			return false;
+			// alert('here is ' + id);
+			// return false;
 			
 			var url = "{{ route('main.circulation.reviewcirculation') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					guid: guid
+					id: id
 				}
 			})
 			.then(function (response) {
-				// return false;
+				// console.log(response.data.slotdata);
+				// info
+				// _this.infodata = [response.data.infodata];
+				
+				// user
+				// _this.usercolumns = [];
+				_this.userdata = {};
+				var slotdata = response.data.slotdata;
+				for (var i in slotdata) {
+					
+					console.log(slotdata[i]['slot']['name']);
+					// _this.usercolumns.push(
+						// {
+							// title: 'slotx',
+							// key: 'slot1',
+							// align: 'center',
+							// children: [
+								// {title: '用户', key: 'name'},
+								// {title: '代理人', key: 'substitute'},
+								// {title: '邮箱', key: 'email'}
+							// ]
+						// }
+					// );
+					
+
+					_this.$set(_this.userdata, i, slotdata[i]['user']);
+					console.log(_this.userdata);
+					// for (var i in slotdata[item]['user']) {
+						// console.log(slotdata[item]['user'][i]);
+						// _this.userdata.push(slotdata[item]['user'][i]); 
+						// _this.userdata = slotdata[item]['user']; 
+					// }
+				}
+				
+				
+				// field
+				
+				
+				return false;
 				// if (typeof(response.data.data) == "undefined") {
 					// _this.alert_exit();
 				// }
@@ -496,6 +643,8 @@ var vm_app = new Vue({
 		var _this = this;
 		_this.circulationgets(1, 1); // page: 1, last_page: 1
 		
+
+
 	}
 })
 </script>
