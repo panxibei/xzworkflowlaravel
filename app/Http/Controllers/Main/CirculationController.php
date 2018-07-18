@@ -642,4 +642,48 @@ dd($result);
 	}
 	
 	
+    /**
+     * getSubstitute
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	public function getSubstitute(Request $request)
+	{
+		if (! $request->ajax()) { return null; }
+		
+		$id = $request->only('id');
+		// dd($id['id']);
+		
+		$substitute = User4workflow::select('substitute_user_id')
+			->where('user_id', $id['id'])
+			->first();
+		// dd($substitute);
+		
+		if (empty($substitute['substitute_user_id'])) {
+			return 'no substitute';
+		} else {
+			
+			$substitute_arr = explode(',', $substitute['substitute_user_id']);
+			
+			$substitute_user = [];
+			foreach ($substitute_arr as $value) {
+				$tmp = User::select('id', 'name')
+					->where('id', $value)
+					->first();
+				
+				$substitute_user[] = $tmp;
+			}
+			
+			
+		}
+		
+		// dd($substitute_user);
+		
+		return $substitute_user;
+		
+
+	}	
+	
+	
 }

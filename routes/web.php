@@ -46,6 +46,9 @@ Route::group(['prefix' => 'circulation', 'namespace' =>'Main', 'middleware'=>'jw
 	// createcirculation
 	Route::post('createCirculation', 'CirculationController@createCirculation')->name('main.circulation.createcirculation');
 
+	// getsubstitute
+	Route::get('getSubstitute', 'CirculationController@getSubstitute')->name('main.circulation.getsubstitute');
+	
 	
 	
 });

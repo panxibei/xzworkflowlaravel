@@ -38,57 +38,57 @@ Main(circulation) -
 	<Panel name="c2">
 		Slot Users
 		<div slot="content">
-			<!--<i-table :columns="usercolumns" :data="userdata" size="small"></i-table>-->
-			<span v-for="item in userdata">
-			<i-table :columns="usercolumns" :data="item" size="small"></i-table>
-			</span>
+			<!--<i-table :show-header="showHeader" :columns="usercolumns" :data="userdata" size="small"></i-table>-->
 			
-			<!--<div class="col-lg-12">
-				<div class="col-lg-3">
-					<label>用户名</label>
-				</div>
-				<div class="col-lg-3">
-					<label>代理人</label>
-				</div>
-				<div class="col-lg-3">
-					<label>邮箱</label>
-				</div>
-				<div class="col-lg-3">
-					<label>操作</label>
-				</div>
-			</div>
+			<i-row>
+				<i-col span="4">步骤</i-col>
+				<i-col span="5">用户</i-col>
+				<i-col span="5">代理人</i-col>
+				<i-col span="5">邮箱</i-col>
+				<i-col span="5">操作</i-col>
+			</i-row>
 			
-			<div class="col-lg-12" v-for="(value, key) in gets_review_users">
-					<div class="col-lg-12">
-						<p></p><p><i class="fa fa-user fa-fw"></i><strong>Step @{{ parseInt(key)+1 }}</strong></p>
-					</div>
+			
+			<div v-for="(value, key) in gets_review_users">
+				<i-row>
+					<i-col span="24">
+						<br><div style="background-color:#c9e2b3;height:1px"></div>
+						<i class="fa fa-user fa-fw"></i><strong>Step @{{ parseInt(key)+1 }}</strong>
+					</i-col>
+				</i-row>
 				
-				<div v-for="(val, k) in value">
-					<div class="col-lg-3">
-						<p>@{{ val.name }}</p>
-					</div>
-					<div class="col-lg-3">
-					
-						<multi-select v-model="select_substitute_review[key][k]" :options="options_substitute_review[key][k]" :limit="1" placeholder="Substitute" filterable collapse-selected size="sm"/>
-					
-					</div>
-					<div class="col-lg-3">
-						<p>@{{ val.email }}</p>
-					</div>
-					<div class="col-lg-3">
-						<p>
-							<btn type="link" size="xs"><i class="fa fa-envelope fa-fw"></i></btn>&nbsp;
-							<btn type="link" size="xs"><i class="fa fa-mail-forward fa-fw"></i></btn>&nbsp;
-							<btn type="link" size="xs"><i class="fa fa-group fa-fw"></i></btn>&nbsp;
-							<btn type="link" size="xs"><i class="fa fa-send fa-fw"></i></btn>&nbsp;
-						</p>
-					</div>
-				</div>
-				<div style="background-color:#c9e2b3;height:1px"></div><p></p>
-			</div>-->
-			
-			
-			
+				<i-row v-for="(val, k) in value">
+					<i-col span="4">
+						&nbsp;
+					</i-col>
+					<i-col span="5">
+						<Icon type="ios-person"></Icon> @{{ val.name }}
+					</i-col>
+					<i-col span="5">
+						<span @click="getsubstitute(val.id)"><a href="javascript:;"><Icon type="ios-eye"></Icon> 查看</a></span>
+						<Modal title="Substitute" v-model="substitute_modal" @on-ok="substitute_ok()" class-name="vertical-center-modal" width="200">
+							<p>
+							转送至代理人：
+							<Checkbox-group v-model="substitute_checkbox">
+								<span v-for="item in substitute_user">
+								<Checkbox :label="item.name"></Checkbox><br>
+								</span>
+							</Checkbox-group>
+							</p>
+						</Modal>
+					</i-col>
+					<i-col span="5">
+						<Icon type="ios-email"></Icon> @{{ val.email }}
+					</i-col>
+					<i-col span="5">
+						<Icon type="ios-email-outline" size="18"></Icon>&nbsp;&nbsp;
+						<Icon type="ios-redo-outline" size="18"></Icon>&nbsp;&nbsp;
+						<Icon type="ios-people-outline" size="18"></Icon>&nbsp;&nbsp;
+						<Icon type="ios-paperplane-outline" size="18"></Icon>&nbsp;&nbsp;
+					</i-col>
+				</i-row>
+			</div>
+			<br>&nbsp;
 			
 		</div>
 	</Panel>
@@ -96,11 +96,107 @@ Main(circulation) -
 		Slot Fields
 		<div slot="content">
 		
-			<Collapse v-model="valuecollapsefield">
+			<!--slot，有field时显示，否则显示空的slot-->
+			<Collapse v-model="valuecollapsefield" v-for="(value, key) in gets_review_fields" v-if="value.field[0]!=null">
 				<Panel name="c1">
-					Circulation field
+					@{{ value.name }}
 					<p slot="content">
-
+					
+					<i-row>
+					<i-col span="4" v-for="(val, i) in value.field">
+					
+						<div>
+							<!--1-Text-->
+							<div v-if="val.type=='1-Text'" class="form-group">
+								<label>@{{val.name||'未命名'}}</label>
+								<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
+								<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
+								<p class="help-block">@{{val.helpblock}}</p>
+							</div>
+							<!--2-True/False-->
+							<div v-else-if="val.type=='2-True/False'" class="form-group">
+								<div class="checkbox">
+									<label :style="{background: val.bgcolor}">
+										<input type="checkbox" v-model.lazy="val.value==1||false" @change="val.value=val.value?0:1" :disabled="val.readonly||false">@{{val.name||'未命名'}}
+									</label>
+									<p class="help-block">@{{val.helpblock}}</p>
+								</div>
+							</div>
+							<!--3-Number-->
+							<div v-else-if="val.type=='3-Number'" class="form-group">
+								<label>@{{val.name||'未命名'}}</label>
+								<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
+								<p class="help-block">@{{val.helpblock}}</p>
+							</div>
+							<!--4-Date-->
+							<div v-else-if="val.type=='4-Date'" class="form-group">
+								<label>@{{val.name||'未命名'}}</label>
+								<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
+								<p class="help-block">@{{val.helpblock}}</p>
+							</div>
+							<!--5-Textfield-->
+							<div v-else-if="val.type=='5-Textfield'" class="form-group">
+								<label>@{{val.name||'未命名'}}</label>
+								<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder"></textarea>
+								<p class="help-block">@{{val.helpblock}}</p>
+							</div>
+							<!--6-Radiogroup-->
+							<div v-else-if="val.type=='6-Radiogroup'" class="form-group">
+								<label>@{{val.name||'未命名'}}</label>
+								<div class="form-group">
+									<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0" class="radio">
+										<label :style="{background: val.bgcolor}">
+											<input type="radio" @change="val.value=radiochecked_change(val.value, index)" :name="'name_radiogroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+											@{{item}}
+										</label>
+									</div>
+									<p class="help-block">@{{val.helpblock}}</p>
+								</div>
+							</div>
+							<!--7-Checkboxgroup-->
+							<div v-else-if="val.type=='7-Checkboxgroup'" class="form-group">
+								<label>@{{val.name||'未命名'}}</label>
+								<div class="form-group">
+									<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">
+										<label :style="{background: val.bgcolor}">
+											<input type="checkbox" @change="val.value=checkboxchecked_change(val.value, index)" :name="'name_checkboxgroup_'+val.name" :checked="val.value.split('---')[index+1]==1||false" :disabled="val.readonly||false">
+											@{{item}}
+										</label>
+									</div>
+									<p class="help-block">@{{val.helpblock}}</p>
+								</div>
+							</div>
+							<!--8-Combobox-->
+							<div v-else-if="val.type=='8-Combobox'" class="form-group">
+								<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
+								<div class="form-group">
+										<!--
+										<multi-select @change="val.value=options_change(val.value, key, i)" v-model="select_tmp[key][i]" :options="options_value(val.value)" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
+										-->
+								</div>
+								<p class="help-block">@{{val.helpblock}}</p>
+							</div>
+						</div>
+					
+					</i-col>
+					</i-row>
+					
+					</p>
+				</Panel>
+			</Collapse>
+					
+					
+			<!--slot，否则显示空的slot-->
+			<Collapse v-model="valuecollapsefield" v-else>
+				<Panel name="c1">
+					@{{ value.name }}
+					<p slot="content">
+					
+						<div class="alert alert-warning">
+							These's no fields ... <a href="{{ route('admin.slot2field.index') }}" class="alert-link">Goto add field now</a>.
+						</div>
+					
+					
 					</p>
 				</Panel>
 			</Collapse>
@@ -127,7 +223,16 @@ var vm_app = new Vue({
 		sideropennames: "['2']",
 		
 		//
-		// spinShow: true,
+		showHeader: false,
+		gets_review_users: {},
+		gets_review_fields: {},
+		
+		// 代理select
+		// substitute_select: [],
+		// substitute_options: [],
+		substitute_modal: false,
+		substitute_checkbox: [],
+		substitute_user: [],
 		
 		// 表格
 		tablecolumns: [
@@ -540,82 +645,23 @@ var vm_app = new Vue({
 			})
 			.then(function (response) {
 				// console.log(response.data.slotdata);
-				// info
-				// _this.infodata = [response.data.infodata];
+				// 1.info
+				_this.infodata = [response.data.infodata];
 				
-				// user
-				// _this.usercolumns = [];
-				_this.userdata = {};
-				var slotdata = response.data.slotdata;
-				for (var i in slotdata) {
-					
-					console.log(slotdata[i]['slot']['name']);
-					// _this.usercolumns.push(
-						// {
-							// title: 'slotx',
-							// key: 'slot1',
-							// align: 'center',
-							// children: [
-								// {title: '用户', key: 'name'},
-								// {title: '代理人', key: 'substitute'},
-								// {title: '邮箱', key: 'email'}
-							// ]
-						// }
-					// );
-					
+				// 2.user
 
-					_this.$set(_this.userdata, i, slotdata[i]['user']);
-					console.log(_this.userdata);
-					// for (var i in slotdata[item]['user']) {
-						// console.log(slotdata[item]['user'][i]);
-						// _this.userdata.push(slotdata[item]['user'][i]); 
-						// _this.userdata = slotdata[item]['user']; 
-					// }
+				var json = '';
+				for (var i in response.data.slotdata) {
+					_this.$set(_this.gets_review_users, i, response.data.slotdata[i]['user']);
+					
+					_this.$set(_this.gets_review_fields, i, response.data.slotdata[i]['slot']);
 				}
 				
-				
-				// field
 				
 				
 				return false;
-				// if (typeof(response.data.data) == "undefined") {
-					// _this.alert_exit();
-				// }
+				
 
-				_this.review_guid = response.data.circulation.guid;
-				_this.review_template = response.data.circulation.name;
-				_this.review_created_at = response.data.circulation.created_at;
-				_this.review_creator = response.data.circulation.creator;
-				_this.review_description = response.data.circulation.description;
-				_this.review_current_user = response.data.circulation.current_station;
-				_this.review_current_slot = response.data.circulation.slot_id;
-				
-				
-				// _this.gets_review_peoples = response.data.userinfo;
-				// _this.gets_review_fields = response.data.field;
-				
-				// return false;
-				var json = '';
-				for (i in response.data.slot) {
-					_this.$set(_this.gets_review_peoples, i, response.data.slot[i]['user']);
-					
-					// _this.select_substitute_create[i] = [];
-					// _this.options_substitute_create[i] = [];
-					
-					for (j in _this.gets_review_peoples[i]) {
-						_this.$set(_this.select_substitute_review[i], j, []);
-						if (_this.gets_review_peoples[i][j]['substitute'] != null) {
-							json = _this.gets_review_peoples[i][j]['substitute'];
-							_this.$set(_this.options_substitute_review[i], j, JSON.parse(json));
-						} else {
-							_this.$set(_this.options_substitute_review[i], j, []);
-						}
-					}
-					// _this.$set(_this.options_substitute_create, i, _this.json2selectvalue(json, true));
-					
-					_this.$set(_this.gets_review_fields, i, response.data.slot[i]['slot']);
-				}				
-				
 				
 				
 				
@@ -625,16 +671,44 @@ var vm_app = new Vue({
 				
 				
 
-				// 动态设定slot收放变量，直接使用gets_create_fields绑定v-model吧
-				for (var index in _this.gets_review_fields) {
-					_this.$set(_this.show_review_slot, index, {'slot_id': true});
-				}
 
 			})
 			.catch(function (error) {
 				console.log(error);
 			})
 		},
+		
+		// 查看代理人
+		getsubstitute: function (id) {
+			var _this = this;
+			// console.log(id);
+			
+			var url = "{{ route('main.circulation.getsubstitute') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					id: id
+				}
+			})
+			.then(function (response) {
+				console.log(response.data);
+				
+				_this.substitute_user = response.data;
+				_this.substitute_modal = !_this.substitute_modal;
+
+			})
+			.catch(function (error) {
+				console.log(error);
+			})
+		},
+		
+		// 选择代理后转向
+		substitute_ok: function () {
+			var _this = this;
+			console.log(_this.substitute_checkbox);
+			// Array [ "user4", "user3" ]
+			
+		}
 
 
 		
