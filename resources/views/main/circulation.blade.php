@@ -100,49 +100,61 @@ Main(circulation) -
 			<Collapse v-model="valuecollapsefield" v-for="(value, key) in gets_review_fields" v-if="value.field[0]!=null">
 				<Panel name="c1">
 					@{{ value.name }}
-					<p slot="content">
-					
-					<i-row>
-					<i-col span="4" v-for="(val, i) in value.field">
+					<div slot="content">
+
+					<i-row :gutter="16">
+					<span v-for="(val, k) in value.field">
+					<i-col span="6">
 					
 						<div>
 							<!--1-Text-->
-							<div v-if="val.type=='1-Text'" class="form-group">
-								<label>@{{val.name||'未命名'}}</label>
+							<div v-if="val.type=='1-Text'" style="height: 128px">
+								<strong>@{{val.name||'未命名'}}</strong><br>
 								<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :value="val.value" :placeholder="val.placeholder">-->
-								<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
-								<p class="help-block">@{{val.helpblock}}</p>
+								<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">-->
+								<!--<i-input v-model.lazy="val.value" size="small" placeholder="small size" clearable :style="{background: val.bgcolor}" style="width: 200px" :readonly="val.readonly||false" placeholder="val.placeholder"></i-input>-->
+								<i-input v-model.lazy="formItem.input[key+'_'+k]" size="small" clearable :style="{background: val.bgcolor}" style="width: 200px" :readonly="val.readonly||false" :placeholder="val.placeholder"></i-input>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
 							</div>
 							<!--2-True/False-->
-							<div v-else-if="val.type=='2-True/False'" class="form-group">
-								<div class="checkbox">
-									<label :style="{background: val.bgcolor}">
-										<input type="checkbox" v-model.lazy="val.value==1||false" @change="val.value=val.value?0:1" :disabled="val.readonly||false">@{{val.name||'未命名'}}
-									</label>
-									<p class="help-block">@{{val.helpblock}}</p>
-								</div>
+							<div v-else-if="val.type=='2-True/False'" style="height: 128px">
+								<!--
+								<label :style="{background: val.bgcolor}">
+									<input type="checkbox" v-model.lazy="val.value==1||false" @change="val.value=val.value?0:1" :disabled="val.readonly||false">@{{val.name||'未命名'}}
+								</label>-->
+								
+								<strong :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</strong><br>
+								<i-switch v-model.lazy="formItem.switch[key+'_'+k]" :disabled="val.readonly||false">
+									<Icon type="android-done" slot="open"></Icon>
+									<Icon type="android-close" slot="close"></Icon>
+								</i-switch>
+								
+								<p style="color: #80848f">@{{val.helpblock}}</p>
 							</div>
 							<!--3-Number-->
-							<div v-else-if="val.type=='3-Number'" class="form-group">
-								<label>@{{val.name||'未命名'}}</label>
-								<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
-								<p class="help-block">@{{val.helpblock}}</p>
+							<div v-else-if="val.type=='3-Number'" style="height: 128px">
+								<strong>@{{val.name||'未命名'}}</strong><br>
+								<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">-->
+								<Input-number v-model.lazy="formItem.number[key+'_'+k]" :style="{background: val.bgcolor}" :readonly="val.readonly" placeholder="val.placeholder" size="small" style="width: 200px"></Input-number>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
 							</div>
 							<!--4-Date-->
-							<div v-else-if="val.type=='4-Date'" class="form-group">
-								<label>@{{val.name||'未命名'}}</label>
-								<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">
-								<p class="help-block">@{{val.helpblock}}</p>
+							<div v-else-if="val.type=='4-Date'" style="height: 128px">
+								<strong>@{{val.name||'未命名'}}</strong><br>
+								<!--<input type="text" class="form-control input-sm" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder">-->
+								<Date-picker v-model.lazy="formItem.date[key+'_'+k]" type="datetime" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" style="width: 200px" size="small"></Date-picker>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
 							</div>
 							<!--5-Textfield-->
-							<div v-else-if="val.type=='5-Textfield'" class="form-group">
-								<label>@{{val.name||'未命名'}}</label>
-								<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder"></textarea>
-								<p class="help-block">@{{val.helpblock}}</p>
+							<div v-else-if="val.type=='5-Textfield'" style="height: 128px">
+								<strong>@{{val.name||'未命名'}}</strong><br>
+								<!--<textarea class="form-control" rows="3" style="resize:none;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" v-model.lazy="val.value" :placeholder="val.placeholder"></textarea>-->
+								<i-input type="textarea" :rows="2" v-model.lazy="formItem.textarea[key+'_'+k]" style="width:200px;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" size="small" clearable></i-input>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
 							</div>
 							<!--6-Radiogroup-->
-							<div v-else-if="val.type=='6-Radiogroup'" class="form-group">
-								<label>@{{val.name||'未命名'}}</label>
+							<div v-else-if="val.type=='6-Radiogroup'" style="height: 128px">
+								<!--<label>@{{val.name||'未命名'}}</label>
 								<div class="form-group">
 									<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0" class="radio">
 										<label :style="{background: val.bgcolor}">
@@ -151,10 +163,18 @@ Main(circulation) -
 										</label>
 									</div>
 									<p class="help-block">@{{val.helpblock}}</p>
-								</div>
+								</div>-->
+								
+								<strong>@{{val.name||'未命名'}}</strong><br>
+								<Radio-group v-model.lazy="formItem.radiogroup[key+'_'+k]">
+									<Radio v-for="(item,index) in val.value.split('|')[0].split('---')" :label="item" :style="{background: val.bgcolor}" :disabled="val.readonly||false"></Radio>
+								</Radio-group>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
+								
 							</div>
 							<!--7-Checkboxgroup-->
-							<div v-else-if="val.type=='7-Checkboxgroup'" class="form-group">
+							<div v-else-if="val.type=='7-Checkboxgroup'" style="height: 128px">
+								<!--
 								<label>@{{val.name||'未命名'}}</label>
 								<div class="form-group">
 									<div v-for="(item,index) in val.value.split('---')" v-if="index%2 === 0">
@@ -163,25 +183,56 @@ Main(circulation) -
 											@{{item}}
 										</label>
 									</div>
-									<p class="help-block">@{{val.helpblock}}</p>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
 								</div>
+								-->
+								
+								<strong>@{{val.name||'未命名'}}</strong><br>
+								<Checkbox-group v-model.lazy="formItem.checkboxgroup[key+'_'+k]">
+									<Checkbox v-for="(item,index) in val.value.split('|')[0].split('---')" :label="item" :style="{background: val.bgcolor}" :disabled="val.readonly||false"></Checkbox>
+								</Checkbox-group>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
+
 							</div>
 							<!--8-Combobox-->
-							<div v-else-if="val.type=='8-Combobox'" class="form-group">
-								<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
+							<div v-else-if="val.type=='8-Combobox'" style="height: 128px">
+								<!--<label :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</label>
 								<div class="form-group">
-										<!--
+										
 										<multi-select @change="val.value=options_change(val.value, key, i)" v-model="select_tmp[key][i]" :options="options_value(val.value)" :placeholder="val.placeholder" :disabled="val.readonly||false" :limit="1" filterable collapse-selected size="sm"/>
-										-->
+										
 								</div>
-								<p class="help-block">@{{val.helpblock}}</p>
+								<p class="help-block">@{{val.helpblock}}</p>-->
+								
+								<strong :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</strong><br>
+								<i-select v-model.lazy="formItem.select[key+'_'+k]" :placeholder="val.placeholder" :disabled="val.readonly||false" clearable multiple size="small" style="width:200px">
+									<i-option v-for="item in formItem.option[key+'_'+k]" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+								</i-select>
+								<p style="color: #80848f">@{{val.helpblock}}</p>
+								
 							</div>
 						</div>
 					
 					</i-col>
+					</span>
+					<i-col span="6">xx<br></i-col>
+					<i-col span="6">xx<br></i-col>
+					<i-col span="6">xx<br></i-col>
+					<i-col span="6">xx<br></i-col>
 					</i-row>
+
+					<br><br><br><br><br><br><br><br>
 					
-					</p>
+					111111111111111111*******************
+					<!--<i-row>
+					<i-col span="24">
+					********************
+					</i-col>
+					</i-row>-->
+					
+					
+					</div>
+					<p>*</p>
 				</Panel>
 			</Collapse>
 					
@@ -468,6 +519,22 @@ var vm_app = new Vue({
 		valuecollapsemain: ['c1', 'c2', 'c3'],
 		valuecollapseuser: ['c1'],
 		valuecollapsefield: ['c1'],
+		
+		// slot表单
+		formItem: {
+			input: [],
+			switch: [],
+			number: [],
+			date: [],
+			time: [],
+			textarea: [],
+			radiogroup: [],
+			checkboxgroup: [],
+			select: [],
+			option: [],
+			file: [],
+			
+		},
 
 		
 	},
@@ -652,9 +719,71 @@ var vm_app = new Vue({
 
 				var json = '';
 				for (var i in response.data.slotdata) {
+					// user
 					_this.$set(_this.gets_review_users, i, response.data.slotdata[i]['user']);
 					
+					// field
 					_this.$set(_this.gets_review_fields, i, response.data.slotdata[i]['slot']);
+					
+					// console.log(_this.gets_review_fields[i]);
+					// return false;
+					
+					if (_this.gets_review_fields[i].field[i] != null) {
+						for (var key in _this.gets_review_fields[i].field) {
+								
+								// console.log(_this.gets_review_fields[i].field[key]);
+							
+							if (_this.gets_review_fields[i].field[key].type == '1-Text') {
+								_this.$set(_this.formItem.input, i + '_' + key, _this.gets_review_fields[i].field[key].value);
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '2-True/False') {
+								_this.$set(_this.formItem.switch, i + '_' + key, _this.gets_review_fields[i].field[key].value==1||false);
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '3-Number') {
+								_this.$set(_this.formItem.number, i + '_' + key, _this.gets_review_fields[i].field[key].value);
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '4-Date') {
+								_this.$set(_this.formItem.date, i + '_' + key, _this.gets_review_fields[i].field[key].value);
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '5-Textfield') {
+								_this.$set(_this.formItem.textarea, i + '_' + key, _this.gets_review_fields[i].field[key].value);
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '6-Radiogroup') {
+								_this.$set(_this.formItem.radiogroup, i + '_' + key, _this.gets_review_fields[i].field[key].value.split('|')[1]);
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '7-Checkboxgroup') {
+								_this.$set(_this.formItem.checkboxgroup, i + '_' + key, _this.gets_review_fields[i].field[key].value.split('|')[1].split(','));
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '8-Combobox') {
+								var v = _this.gets_review_fields[i].field[key].value;
+								var o = v.split('|')[0].split('---');
+								var s = v.split('|')[1].split('---');
+
+								var oo = [];
+								for (j in o) {
+									oo.push({value: o[j], label: o[j]});
+								}
+								_this.$set(_this.formItem.option, i + '_' + key, oo);
+								
+								var ss = [];
+								if (typeof(s) != 'undefined' || s != '') {
+									for (j in s) {
+										ss.push(s[j]);
+										_this.$set(_this.formItem.select, i + '_' + key, ss);
+									}
+								}
+							}
+							else if (_this.gets_review_fields[i].field[key].type == '9-File') {
+								_this.$set(_this.formItem.file, i + '_' + key, _this.gets_review_fields[i].field[key].value);
+							}
+								
+								
+						}
+						
+					}
+					
+					
+					
 				}
 				
 				
