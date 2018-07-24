@@ -97,8 +97,8 @@ Main(circulation) -
 		<div slot="content">
 		
 			<!--slot，有field时显示，否则显示空的slot-->
-			<Collapse v-model="valuecollapsefield" v-for="(value, key) in gets_review_fields" v-if="value.field[0]!=null">
-				<Panel name="c1">
+			<Collapse v-model="valuecollapsefield[key]" v-for="(value, key) in gets_review_fields" v-if="value.field[0]!=null">
+				<Panel :name="valuecollapsefieldname[key]">
 					@{{ value.name }}
 					<div slot="content">
 
@@ -215,40 +215,28 @@ Main(circulation) -
 					
 					</i-col>
 					</span>
-					<i-col span="6">xx<br></i-col>
-					<i-col span="6">xx<br></i-col>
-					<i-col span="6">xx<br></i-col>
-					<i-col span="6">xx<br></i-col>
+					<i-col :span="value.field.length%4*6">&nbsp;</i-col>
 					</i-row>
 
-					<br><br><br><br><br><br><br><br>
-					
-					111111111111111111*******************
-					<!--<i-row>
-					<i-col span="24">
-					********************
-					</i-col>
-					</i-row>-->
-					
+					&nbsp;<br>&nbsp;
 					
 					</div>
-					<p>*</p>
 				</Panel>
 			</Collapse>
 					
 					
 			<!--slot，否则显示空的slot-->
-			<Collapse v-model="valuecollapsefield" v-else>
-				<Panel name="c1">
+			<Collapse v-model="valuecollapsefield[key]" v-else>
+				<Panel :name="valuecollapsefieldname[key]">
 					@{{ value.name }}
-					<p slot="content">
+					<div slot="content">
 					
 						<div class="alert alert-warning">
 							These's no fields ... <a href="{{ route('admin.slot2field.index') }}" class="alert-link">Goto add field now</a>.
 						</div>
 					
-					
-					</p>
+					&nbsp;<br>&nbsp;
+					</div>
 				</Panel>
 			</Collapse>
 		
@@ -517,8 +505,8 @@ var vm_app = new Vue({
 		
 		// 折叠面板
 		valuecollapsemain: ['c1', 'c2', 'c3'],
-		valuecollapseuser: ['c1'],
-		valuecollapsefield: ['c1'],
+		valuecollapsefield: [],
+		valuecollapsefieldname: [],
 		
 		// slot表单
 		formItem: {
@@ -718,6 +706,8 @@ var vm_app = new Vue({
 				// 2.user
 
 				var json = '';
+				_this.valuecollapsefield = [];
+				_this.valuecollapsefieldname = [];
 				for (var i in response.data.slotdata) {
 					// user
 					_this.$set(_this.gets_review_users, i, response.data.slotdata[i]['user']);
@@ -727,10 +717,17 @@ var vm_app = new Vue({
 					
 					// console.log(_this.gets_review_fields[i]);
 					// return false;
+					// collapse
+					_this.$set(_this.valuecollapsefield, i, 's'+i);
+					_this.$set(_this.valuecollapsefieldname, i, 's'+i);
 					
 					if (_this.gets_review_fields[i].field[i] != null) {
+						
+						
 						for (var key in _this.gets_review_fields[i].field) {
 								
+							
+							// 各字段
 								// console.log(_this.gets_review_fields[i].field[key]);
 							
 							if (_this.gets_review_fields[i].field[key].type == '1-Text') {
@@ -838,6 +835,7 @@ var vm_app = new Vue({
 			// Array [ "user4", "user3" ]
 			
 		}
+		
 
 
 		
