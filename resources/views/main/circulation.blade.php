@@ -14,7 +14,7 @@ Main(circulation) -
 @parent
 
 <Tag type="dot" @click.native="homeclick()">首页</Tag>
-<Tag v-for="(item, index) in tagcount" type="dot" closable @on-close="tagclose(index)" @click.native="tagclick(item.id)">@{{ item.name }}</Tag>
+<Tag v-for="(item, index) in tagcount" type="dot" closable @on-close="tagclose(index)" @click.native="tagclick(item.id, item.name)">@{{ item.name }}</Tag>
 
 @endsection
 
@@ -497,8 +497,8 @@ var vm_app = new Vue({
 		pagesizeopts: [1, 5, 10, 20],
 		
 		// 显示表格或预览流程
-		showtable: false,
-		showcirculation: true,
+		showtable: true,
+		showcirculation: false,
 		
 		// tag
 		tagcount: [],
@@ -523,6 +523,10 @@ var vm_app = new Vue({
 			file: [],
 			
 		},
+		
+		// 当前面包屑
+		current_nav: '',
+		current_subnav: '',
 
 		
 	},
@@ -646,12 +650,14 @@ var vm_app = new Vue({
 		
 		// 查看流程
 		viewcirculation: function (id, name) {
-			// console.log(id);
 			var _this = this;
 			
+			// 面包屑
+			_this.current_subnav = name;
+			
 			// 显示tag
-			_this.tagcount.push({id: id, name: name+' [ID: '+id+']'});
-			_this.tagclick(id);
+			_this.tagcount.push({'id': id, 'name': name});
+			_this.tagclick(id, name);
 		},
 		
 		// 删除流程
@@ -662,12 +668,15 @@ var vm_app = new Vue({
 		// 关闭Tag
 		tagclose: function (index) {
 			this.tagcount.splice(index, 1);
+			this.homeclick();
 		},
 		
 		// click tag
-		tagclick: function (id) {
+		tagclick: function (id, name) {
 			this.showtable = false;
 			this.showcirculation = true;
+			
+			this.current_subnav = name;
 			
 			this.review_circulation(id);
 		},
@@ -676,6 +685,8 @@ var vm_app = new Vue({
 		homeclick: function () {
 			this.showtable = true;
 			this.showcirculation = false;
+
+			this.current_subnav = 'List';
 		},
 		
 		// 读取流程内容
@@ -782,21 +793,6 @@ var vm_app = new Vue({
 					
 					
 				}
-				
-				
-				
-				return false;
-				
-
-				
-				
-				
-				
-				
-				
-				
-				
-
 
 			})
 			.catch(function (error) {
@@ -817,10 +813,13 @@ var vm_app = new Vue({
 				}
 			})
 			.then(function (response) {
-				console.log(response.data);
-				
-				_this.substitute_user = response.data;
-				_this.substitute_modal = !_this.substitute_modal;
+				// console.log(response.data);
+				if (response.data != 'no substitute') {
+					_this.substitute_user = response.data;
+					_this.substitute_modal = !_this.substitute_modal;
+				} else {
+					_this.info(false, 'no substitute', 'No substitute for this user!');
+				}
 
 			})
 			.catch(function (error) {
@@ -842,6 +841,8 @@ var vm_app = new Vue({
 	},
 	mounted: function () {
 		var _this = this;
+		_this.current_nav = 'Circulation';
+		_this.current_subnav = 'List';
 		_this.circulationgets(1, 1); // page: 1, last_page: 1
 		
 

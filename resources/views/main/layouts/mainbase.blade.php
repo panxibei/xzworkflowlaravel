@@ -81,9 +81,9 @@
 					<!--面包屑-->
 					<div class="layout-breadcrumb">
 						<Breadcrumb>
-							<Breadcrumb-item href="#">首页</Breadcrumb-item>
-							<Breadcrumb-item href="#">应用中心</Breadcrumb-item>
-							<Breadcrumb-item>某应用</Breadcrumb-item>
+							<Breadcrumb-item href="{{route('main.circulation.index')}}">Home</Breadcrumb-item>
+							<Breadcrumb-item href="#">@{{ current_nav }}</Breadcrumb-item>
+							<Breadcrumb-item>@{{ current_subnav }}</Breadcrumb-item>
 						</Breadcrumb>
 					</div>
 					

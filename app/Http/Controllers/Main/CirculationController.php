@@ -471,92 +471,6 @@ class CirculationController extends Controller
 		}
 		// dd($result);
 
-return $result;		
-		
-		
-		
-		
-		
-
-		// 4.查询User
-		// $user = [];
-		foreach ($slot_and_user_id['user_id'] as $val_user1) {
-			$user1 = explode(',', $val_user1);
-			
-			foreach ($user1 as $val_user2) {
-				$user[] = $val_user2;
-			}
-			$user[] = '-';
-		}
-
-		$userinfo = [];
-		foreach ($user as $key => $value) {
-			if ($value == '-') {
-				$userinfo[$key]['user'] = '-';
-				$userinfo[$key]['email'] = '-';
-
-				// $userinfo[] = ['user' => '-', 'email' => '-'];
-				// $userinfo[]['email'] = '-';
-				// $userinfo['email'][] = '-';
-				// dd($userinfo);
-			} else {
-				$username = User::select('name', 'email')
-					->where('id', $value)
-					->first();
-				// $userinfo['user'][] = $username['name'];
-				// $userinfo['email'][] = $username['email'];
-				$userinfo[$key]['user'] = $username['name'];
-				$userinfo[$key]['email'] = $username['email'];
-			}
-		}
-// dd($userinfo);
-
-		// 5.根据Slot查询fieldid
-		// dd($slot_id);
-		unset($arr_tmp);
-		foreach ($slot_id as $key => $value) {
-				$slot_name = Slot::select('id', 'name')
-				->where('id', $value)
-				->first();
-			
-			$arr_tmp = Slot2field::select('field_id')
-				->where('slot_id', $value)
-				->first();
-			$field_id[$key]['slot_id'] = $value;
-			$field_id[$key]['slot_name'] = $slot_name['name'];
-			$field_id[$key]['field_id'] = $arr_tmp['field_id'];
-		}
-		// dd($field_id);
-		
-		// 6.查询field
-		unset($arr_tmp);
-		foreach ($field_id as $key => $val_filed_id) {
-			$field[$key]['slot_id'] = $val_filed_id['slot_id'];
-			$field[$key]['slot_name'] = $val_filed_id['slot_name'];
-		
-			if (!empty($val_filed_id['field_id'])) {
-				$arr_tmp = explode(',', $val_filed_id['field_id']);
-				
-				foreach ($arr_tmp as $value) {
-					$field[$key]['field_id'][] = Field::where('id', $value)
-					->first()->toArray();
-				}
-				
-				
-			} else {
-				$field[$key]['field_id'][] = null;
-			}
-				
-			// }
-		}
-		// dd($field);
-		
-		
-		
-		// dd($userinfo);
-		$result = compact('circulation', 'userinfo', 'field');
-		// dd($result);
-		
 		return $result;
     }
 	
@@ -636,7 +550,7 @@ return $result;
 			// echo 'Message: ' .$e->getMessage();
 			$result = 0;
 		}
-dd($result);
+// dd($result);
 		return $result;
 		
 	}
