@@ -107,13 +107,13 @@ Main(circulation) -
 								<i-col span="6" v-for="(val, k) in value.field">
 								
 									<!--1-Text-->
-									<div v-if="val.type=='1-Text'" style="height: 80px">
+									<div v-if="val.type=='1-Text'" style="height: 100px">
 										<strong>@{{val.name||'未命名'}}</strong><br>
 										<i-input v-model.lazy="formItem.input[key+'_'+k]" size="small" clearable :style="{background: val.bgcolor}" style="width: 200px" :readonly="val.readonly||false" :placeholder="val.placeholder"></i-input>
 										<p style="color: #80848f">@{{val.helpblock}}</p>
 									</div>
 									<!--2-True/False-->
-									<div v-else-if="val.type=='2-True/False'" style="height: 80px">
+									<div v-else-if="val.type=='2-True/False'" style="height: 100px">
 										<strong :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</strong><br>
 										<i-switch v-model.lazy="formItem.switch[key+'_'+k]" :disabled="val.readonly||false">
 											<Icon type="android-done" slot="open"></Icon>
@@ -123,25 +123,25 @@ Main(circulation) -
 										<p style="color: #80848f">@{{val.helpblock}}</p>
 									</div>
 									<!--3-Number-->
-									<div v-else-if="val.type=='3-Number'" style="height: 80px">
+									<div v-else-if="val.type=='3-Number'" style="height: 100px">
 										<strong>@{{val.name||'未命名'}}</strong><br>
 										<Input-number v-model.lazy="formItem.number[key+'_'+k]" :style="{background: val.bgcolor}" :readonly="val.readonly" placeholder="val.placeholder" size="small" style="width: 200px"></Input-number>
 										<p style="color: #80848f">@{{val.helpblock}}</p>
 									</div>
 									<!--4-Date-->
-									<div v-else-if="val.type=='4-Date'" style="height: 80px">
+									<div v-else-if="val.type=='4-Date'" style="height: 100px">
 										<strong>@{{val.name||'未命名'}}</strong><br>
 										<Date-picker v-model.lazy="formItem.date[key+'_'+k]" type="datetime" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" style="width: 200px" size="small"></Date-picker>
 										<p style="color: #80848f">@{{val.helpblock}}</p>
 									</div>
 									<!--5-Textfield-->
-									<div v-else-if="val.type=='5-Textfield'" style="height: 80px">
+									<div v-else-if="val.type=='5-Textfield'" style="height: 100px">
 										<strong>@{{val.name||'未命名'}}</strong><br>
-										<i-input type="textarea" :rows="2" v-model.lazy="formItem.textarea[key+'_'+k]" style="width:200px;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" size="small" clearable></i-input>
+										<i-input type="textarea" :rows="1" v-model.lazy="formItem.textarea[key+'_'+k]" style="width:200px;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" size="small" clearable></i-input>
 										<p style="color: #80848f">@{{val.helpblock}}</p>
 									</div>
 									<!--6-Radiogroup-->
-									<div v-else-if="val.type=='6-Radiogroup'" style="height: 80px">
+									<div v-else-if="val.type=='6-Radiogroup'" style="height: 100px">
 										<strong>@{{val.name||'未命名'}}</strong><br>
 										<Radio-group v-model.lazy="formItem.radiogroup[key+'_'+k]">
 											<Radio v-for="(item,index) in val.value.split('|')[0].split('---')" :label="item" :style="{background: val.bgcolor}" :disabled="val.readonly||false"></Radio>
@@ -150,7 +150,7 @@ Main(circulation) -
 										
 									</div>
 									<!--7-Checkboxgroup-->
-									<div v-else-if="val.type=='7-Checkboxgroup'" style="height: 80px">
+									<div v-else-if="val.type=='7-Checkboxgroup'" style="height: 100px">
 										<strong>@{{val.name||'未命名'}}</strong><br>
 										<Checkbox-group v-model.lazy="formItem.checkboxgroup[key+'_'+k]">
 											<Checkbox v-for="(item,index) in val.value.split('|')[0].split('---')" :label="item" :style="{background: val.bgcolor}" :disabled="val.readonly||false"></Checkbox>
@@ -159,7 +159,7 @@ Main(circulation) -
 
 									</div>
 									<!--8-Combobox-->
-									<div v-else-if="val.type=='8-Combobox'" style="height: 80px">
+									<div v-else-if="val.type=='8-Combobox'" style="height: 100px">
 										<strong :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</strong><br>
 										<i-select v-model.lazy="formItem.select[key+'_'+k]" :placeholder="val.placeholder" :disabled="val.readonly||false" clearable multiple size="small" style="width:200px">
 											<i-option v-for="item in formItem.option[key+'_'+k]" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
@@ -170,13 +170,13 @@ Main(circulation) -
 								</i-col>
 							
 								<i-col v-if="value.field.length%4!=0" :span="(4-value.field.length%4)*6">
-									<div style="height: 80px; width: 200px;"></div>
+									<div style="height: 100px; width: 200px;"></div>
 								</i-col>
 							
 							</i-row>
 						</div>
 
-						&nbsp;<br>&nbsp;
+						&nbsp;
 					
 					</div>
 
@@ -194,7 +194,7 @@ Main(circulation) -
 							These's no fields ... <a href="{{ route('admin.slot2field.index') }}" class="alert-link">Goto add field now</a>.
 						</div>
 					
-					&nbsp;<br>&nbsp;
+					&nbsp;
 					</div>
 				</Panel>
 			</Collapse>
