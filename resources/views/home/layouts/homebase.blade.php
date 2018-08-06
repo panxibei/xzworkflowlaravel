@@ -6,55 +6,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>@yield('my_title')</title>
-<link rel="stylesheet" href="{{ asset('statics/bootstrap/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
+<title>
+@section('my_title')
+{{$SITE_TITLE}}  Ver: {{$SITE_VERSION}}
+@show
+</title>
+<link rel="stylesheet" href="{{ asset('statics/iview/styles/iview.css') }}">
 <style type="text/css">
 	/* 解决闪烁问题的CSS */
 	[v-cloak] {	display: none; }
 </style>
+<style type="text/css">
+.layout{
+    border: 1px solid #d7dde4;
+    background: #f5f7f9;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.layout-header-bar{
+	background: #fff;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+}
+.layout-logo{
+    width: 100px;
+    height: 30px;
+    <!--background: #5b6270;-->
+    border-radius: 3px;
+    float: left;
+    position: relative;
+    top: 15px;
+    left: 20px;
+}
+.layout-breadcrumb{
+	<!-- padding: 10px 15px 0; -->
+    width: 100px;
+    height: 30px;
+    <!--background: #5b6270;-->
+    border-radius: 3px;
+    float: left;
+    position: relative;
+    top: 5px;
+    left: 20px;
+}
+.layout-nav{
+	float: right;
+	position: relative;
+    width: 420px;
+    margin: 0 auto;
+    margin-right: 10px;
+}
+.layout-header-center{
+    text-align: center;
+}
+.layout-footer-center{
+    text-align: center;
+}
+</style>
 @yield('my_style')
-<script src="{{ asset('js/jquery.min.js') }}"></script>
-<script src="{{ asset('js/jquery.cookie.js') }}"></script>
-<script src="{{ asset('js/jquery.form.min.js') }}"></script>
-<script src="{{ asset('statics/bootstrap/js/bootstrap.min.js') }}"></script>
-<script src="{{ asset('js/bootstrap-dialog.min.js') }}"></script>
-<script src="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.js') }}"></script>
-<script src="{{ asset('statics/startbootstrap/js/sb-admin-2.min.js') }}"></script>
+<script src="{{ asset('js/functions.js') }}"></script>
 @yield('my_js')
 </head>
 <body>
-<!-- 头部 -->
-@section('my_logo_and_title')
-<div class="header">
-	<div class="text-center">
-		<h2>{{$SITE_TITLE}}
-		<small>{{$SITE_VERSION}}</small></h2>
+<div id="app" v-cloak>
+<br><br><br><br>
+	<div class="layout">
+		<Layout>
+			<Header class="layout-header-center">
+				<!-- 头部 -->
+				<br><br><br>
+				@section('my_logo_and_title')
+				<h1>{{$SITE_TITLE}}
+				<small>{{$SITE_VERSION}}</small></h1>
+				@show
+				<!-- /头部 -->
+			</Header>
+			<Layout>
+			<Content>
+				<!-- 主体 -->
+				@section('my_body')
+				@show
+				<!-- /主体 -->
+			</Content>
+			</Layout>
+			<Footer>
+				<!-- 底部 -->
+				<Footer class="layout-footer-center">
+				@section('my_footer')
+				<a href="{{route('main.circulation.index')}}">{{$SITE_TITLE}}</a>&nbsp;&nbsp;{{$SITE_COPYRIGHT}}
+				@show
+				</Footer>
+				<!-- /底部 -->
+			</Footer>
+		</Layout>
 	</div>
 </div>
-@show
-<hr>
-<!-- /头部 -->
-
-<!-- 主体 -->
-@yield('my_body')
-<!-- /主体 -->
-
-<!-- 底部 -->
-@section('my_footer')
-<div class="text-center">
-	<hr>
-	<small>
-		<a href="{:U('Home/Index/index')}">{{$SITE_TITLE}}</a>&nbsp;|&nbsp;{{$SITE_COPYRIGHT}}
-	</small>
-</div>
-<br>
 <script src="{{ asset('js/vue.min.js') }}"></script>
 <script src="{{ asset('js/axios.min.js') }}"></script>
 <script src="{{ asset('js/bluebird.min.js') }}"></script>
-@show
-<!-- /底部 -->
+<script src="{{ asset('statics/iview/iview.min.js') }}"></script>
+@yield('my_js_others')
 </body>
 </html>

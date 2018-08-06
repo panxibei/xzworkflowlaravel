@@ -61,7 +61,6 @@
 }
 </style>
 @yield('my_style')
-
 <script src="{{ asset('js/functions.js') }}"></script>
 @yield('my_js')
 </head>

@@ -1,6 +1,9 @@
 @extends('home.layouts.homebase')
 
-@section('my_title', "Login - $SITE_TITLE  Ver: $SITE_VERSION")
+@section('my_title')
+Login - 
+@parent
+@endsection
 
 @section('my_js')
 <script type="text/javascript">
@@ -14,114 +17,165 @@
 
 @section('my_body')
 @parent
-<div class="container">
-	<div class="row">
-		<div class="col-md-4 col-md-offset-4">
-			<div class="login-panel panel panel-default">
-				<div class="panel-heading">
-					<h3 class="panel-title">Sign In</h3>
-				</div>
-				<div class="panel-body">
-					<form id="login_form" role="form" method="post" v-cloak>
-						<fieldset>
-							<div class="form-group">
-								<input ref="ref_username" v-model="username" @keyup.enter="loginsubmit" class="form-control" type="text" placeholder="username" v-bind:autofocus="usernameautofocus" required>
-							</div>
-							<div class="form-group">
-								<input ref="ref_password" v-model="password" @keyup.enter="loginsubmit" class="form-control" type="password" placeholder="password" required>
-							</div>
-							<div class="form-group">
-								<label>
-									<input ref="ref_captcha" v-model="captcha" @keyup.enter="loginsubmit" class="form-control" type="text" pattern="[0-9]{4}" placeholder="captcha" style="width:100px;" value=""  autocomplete="off" required>
-								</label>&nbsp;
-								<!--<img src="{{captcha_src('flatxz')}}" onclick="this.src+=Math.random().toString().substr(-1);" style="cursor:pointer;vertical-align:top;">-->
-								<img ref="captcha" src="{{captcha_src('flatxz')}}" @click="captchaclick" style="cursor:pointer;vertical-align:top;">
-							</div>
-							<div class="checkbox">
-								<label>
-									<input ref="ref_rememberme" v-model="rememberme" type="checkbox">Remember Me &nbsp;&nbsp;&nbsp;
-								</label><a href="#">Forget?</a>
-							</div>
-							
-							<button type="button" class="btn btn-primary" ref="ref_login_submit" @click="loginsubmit">登 录</button>&nbsp;&nbsp;&nbsp;&nbsp;
-							<button type="button" class="btn btn-primary" ref="ref_login_reset" @click="loginreset">重 置</button>&nbsp;&nbsp;
-							<div v-html="loginmessage">@{{ loginmessage }}</div>
-						</fieldset>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+
+<br><br><br>
+
+<i-row :gutter="16">
+	<i-col span="10">
+		&nbsp;
+	</i-col>
+	<i-col span="4">
+	
+		<i-form ref="formInline" :model="formInline" :rules="ruleInline" @submit.native.prevent>
+			<Form-item prop="username">
+				<i-input ref="ref_username" type="text" v-model="formInline.username" @on-enter="handleSubmit('formInline')" placeholder="Username">
+					<Icon type="ios-person-outline" slot="prepend"></Icon>
+				</i-input>
+			</Form-item>
+		
+			<Form-item prop="password">
+				<i-input ref="ref_password" type="password" v-model="formInline.password" @on-enter="handleSubmit('formInline')" placeholder="Password">
+					<Icon type="ios-lock-outline" slot="prepend"></Icon>
+				</i-input>
+			</Form-item>
+
+			<i-row>
+				<i-col span="16">
+					<Form-item prop="captcha">
+						<i-input ref="ref_captcha" type="text" v-model="formInline.captcha" @on-enter="handleSubmit('formInline')" placeholder="Captcha" style="width:120px">
+							<Icon type="ios-lock-outline" slot="prepend"></Icon>
+						</i-input>
+					</Form-item>
+				</i-col>
+				<i-col span="8">
+					<img ref="captcha" src="{{captcha_src('flatxz')}}" @click="captchaclick" style="cursor:pointer;vertical-align:top;">
+				</i-col>
+			</i-row>
+			
+			
+			<br><br>
+			<i-row>
+				<i-col span="16">
+					Remember Me&nbsp;
+					<i-switch ref="ref_rememberme" v-model="formInline.rememberme" size="small">
+						<span slot="open"></span>
+						<span slot="close"></span>
+					</i-switch>
+				</i-col>
+				<i-col span="8">
+					<a href="#">Forget?</a>
+				</i-col>
+			</i-row>
+			
+			<br><br><br>
+			<Form-item>
+			<i-button type="primary" @click="handleSubmit('formInline')" ref="ref_login_submit">登 录</i-button>&nbsp;&nbsp;
+			<i-button @click="handleReset('formInline')" ref="ref_login_reset" style="margin-left: 8px">重 置</i-button>
+			</Form-item>
+			
+			<div v-html="formInline.loginmessage">@{{ formInline.loginmessage }}</div>
+		
+		
+		</i-form>
+	</i-col>
+	<i-col span="10">
+		&nbsp;
+	</i-col>
+</i-row>
+
+<br><br><br>
+
 @endsection
 
 @section('my_footer')
+<br><br>
 @parent
+<br><br><br><br>
+@endsection
+
+@section('my_js_others')
 <script>
 // ajax 获取数据
-var vm_login = new Vue({
-    el: '#login_form',
+var vm_app = new Vue({
+    el: '#app',
     data: {
-		username: '',
-		password: '',
-		captcha: '',
-		rememberme: false,
-		loginmessage: '',
-		usernameautofocus: true
+		
+		formInline: {
+			username: '',
+			password: '',
+			captcha: '',
+			rememberme: false,
+			loginmessage: ''
+		},
+		ruleInline: {
+			username: [
+				{ required: true, message: 'Please fill in the user name', trigger: 'blur' }
+			],
+			password: [
+				{ required: true, message: 'Please fill in the password.', trigger: 'blur' },
+				{ type: 'string', min: 3, message: 'Password length is more than 3 bits', trigger: 'blur' }
+			],
+			captcha: [
+				{ required: true, message: 'Please fill in the captcha.', trigger: 'blur' },
+				{ type: 'string', min: 3, message: 'The captcha length is 3 bits', trigger: 'blur' }
+			]
+		},
+		
     },
 	methods: {
-		loginsubmit: function(event){
-			var _this = this;
-
-			_this.logindisabled(true);
-			_this.loginmessage = '<div class="text-info">Please wait ...</div>';
-			
-			if (_this.username.length == 0 || _this.password.length == 0 || _this.captcha.length == 0) {
-				_this.loginmessage = '<div class="text-warning">Please full the item</div>';
-				_this.logindisabled(false);
-				return false;
-			}
-
-			var url = "{{ route('login.checklogin') }}";
-			axios.post(url, {
-				name: _this.username,
-				password: _this.password,
-				captcha: _this.captcha,
-				rememberme: _this.rememberme
-			})
-			.then(function (response) {
-				// console.log(response);
-				var token = response.data;
-				if (token) {
-					// alert('success');
+		handleSubmit(name) {
+			this.$refs[name].validate((valid) => {
+				if (valid) {
+					// this.$Message.success('Success!');
 					
-					_this.password = '**********';
-					_this.loginmessage = '<div class="text-success">login success, waiting ....</div>';
-					window.setTimeout(function(){
-						_this.loginreset;
-						var url = "{{ route('admin.config.index') }}";
-						window.location.href = url;
-					},1000);
+					var _this = this;
+
+					_this.logindisabled(true);
+					_this.loginmessage = '<div class="text-info">Please wait ...</div>';
+					
+					if (_this.formInline.username.length == 0 || _this.formInline.password.length == 0 || _this.formInline.captcha.length == 0) {
+						_this.formInline.loginmessage = '<div class="text-warning">Please full the item</div>';
+						_this.logindisabled(false);
+						return false;
+					}
+
+					var url = "{{ route('login.checklogin') }}";
+					axios.post(url, {
+						name: _this.formInline.username,
+						password: _this.formInline.password,
+						captcha: _this.formInline.captcha,
+						rememberme: _this.formInline.rememberme
+					})
+					.then(function (response) {
+						if (response.data) {
+							_this.formInline.password = '**********';
+							_this.formInline.loginmessage = '<font color="blue">login success, waiting ....</font>';
+							window.setTimeout(function(){
+								_this.loginreset;
+								var url = "{{ route('admin.config.index') }}";
+								window.location.href = url;
+							}, 1000);
+						} else {
+							_this.formInline.loginmessage = '<font color="red">captcha error or login failed</font>';
+							_this.logindisabled(false);
+						}
+					})
+					.catch(function (error) {
+						// console.log(error);
+						_this.loginmessage = '<font color="red">error: failed</font>';
+						_this.logindisabled(false);
+					})
+					_this.captchaclick();
 				} else {
-					// alert('failed');
-					_this.loginmessage = '<div class="text-warning">captcha error or login failed</div>';
-					_this.logindisabled(false);
+					// this.$Message.error('Fail!');
 				}
 			})
-			.catch(function (error) {
-				// console.log(error);
-				_this.loginmessage = '<div class="text-warning">error: failed</div>';
-				_this.logindisabled(false);
-			})
-			_this.captchaclick();
+		},
+		handleReset (name) {
+			this.$refs[name].resetFields();
 		},
 		captchaclick: function(){
 			this.$refs.captcha.src+=Math.random().toString().substr(-1);
-		},
-		loginreset: function(){
-			var _this = this;
-			_this.username = _this.password = _this.captcha = '',
-			_this.rememberme = false
 		},
 		logindisabled: function (value) {
 			var _this = this;
@@ -140,7 +194,7 @@ var vm_login = new Vue({
 				_this.$refs.ref_login_submit.disabled = false;
 				_this.$refs.ref_login_reset.disabled = false;
 			}
-		}
+		},
 	}
 });
 </script>
