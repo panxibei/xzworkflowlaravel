@@ -90,16 +90,16 @@
                     <div class="layout-nav">
 						<!--Item 1-->
                         <Menu-item name="1">
-							<Badge dot>
-								<Icon type="email" size="24"></Icon>
+							<Badge dot :offset="[20, 0]">
+								<Icon type="ios-mail" size="26" />
 							</Badge>
                             
                         </Menu-item>
 						<!--Item 2-->
                         <Menu-item name="2">
 							<Dropdown @click.native="event => dropdownuser(event.target.innerText.trim())">
-								<Badge dot>
-									<Icon type="document-text" size="24"></Icon>
+								<Badge dot :offset="[20, 0]">
+									<Icon type="ios-document" size="26"/>
 								</Badge>
 								<Dropdown-menu slot="list" style="width: 260px">
 									<Dropdown-item>
@@ -121,8 +121,8 @@
                         <Menu-item name="3">
 							<Dropdown @click.native="event => dropdownuser(event.target.innerText.trim())">
 								<!--<a href="javascript:;">-->
-									<Icon type="person" size="24"></Icon>
-									<Icon type="arrow-down-b"></Icon>
+									<Icon type="ios-person" size="26"/>
+									<Icon type="ios-arrow-down" />
 								<!--</a>-->
 								<Dropdown-menu slot="list">
 									<Dropdown-item><Icon type="person"></Icon> {{ $user['name'] or 'Unknown User'}}</Dropdown-item>

@@ -12,7 +12,6 @@
 		[v-cloak] {	display: none; }
 	</style>
 	<script src="{{ asset('js/vue.min.js') }}"></script>
-	<script src="{{ asset('js/uiv.min.js') }}"></script>
 	<script src="{{ asset('js/axios.min.js') }}"></script>
 	<script src="{{ asset('js/bluebird.min.js') }}"></script>
 </head>

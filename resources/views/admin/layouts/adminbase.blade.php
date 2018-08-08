@@ -6,414 +6,267 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
 <meta name="author" content="">
-<title>@section('my_title')
+<title>
+@section('my_title')
 {{$config['SITE_TITLE']}}  Ver: {{$config['SITE_VERSION']}}
 @show
 </title>
-<link rel="stylesheet" href="{{ asset('statics/bootstrap/css/bootstrap.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/daterangepicker/daterangepicker.css') }}">
-<!--<link rel="stylesheet" href="{{ asset('css/bootstrap-dialog.min.css') }}">-->
-<link rel="stylesheet" href="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/startbootstrap/css/sb-admin-2.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/startbootstrap/font-awesome/css/font-awesome.min.css') }}">
-<link rel="stylesheet" href="{{ asset('statics/jquery.spinner/css/bootstrap-spinner.css') }}">
+<link rel="stylesheet" href="{{ asset('statics/iview/styles/iview.css') }}">
 <style type="text/css">
 	/* 解决闪烁问题的CSS */
 	[v-cloak] {	display: none; }
 </style>
+<style type="text/css">
+.layout{
+    border: 1px solid #d7dde4;
+    background: #f5f7f9;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.layout-header-bar{
+	background: #fff;
+	box-shadow: 0 1px 1px rgba(0,0,0,.1);
+}
+.layout-logo{
+    width: 100px;
+    height: 30px;
+    <!--background: #5b6270;-->
+    border-radius: 3px;
+    float: left;
+    position: relative;
+    top: 15px;
+    left: 20px;
+}
+.layout-breadcrumb{
+	<!-- padding: 10px 15px 0; -->
+    width: 100px;
+    height: 30px;
+    <!--background: #5b6270;-->
+    border-radius: 3px;
+    float: left;
+    position: relative;
+    top: 5px;
+    left: 20px;
+}
+.layout-nav{
+	float: right;
+	position: relative;
+    width: 420px;
+    margin: 0 auto;
+    margin-right: 10px;
+}
+.layout-footer-center{
+    text-align: center;
+}
+</style>
 @yield('my_style')
-<script src="{{ asset('js/jquery.min.js') }}"></script>
-<!--<script src="{{ asset('js/jquery.cookie.js') }}"></script>-->
-<script src="{{ asset('statics/bootstrap/js/bootstrap.min.js') }}"></script>
-<!--<script src="{{ asset('js/jquery.form.min.js') }}"></script>-->
-<!--<script src="{{ asset('js/bootstrap-dialog.min.js') }}"></script>-->
-<script src="{{ asset('js/moment-with-locales.min.js') }}"></script>
-<script src="{{ asset('statics/daterangepicker/daterangepicker.js') }}"></script>
-<script src="{{ asset('statics/startbootstrap/metisMenu/metisMenu.min.js') }}"></script>
-<script src="{{ asset('statics/startbootstrap/js/sb-admin-2.min.js') }}"></script>
-<script src="{{ asset('statics/jquery.spinner/js/jquery.spinner.min.js') }}"></script>
 <script src="{{ asset('js/functions.js') }}"></script>
 @yield('my_js')
 </head>
 <body>
-<div id="wrapper">
-<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-<!-- 头部 -->
-@section('my_logo_and_title')
-<div class="navbar-header">
-	<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-		<span class="sr-only">Toggle navigation</span>
-		<span class="icon-bar"></span>
-		<span class="icon-bar"></span>
-		<span class="icon-bar"></span>
-	</button>
-	<a class="navbar-brand" href="{:U('Admin/Index/index')}">{{$config['SITE_TITLE']}} 后台管理</a>
-</div>
-<!-- /.navbar-header -->
+<div id="app" v-cloak>
+    <div class="layout">
+        <Layout>
+			<Layout>
+            <!--头部导航-->
+			<div style="z-index: 999;">
+            <Header :style="{position: 'fixed', width: '100%', marginLeft: '200px'}">
+                <Layout>
+				<i-menu mode="horizontal" theme="light" active-name="3">
+                    <!--<div class="layout-logo">qqqqqqqqqqqq</div>-->
+					
+					<!--面包屑-->
+					<div class="layout-breadcrumb">
+						<Breadcrumb>
+							<Breadcrumb-item href="{{route('main.circulation.index')}}">Home</Breadcrumb-item>
+							<Breadcrumb-item href="#">@{{ current_nav }}</Breadcrumb-item>
+							<Breadcrumb-item>@{{ current_subnav }}</Breadcrumb-item>
+						</Breadcrumb>
+					</div>
+					
+					<!--头部导航菜单-->
+                    <div class="layout-nav">
+						<!--Item 1-->
+                        <Menu-item name="1">
+							<Badge dot :offset="[20, 0]">
+								<Icon type="ios-mail" size="26"/>
+							</Badge>
+                            
+                        </Menu-item>
+						<!--Item 2-->
+                        <Menu-item name="2">
+							<Dropdown @click.native="event => dropdownuser(event.target.innerText.trim())">
+								<Badge dot :offset="[20, 0]">
+									<Icon type="ios-document" size="26"/>
+								</Badge>
+								<Dropdown-menu slot="list" style="width: 260px">
+									<Dropdown-item>
+									<strong>Task: xxxxx1</strong>
+										<i-progress :percent="55" status="active"></i-progress>
+									</Dropdown-item>
+									<Dropdown-item divided>
+									<strong>Task: xxxxx2</strong>
+										<i-progress :percent="55" status="active"></i-progress>
+									</Dropdown-item>
+									<Dropdown-item divided>
+									<strong>Task: xxxxx3</strong>
+										<i-progress :percent="55" status="active"></i-progress>
+									</Dropdown-item>
+								</Dropdown-menu>
+							</Dropdown>
+                        </Menu-item>
+						<!--Item 3-->
+                        <Menu-item name="3">
+							<Dropdown @click.native="event => dropdownuser(event.target.innerText.trim())">
+								<!--<a href="javascript:;">-->
+									<Icon type="ios-person" size="26" />
+									<Icon type="ios-arrow-down" />
+								<!--</a>-->
+								<Dropdown-menu slot="list">
+									<Dropdown-item><Icon type="person"></Icon> {{ $user['name'] or 'Unknown User'}}</Dropdown-item>
+									<Dropdown-item divided><Icon type="home"></Icon> Home</Dropdown-item>
+									<Dropdown-item><Icon type="android-exit"></Icon> Logout</Dropdown-item>
+								</Dropdown-menu>
+							</Dropdown>
+							
+                        </Menu-item>
+                    </div>
+                </i-menu>
+				</Layout>
 
-<ul class="nav navbar-top-links navbar-right">
-	<li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-			<i class="fa fa-envelope fa-fw"></i> <i class="fa fa-caret-down"></i>
-		</a>
-		<ul class="dropdown-menu dropdown-messages">
-			<li>
-				<a href="#">
+				<!--上部标签组-->
+				<Layout :style="{padding: '0 2px', marginLeft: '10px'}">
 					<div>
-						<strong>John Smith</strong>
-						<span class="pull-right text-muted">
-							<em>Yesterday</em>
-						</span>
+						@section('my_tag')
+						
+						<!--
+						<Tag type="dot">标签一</Tag>
+						<Tag type="dot" closable>标签三</Tag>
+						<Tag v-if="show" @on-close="handleClose" type="dot" closable color="blue">可关闭标签</Tag>
+						-->
+						@show
 					</div>
-					<div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<strong>John Smith</strong>
-						<span class="pull-right text-muted">
-							<em>Yesterday</em>
-						</span>
-					</div>
-					<div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<strong>John Smith</strong>
-						<span class="pull-right text-muted">
-							<em>Yesterday</em>
-						</span>
-					</div>
-					<div>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque eleifend...</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a class="text-center" href="#">
-					<strong>Read All Messages</strong>
-					<i class="fa fa-angle-right"></i>
-				</a>
-			</li>
-		</ul>
-		<!-- /.dropdown-messages -->
-	</li>
-	<!-- /.dropdown -->
-	<li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-			<i class="fa fa-tasks fa-fw"></i> <i class="fa fa-caret-down"></i>
-		</a>
-		<ul class="dropdown-menu dropdown-tasks">
-			<li>
-				<a href="#">
-					<div>
-						<p>
-							<strong>Task 1</strong>
-							<span class="pull-right text-muted">40% Complete</span>
-						</p>
-						<div class="progress progress-striped active">
-							<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 40%">
-								<span class="sr-only">40% Complete (success)</span>
-							</div>
-						</div>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<p>
-							<strong>Task 2</strong>
-							<span class="pull-right text-muted">20% Complete</span>
-						</p>
-						<div class="progress progress-striped active">
-							<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" style="width: 20%">
-								<span class="sr-only">20% Complete</span>
-							</div>
-						</div>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<p>
-							<strong>Task 3</strong>
-							<span class="pull-right text-muted">60% Complete</span>
-						</p>
-						<div class="progress progress-striped active">
-							<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%">
-								<span class="sr-only">60% Complete (warning)</span>
-							</div>
-						</div>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<p>
-							<strong>Task 4</strong>
-							<span class="pull-right text-muted">80% Complete</span>
-						</p>
-						<div class="progress progress-striped active">
-							<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width: 80%">
-								<span class="sr-only">80% Complete (danger)</span>
-							</div>
-						</div>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a class="text-center" href="#">
-					<strong>See All Tasks</strong>
-					<i class="fa fa-angle-right"></i>
-				</a>
-			</li>
-		</ul>
-		<!-- /.dropdown-tasks -->
-	</li>
-	<!-- /.dropdown -->
-	<li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-			<i class="fa fa-bell fa-fw"></i> <i class="fa fa-caret-down"></i>
-		</a>
-		<ul class="dropdown-menu dropdown-alerts">
-			<li>
-				<a href="#">
-					<div>
-						<i class="fa fa-comment fa-fw"></i> New Comment
-						<span class="pull-right text-muted small">4 minutes ago</span>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<i class="fa fa-twitter fa-fw"></i> 3 New Followers
-						<span class="pull-right text-muted small">12 minutes ago</span>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<i class="fa fa-envelope fa-fw"></i> Message Sent
-						<span class="pull-right text-muted small">4 minutes ago</span>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<i class="fa fa-tasks fa-fw"></i> New Task
-						<span class="pull-right text-muted small">4 minutes ago</span>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a href="#">
-					<div>
-						<i class="fa fa-upload fa-fw"></i> Server Rebooted
-						<span class="pull-right text-muted small">4 minutes ago</span>
-					</div>
-				</a>
-			</li>
-			<li class="divider"></li>
-			<li>
-				<a class="text-center" href="#">
-					<strong>See All Alerts</strong>
-					<i class="fa fa-angle-right"></i>
-				</a>
-			</li>
-		</ul>
-		<!-- /.dropdown-alerts -->
-	</li>
-	<!-- /.dropdown -->
-	<li class="dropdown">
-		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-			<i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
-		</a>
-		<ul class="dropdown-menu dropdown-user">
-			<li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
-			</li>
-			<li><a href="#"><i class="fa fa-user fa-fw"></i> {{ $user['name'] or 'Unknown User'}}</a>
-			</li>
-			<li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
-			</li>
-			<li class="divider"></li>
-			<li><a href="{{route('main.circulation.index')}}"><i class="fa fa-home fa-fw"></i> 前台首页</a>
-			</li>
-			<li><a href="{{route('admin.logout')}}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
-			</li>
-		</ul>
-		<!-- /.dropdown-user -->
-	</li>
-	<!-- /.dropdown -->
-</ul>
-<!-- /.navbar-top-links -->
-@show
-<!-- /头部 -->
+				</Layout>
+            </Header>
+			</div>
+			</Layout>
 
-<!-- 左边菜单 -->
-<div class="navbar-default sidebar" role="navigation">
-	<div class="sidebar-nav navbar-collapse">
-		<ul class="nav" id="side-menu">
-			<li class="sidebar-search">
-				<div class="input-group custom-search-form">
-					<input type="text" class="form-control" placeholder="Search...">
-					<span class="input-group-btn">
-						<button class="btn btn-default" type="button">
-							<i class="fa fa-search"></i>
-						</button>
-					</span>
-				</div>
-				<!-- /input-group -->
-			</li>
-			<li>
-				<a href="{:U('Admin/Index/index')}"><i class="fa fa-dashboard fa-fw"></i> Dashboard后台首页</a>
-			</li>
-			<li>
-				<a href="#"><i class="fa fa-bar-chart-o fa-fw"></i> Charts<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li>
-						<a href="flot.html">Flot Charts</a>
-					</li>
-					<li>
-						<a href="morris.html">Morris.js Charts</a>
-					</li>
-				</ul>
-				<!-- /.nav-second-level -->
-			</li>
-			<li>
-				<a href="tables.html"><i class="fa fa-table fa-fw"></i> Tables</a>
-			</li>
-			<li>
-				<a href="{{ route('admin.config.index') }}"><i class="fa fa-gear fa-fw"></i> 系统配置</a>
-			</li>
-			<li>
-				<a href="#"><i class="fa fa-dropbox fa-fw"></i> 元素管理<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li>
-						<a href="#"><i class="fa fa-magic fa-fw"></i> 基本元素 ...<span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li>
-								<a href="{{ route('admin.field.index') }}"><i class="fa fa-bars fa-fw"></i> Field</a>
-							</li>
-							<li>
-								<a href="{{ route('admin.slot.index') }}"><i class="fa fa-list-alt fa-fw"></i> Slot</a>
-							</li>
-							<li>
-								<a href="{{ route('admin.template.index') }}"><i class="fa fa-file-text-o fa-fw"></i> Template</a>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<a href="#"><i class="fa fa-chain fa-fw"></i> 元素关联 ...<span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li>
-								<a href="{{ route('admin.slot2field.index') }}"><i class="fa fa-list-alt fa-fw"></i> Slot2Field</a>
-							</li>
-							<li>
-								<a href="{{ route('admin.template2slot.index') }}"><i class="fa fa-file-text-o fa-fw"></i> Template2Slot</a>
-							</li>
-						</ul>
-					</li>
-					<li>
-						<a href="#"><i class="fa fa-chain fa-fw"></i> 用户关联 ...<span class="fa arrow"></span></a>
-						<ul class="nav nav-third-level">
-							<li>
-								<a href="{{ route('admin.mailinglist.index') }}"><i class="fa fa-envelope-o fa-fw"></i> Mailing List</a>
-							</li>
-							<li>
-								<a href="{{ route('admin.slot2user.index') }}"><i class="fa fa-envelope fa-fw"></i> Slot2User</a>
-							</li>
-							<li>
-								<a href="{{ route('admin.user4workflow.index') }}"><i class="fa fa-user-md fa-fw"></i> User4Workflow</a>
-							</li>						
-						</ul>
-					</li>
-				</ul>
-			</li>
-			<li>
-				<a href="#"><i class="fa fa-group fa-fw"></i> 权限管理<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li>
-						<a href="{{ route('admin.user.index') }}"><i class="fa fa-user fa-fw"></i> 用户管理</a>
-					</li>
-					<li>
-						<a href="{{ route('admin.role.index') }}"><i class="fa fa-group fa-fw"></i> 角色管理</a>
-					</li>
-					<li>
-						<a href="{{ route('admin.permission.index') }}"><i class="fa fa-key fa-fw"></i> 权限管理</a>
-					</li>
-				</ul>
-			</li>
-			<li>
-				<a href="{:U('Admin/Index/index')}"><i class="fa fa-edit fa-fw"></i> 其他管理</a>
-			</li>
-			<li>
-				<a href="forms.html"><i class="fa fa-edit fa-fw"></i> Forms</a>
-			</li>
-			<li>
-				<a href="#"><i class="fa fa-wrench fa-fw"></i> UI Elements<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li>
-						<a href="panels-wells.html">Panels and Wells</a>
-					</li>
-					<li>
-						<a href="buttons.html">Buttons</a>
-					</li>
-					<li>
-						<a href="notifications.html">Notifications</a>
-					</li>
-					<li>
-						<a href="typography.html">Typography</a>
-					</li>
-					<li>
-						<a href="icons.html"> Icons</a>
-					</li>
-					<li>
-						<a href="grid.html">Grid</a>
-					</li>
-				</ul>
-				<!-- /.nav-second-level -->
-			</li>
-		</ul>
-	</div>
-	<!-- /.sidebar-collapse -->
-</div>
-<!-- /.navbar-static-side -->
-<!-- /左边菜单 -->
-</nav>
+            <Layout>
+                <!--左侧导航菜单-->
+				<Sider hide-trigger :style="{background: '#fff', position: 'fixed', height: '100vh', left: 0, overflow: 'auto'}">
+					<div style="height: 60px;">
+						<div class="layout-logo"><a href="{{route('admin.config.index')}}">{{$config['SITE_TITLE']}} 后台管理</a></div>
+					</div>
+					<i-menu :active-name="sideractivename" theme="light" width="auto" :open-names="sideropennames" accordion>
+                        <Submenu name="1">
+                            <template slot="title">
+								<Icon type="ios-home"></Icon> 后台首页
+                            </template>
+							<Menu-item name="1-1"><a href="{{route('admin.config.index')}}"><Icon type="ios-construct"></Icon> 配置管理</a></Menu-item>
+                        </Submenu>
 
-<!-- 主体 -->
-@yield('my_body')
-<!-- /主体 -->
-<!-- 底部 -->
-@section('my_footer')
-<div class="text-center">
-	<a href="{{route('main.circulation.index')}}">{{$config['SITE_TITLE']}}</a>&nbsp;|&nbsp;{{$config['SITE_COPYRIGHT']}}
+                        <Submenu name="2">
+                            <template slot="title">
+                                <Icon type="logo-dropbox"></Icon> 元素管理
+                            </template>
+							<Submenu name="2-1">
+								<template slot="title">
+									<Icon type="ios-color-wand"></Icon> 基本元素
+								</template>
+								<Menu-item name="2-1-1"><Icon type="ios-list"></Icon> Field</Menu-item>
+								<Menu-item name="2-1-2"><Icon type="ios-list-box"></Icon> Slot</Menu-item>
+								<Menu-item name="2-1-3"><Icon type="ios-paper"></Icon> Template</Menu-item>
+							</Submenu>
+							
+							<Submenu name="2-2">
+								<template slot="title">
+									<Icon type="ios-link"></Icon> 元素关联
+								</template>
+								<Menu-item name="2-2-1"><Icon type="ios-list-box"></Icon>Slot2Field</Menu-item>
+								<Menu-item name="2-2-2"><Icon type="ios-paper"></Icon>Tpl2Slot</Menu-item>
+							</Submenu>
+							
+							<Submenu name="2-3">
+								<template slot="title">
+									<Icon type="ios-person"></Icon> 用户关联
+								</template>
+								<Menu-item name="2-3-1"><Icon type="ios-mail"></Icon> MailingList</Menu-item>
+								<Menu-item name="2-3-2"><Icon type="ios-people"></Icon> Slot2User</Menu-item>
+								<Menu-item name="2-3-3"><Icon type="ios-person"></Icon> Usr4Wkflw</Menu-item>
+							</Submenu>
+							
+                        </Submenu>
+						
+                        <Submenu name="3">
+                            <template slot="title">
+                                <Icon type="ios-key"></Icon> 权限管理
+                            </template>
+                            <Menu-item name="3-1"><Icon type="ios-person"></Icon> 用户</Menu-item>
+                            <Menu-item name="3-2"><Icon type="ios-people"></Icon> 角色</Menu-item>
+                            <Menu-item name="3-3"><Icon type="ios-key"></Icon> 权限</Menu-item>
+                        </Submenu>
+						
+                        <Submenu name="4">
+                            <template slot="title">
+                                <Icon type="ios-analytics"></Icon>
+                                其他管理
+                            </template>
+                            <Menu-item name="4-1">其他管理1</Menu-item>
+                            <Menu-item name="4-2">其他管理2</Menu-item>
+                            <Menu-item name="4-3">其他管理3</Menu-item>
+                        </Submenu>
+                    </i-menu>
+                </Sider>
+			</Layout>
+			
+			<div><br><br><br><br></div>
+			<Layout :style="{padding: '0 12px 24px', marginLeft: '200px'}">
+				<!--内容主体-->
+				<Content :style="{padding: '24px 12px', minHeight: '280px', background: '#fff'}">
+				<!-- 主体 -->
+				@section('my_body')
+				@show
+				<!-- /主体 -->
+
+				</Content>
+			</Layout>
+
+ 			<!-- 底部 -->
+			<Footer class="layout-footer-center">
+			@section('my_footer')
+			<a href="{{route('main.circulation.index')}}">{{$config['SITE_TITLE']}}</a>&nbsp;&nbsp;{{$config['SITE_COPYRIGHT']}}
+			@show
+			</Footer>
+			<!-- /底部 -->
+			
+        </Layout>
+		<!-- 返回顶部 -->
+		<Back-top></Back-top>
+    </div>
 </div>
-<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <script src="{{ asset('js/vue.min.js') }}"></script>
-<script src="{{ asset('js/uiv.min.js') }}"></script>
 <script src="{{ asset('js/axios.min.js') }}"></script>
 <script src="{{ asset('js/bluebird.min.js') }}"></script>
-@show
-<!-- /底部 -->
-</div>
+<script src="{{ asset('statics/iview/iview.min.js') }}"></script>
+@yield('my_js_others')
 </body>
 </html>

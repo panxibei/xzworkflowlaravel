@@ -12,72 +12,83 @@ Admin(Config) -
 
 @section('my_body')
 @parent
-<div id="page-wrapper" style="min-height: 331px;">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">Configration Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					系统配置项
-				</div>
-				<div id="config_list" class="panel-body" v-cloak>
-				<form role="form">
-					<div class="row">
-					<span v-for="(val, index) in gets">
 
-						<div class="col-lg-4">
-							<div class="form-group">
-								<label>@{{ val.cfg_name }}</label>
-								<!--<input v-model="val.cfg_value" class="form-control" placeholder="暂无配置值" >-->
-								<input :id="val.cfg_name" :value="val.cfg_value" v-on:change="configchange" class="form-control" placeholder="暂无配置值" >
-								<p class="help-block">&nbsp;@{{ val.cfg_description }}</p>
-							</div>
-						</div>
+<div>
 
-					</span>
-					</div>
-					<button type="submit" class="btn btn-default">Submit</button>
-					<button type="reset" class="btn btn-default">Reset</button>
-				</form>
-				</div>
+	<Divider orientation="left">Configration Management</Divider>
 
-				<div style="background-color:#c9e2b3;height:1px"></div>
+	<i-row>
+		<i-col span="6" v-for="(val, index) in gets">
+			<strong>@{{ val.cfg_name }}</strong><br>
+			<i-input type="text" :id="val.cfg_name" :value="val.cfg_value" @on-blur="event=>configchange(event)" style="width:200px;" placeholder="暂无配置值" size="small" clearable></i-input>
+			<p style="color: rgb(128, 132, 143);">&nbsp;@{{ val.cfg_description }}</p><br>
+		</i-col>
+	</i-row>
 
-			</div>
-		</div>
-	</div>
 </div>
 @endsection
 
 @section('my_footer')
 @parent
+
+@endsection
+
+@section('my_js_others')
 <script>
 // ajax 获取数据
-var vm_config = new Vue({
-    el: '#config_list',
+var vm_app = new Vue({
+    el: '#app',
     data: {
-		notification_type: '',
-		notification_title: '',
-		notification_content: '',
+		current_nav: '',
+		current_subnav: '',
+		
+		sideractivename: '2-1',
+		sideropennames: "['2']",
+
 		gets: {}
     },
 	methods: {
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
-			})
+		// 1.加载进度条
+		loadingbarstart () {
+			this.$Loading.start();
 		},
+		loadingbarfinish () {
+			this.$Loading.finish();
+		},
+		loadingbarerror () {
+			this.$Loading.error();
+		},
+		// 2.Notice 通知提醒
+		info (nodesc, title, content) {
+			this.$Notice.info({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		success (nodesc, title, content) {
+			this.$Notice.success({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		warning (nodesc, title, content) {
+			this.$Notice.warning({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		error (nodesc, title, content) {
+			this.$Notice.error({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		
 		configchange: function(event){
 			var _this = this;
-			var cfg_name = event.target.id;
+			var cfg_name = event.target.offsetParent.id;
 			var cfg_value = event.target.value;
-
+			
 			var cfg_data = {};
 			cfg_data[cfg_name] = cfg_value;
 			
@@ -90,22 +101,20 @@ var vm_config = new Vue({
 					if (response.data) {
 						// alert('success');
 					} else {
-						_this.notification_type = 'danger';
-						_this.notification_title = 'Error';
-						_this.notification_content = cfg_name + 'failed to be modified!';
-						_this.notification_message();
+						_this.warning(false, 'Warning', cfg_name + ' failed to be modified!');
 						event.target.value = cfg_value;
 					}
 				})
 				.catch(function (error) {
-					alert('failed');
-					// console.log(error);
+					_this.error(false, 'Error', cfg_name + ' failed to be modified!');
 				})
-		}
+		},
+
 	},
 	mounted: function(){
 		var _this = this;
 		var url = "{{ route('admin.config.list') }}";
+		_this.loadingbarstart();
 		axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 		axios.get(url, {
 			})
@@ -115,9 +124,11 @@ var vm_config = new Vue({
 				// _this.gets.total = _this.gets.data.length;
 				// alert(_this.gets.total);
 				// alert(_this.gets);
+				_this.loadingbarfinish();
 			})
 			.catch(function (error) {
 				console.log(error);
+				_this.loadingbarerror();
 			})
 	}
 });

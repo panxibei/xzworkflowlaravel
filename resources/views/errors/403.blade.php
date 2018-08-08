@@ -6,13 +6,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<title>404 error</title>
+	<title>403 error</title>
 	<style type="text/css">
 		/* 解决闪烁问题的CSS */
 		[v-cloak] {	display: none; }
 	</style>
 	<script src="{{ asset('js/vue.min.js') }}"></script>
-	<script src="{{ asset('js/uiv.min.js') }}"></script>
 	<script src="{{ asset('js/axios.min.js') }}"></script>
 	<script src="{{ asset('js/bluebird.min.js') }}"></script>
 </head>
