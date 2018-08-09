@@ -158,12 +158,13 @@
 					<div style="height: 60px;">
 						<div class="layout-logo"><a href="{{route('admin.config.index')}}">{{$config['SITE_TITLE']}} 后台管理</a></div>
 					</div>
-					<i-menu :active-name="sideractivename" theme="light" width="auto" :open-names="sideropennames" accordion>
+					<div id="menu">
+					<i-menu :active-name="sideractivename" theme="light" width="auto" :open-names="sideropennames" @on-select="name=>menuselect(name)" accordion>
                         <Submenu name="1">
                             <template slot="title">
 								<Icon type="ios-home"></Icon> 后台首页
                             </template>
-							<Menu-item name="1-1"><a href="{{route('admin.config.index')}}"><Icon type="ios-construct"></Icon> 配置管理</a></Menu-item>
+							<Menu-item name="1-1"><Icon type="ios-construct"></Icon> 配置管理</Menu-item>
                         </Submenu>
 
                         <Submenu name="2">
@@ -217,6 +218,7 @@
                             <Menu-item name="4-3">其他管理3</Menu-item>
                         </Submenu>
                     </i-menu>
+					</div>
                 </Sider>
 			</Layout>
 			
@@ -246,27 +248,59 @@
     </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <script src="{{ asset('js/vue.min.js') }}"></script>
 <script src="{{ asset('js/axios.min.js') }}"></script>
 <script src="{{ asset('js/bluebird.min.js') }}"></script>
 <script src="{{ asset('statics/iview/iview.min.js') }}"></script>
-@yield('my_js_others')
+@section('my_js_others')
+<script>
+function navmenuselect (name) {
+	switch(name)
+	{
+	case '1-1':
+	  window.location.href = "{{route('admin.config.index')}}";
+	  break;
+
+	case '2-1-1':
+	  window.location.href = "{{route('admin.field.index')}}";
+	  break;
+	case '2-1-2':
+	  window.location.href = "{{route('admin.slot.index')}}";
+	  break;
+	case '2-1-3':
+	  window.location.href = "{{route('admin.template.index')}}";
+	  break;
+
+	case '2-2-1':
+	  window.location.href = "{{route('admin.slot2field.index')}}";
+	  break;
+	case '2-2-2':
+	  window.location.href = "{{route('admin.template2slot.index')}}";
+	  break;
+
+	case '2-3-1':
+	  window.location.href = "{{route('admin.mailinglist.index')}}";
+	  break;
+	case '2-3-2':
+	  window.location.href = "{{route('admin.slot2user.index')}}";
+	  break;
+	case '2-3-3':
+	  window.location.href = "{{route('admin.user4workflow.index')}}";
+	  break;
+
+	case '3-1':
+	  window.location.href = "{{route('admin.user.index')}}";
+	  break;
+	case '3-2':
+	  window.location.href = "{{route('admin.role.index')}}";
+	  break;
+	case '3-3':
+	  window.location.href = "{{route('admin.permission.index')}}";
+	  break;
+
+	}
+}
+</script>
+@show
 </body>
 </html>

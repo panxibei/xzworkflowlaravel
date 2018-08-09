@@ -34,20 +34,23 @@ Admin(Config) -
 @endsection
 
 @section('my_js_others')
+@parent
 <script>
-// ajax 获取数据
 var vm_app = new Vue({
     el: '#app',
     data: {
 		current_nav: '',
 		current_subnav: '',
 		
-		sideractivename: '2-1',
-		sideropennames: "['2']",
+		sideractivename: '1-1',
+		sideropennames: ['1'],
 
 		gets: {}
     },
 	methods: {
+		menuselect: function (name) {
+			navmenuselect(name);
+		},
 		// 1.加载进度条
 		loadingbarstart () {
 			this.$Loading.start();

@@ -312,14 +312,14 @@ var vm_app = new Vue({
 				title: 'Action',
 				key: 'action',
 				align: 'center',
-				width: 170,
+				width: 180,
 				render: (h, params) => {
 					return h('div', [
 						h('Button', {
 							props: {
 								type: 'primary',
 								size: 'small',
-								icon: 'eye'
+								icon: 'ios-eye'
 							},
 							style: {
 								marginRight: '5px'
@@ -335,7 +335,7 @@ var vm_app = new Vue({
 							props: {
 								type: 'error',
 								size: 'small',
-								icon: 'trash-a'
+								icon: 'ios-trash'
 							},
 							on: {
 								click: () => {

@@ -69,8 +69,17 @@ class FieldController extends Controller
 		$page = $request->input('page');
 		if (null == $page) $page = 1;
 
-		$field = Field::select('id', 'name', 'type', 'bgcolor', 'readonly', 'value', 'placeholder', 'regexp', 'helpblock', 'created_at', 'updated_at')
+		// $field = Field::when($dailydate_filter, function ($query) use ($dailydate_filter) {
+				// return $query->where('created_at', 'like', '%'.$dailydate_filter.'%');
+			// })
+			// ->when($jizhongming_filter, function ($query) use ($jizhongming_filter) {
+				// return $query->where('jizhongming', 'like', '%'.$jizhongming_filter.'%');
+			// })
+		$field = Field::orderBy('created_at', 'desc')
 			->paginate($perPage, ['*'], 'page', $page);
+		
+		// $field = Field::select('id', 'name', 'type', 'bgcolor', 'readonly', 'value', 'placeholder', 'regexp', 'helpblock', 'created_at', 'updated_at')
+			// ->paginate($perPage, ['*'], 'page', $page);
 
 		return $field;
     }

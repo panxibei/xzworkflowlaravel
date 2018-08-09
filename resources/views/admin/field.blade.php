@@ -12,457 +12,131 @@ Admin(Field) -
 
 @section('my_body')
 @parent
-<div id="field_list" v-cloak>
-<div id="page-wrapper">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">Field Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					Field 管理
-				</div>
-				<div class="panel-body">
-					<div class="row">
 
-					<div class="panel-body">
-						<tabs v-model="currenttabs">
-							<tab title="Field List">
-								<!--field列表-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
-									<div class="table-responsive">
-										<table class="table table-condensed">
-											<thead>
-												<tr>
-													<th>id</th>
-													<th>name</th>
-													<th>type</th>
-													<th>created_at</th>
-													<th>updated_at</th>
-													<th>操作</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr v-for="(val, index) in gets.data">
-													<td><div>@{{ val.id }}</div></td>
-													<td><div>@{{ val.name }}</div></td>
-													<td><div>@{{ val.type }}</div></td>
-													<td><div>@{{ val.created_at }}</div></td>
-													<td><div>@{{ val.updated_at }}</div></td>
-													<td><div>
-													<btn @click="field_detail(index)" type="primary" size="xs"><i class="fa fa-edit fa-fw"></i></btn>&nbsp;
-													<btn @click="field_delete(val.id)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
-												</tr>
-											</tbody>
-										</table>
+<div>
 
-										<div class="dropup">
-											<tr>
-												<td colspan="9">
-													<div>
-														<nav>
-															<ul class="pagination pagination-sm">
-																<li><a aria-label="Previous" @click="fieldgets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+	<Divider orientation="left">Field Management</Divider>
 
-																<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-																	<a v-if="n==1" @click="fieldgets(1, gets.last_page)" href="javascript:;">1</a>
-																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="fieldgets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
-																	<a v-else-if="n==2||n==gets.last_page">...</a>
-																</li>&nbsp;
+	<Tabs type="card">
+		<Tab-pane label="Field List">
+		
+		<i-table height="200" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+		<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+		
+		</Tab-pane>
 
-																<li><a aria-label="Next" @click="fieldgets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-																<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+		<Tab-pane label="Create/Edit Field">
+		
+		</Tab-pane>
 
-																	<div class="col-xs-2">
-																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="fieldgets($event.target.value, gets.last_page)">
-																	</div>
+	</Tabs>
 
-																<div class="btn-group">
-																<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
-																<ul class="dropdown-menu">
-																<li><a @click="configperpageforfield(2)" href="javascript:;"><small>2条记录</small></a></li>
-																<li><a @click="configperpageforfield(5)" href="javascript:;"><small>5条记录</small></a></li>
-																<li><a @click="configperpageforfield(10)" href="javascript:;"><small>10条记录</small></a></li>
-																<li><a @click="configperpageforfield(20)" href="javascript:;"><small>20条记录</small></a></li>
-																</ul>
-																</div>
-															</ul>
-														</nav>
-													</div>
-												</td>
-											</tr>
-										</div>
 
-									</div>
-								</div>
-							</tab>
-							<tab title="Create/Edit Field">
-								<!--操作1-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
-									<div class="col-lg-8">
-										<div class="panel panel-default">
-											<div class="panel-heading"><label>新建/编辑元素</label></div>
-											<div class="panel-body">
-
-												<div class="col-lg-6">
-													<div class="form-group">
-														<label>名称</label>
-														<input v-model="field_add_id" type="hidden" class="form-control input-sm">
-														<input v-model="field_add_name" type="text" class="form-control input-sm">
-													</div>
-													<div class="form-group">
-														<label>类型</label><br>
-														<multi-select v-model="field_selected_add_type" :options="field_options_add_type" :limit="1" @change="field_add_type_change(field_selected_add_type[0])" filterable collapse-selected size="sm" placeholder="Select the type ..."/>
-													</div>
-
-													<div class="form-group">
-														<label>背景色</label>&nbsp;&nbsp;
-														<dropdown ref="dropdown">
-															<btn size="xs" type="default" class="dropdown-toggle"><i class="fa fa-caret-down fa-fw"></i></btn>
-															<template slot="dropdown">
-																<div>
-																<compact-picker v-model="field_add_bgcolor" />
-															</div>
-															</template>
-														</dropdown>
-														<btn size="xs" type="default" @click="field_add_bgcolor_hex=''"><i class="fa fa-refresh fa-fw"></i></btn>
-														<input v-model="field_add_bgcolor_hex" type="text" class="form-control input-sm" pattern0="^#[0-9a-fA-F]{6}$" placeholder="#FFFFFF">
-													</div>
-
-													<div class="form-group">
-														<label>帮助文本</label>
-														<input v-model="field_add_helpblock" type="text" class="form-control input-sm" placeholder="帮助文本或提示信息">
-													</div>
-													<div class="checkbox">
-														<label><input v-model="field_add_readonly" type="checkbox"><b>只读</b></label>
-													</div>
-													
-												</div>
-
-												<div class="col-lg-6">
-												<!--field others-->
-													<!--1-text-->
-													<div v-show="show_text">
-													<div class="form-group">
-														<label>默认值</label>
-														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
-													</div>
-													<div class="form-group">
-														<label>占位符</label>
-														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入文字">
-													</div>
-													<div class="form-group">
-														<label>正则表达式</label>
-														<input v-model="field_add_regexp" type="text" class="form-control input-sm">
-													</div>
-													</div>
-													
-													<!--2-True/False-->
-													<div v-show="show_trueorfalse">
-													<div class="form-group">
-														<label>默认值</label>
-														<div class="checkbox">
-														<label><input :checked="field_add_ischecked==1||false" @change="field_add_ischecked=!field_add_ischecked" type="checkbox">是否选中？</label>
-														</div>
-													</div>
-													</div>
-
-													<!--3-Number-->
-													<div v-show="show_number">
-													<div class="form-group">
-														<label>默认值</label>
-														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
-													</div>
-													<div class="form-group">
-														<label>占位符</label>
-														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入数字">
-													</div>
-													<div class="form-group">
-														<label>正则表达式</label>
-														<input v-model="field_add_regexp" type="text" class="form-control input-sm" placeholder="^[1-9]\d*$">
-													</div>
-													</div>
-
-													<!--4-Date-->
-													<div v-show="show_date">
-													<div class="form-group">
-														<label>默认值</label>
-														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
-													</div>
-													<div class="form-group">
-														<label>占位符</label>
-														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入日期">
-													</div>
-													<div class="form-group">
-														<label>正则表达式</label>
-														<input v-model="field_add_regexp" type="text" class="form-control input-sm" placeholder="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
-													</div>
-													</div>
-													
-													<!--5-Textfield-->
-													<div v-show="show_textfield">
-													<div class="form-group">
-														<label>默认值</label>
-														<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
-													</div>
-													<div class="form-group">
-														<label>占位符</label>
-														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入大段文字">
-													</div>
-													</div>
-													
-													<!--6-Radiogroup-->
-													<div v-show="show_radiogroup">
-													<div id="radio_plus_or_minus" class="form-group">
-														<label>(only input fields with valid values will be saved)</label>
-														<br>
-														
-														<div id="spinner_radio" class="input-group spinner" data-trigger="spinner">
-															<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
-															<span class="input-group-addon">
-																<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
-																<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
-															</span>
-														</div>
-														<script>
-														$(function(){
-															$("#spinner_radio").spinner('changing', function(e, newVal, oldVal) {
-																vm_field.radiochecked_generate(newVal);
-															});
-														});
-														</script>
-														
-														<br><btn @click="radiochecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
-														
-														<div v-for="(item,index) in radiochecked" class="radio">
-															<input type="radio" name="name_radiogroup"  :value="item.value" :checked="item.ischecked" @change="radiochecked_change(index)">
-															<input type="text" class="form-control input-sm" v-model="item.value">
-														</div>
-														
-													</div>
-													</div>
-													
-													<!--7-Checkboxgroup-->
-													<div v-show="show_checkboxgroup">
-													<div id="checkbox_plus_or_minus" class="form-group">
-														<label>(Input and check the following fields)</label>
-														<br>
-														
-														<div id="spinner_checkbox" class="input-group spinner" data-trigger="spinner">
-															<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
-															<span class="input-group-addon">
-																<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
-																<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
-															</span>
-														</div>
-														<script>
-														$(function(){
-															$("#spinner_checkbox").spinner('changing', function(e, newVal, oldVal) {
-																vm_field.checkboxchecked_generate(newVal);
-															});
-														});
-														</script>
-														
-														<br><btn @click="checkboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
-														
-														<div v-for="(item,index) in checkboxchecked" class="checkbox">
-															<input type="checkbox" name="name_checkboxgroup"  :value="item.value" :checked="item.ischecked" @change="checkboxchecked_change(index)">
-															<input type="text" class="form-control input-sm" v-model="item.value">
-														</div>														
-
-													</div>
-													</div>
-													
-													<!--8-Combobox-->
-													<div v-show="show_combobox">
-													<div class="form-group">
-														<label>(Input and check the following fields)</label>
-														<br>
-														
-														<div id="spinner_combobox" class="input-group spinner" data-trigger="spinner">
-															<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
-															<span class="input-group-addon">
-																<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
-																<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
-															</span>
-														</div>
-														<script>
-														$(function(){
-															$("#spinner_combobox").spinner('changing', function(e, newVal, oldVal) {
-																vm_field.comboboxchecked_generate(newVal);
-															});
-														});
-														</script>
-														
-														<br><btn @click="comboboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
-														
-														<div v-for="(item,index) in comboboxchecked" class="radio">
-															<input type="radio" name="name_comboboxgroup" :value="item.value" :checked="item.ischecked" @change="comboboxchecked_change(index)">
-															<input type="text" class="form-control input-sm" v-model="item.label">
-														</div>														
-													</div>
-													
-													<div class="form-group">
-														<label>占位符</label>
-														<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入提示文字">
-													</div>
-													
-													
-													</div>
-													
-													<!--9-File-->
-													<div v-show="show_file">
-													</div>
-
-												
-												
-												
-												</div>
-											</div>
-										</div>
-										
-									</div>
-									<div class="col-lg-4">
-										<div class="form-group">
-											<btn type="primary" @click="fieldcreateorupdate('create')" size="sm">Create</btn>&nbsp;
-											<btn type="primary" @click="fieldcreateorupdate('update')" size="sm">Update</btn>&nbsp;
-											<btn type="default" @click="fieldreset" size="sm">Reset</btn>
-										</div>
-										<div class="panel panel-default">
-											<div class="panel-heading"><label>示例/结果（新建/编辑）</label></div>
-											<div class="panel-body">
-
-											<!--field example-->
-												<!--1-text-->
-												<div v-show="show_text">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder">
-													<p class="help-block">@{{field_add_helpblock}}</p>
-												</div>
-												
-												<!--2-True/False-->
-												<div v-show="show_trueorfalse">
-													<div class="checkbox">
-														<label :style="{background: field_add_bgcolor_hex}">
-															<input v-model="field_add_ischecked" @change="field_add_ischecked!=field_add_ischecked" type="checkbox" :disabled="field_add_readonly">@{{field_add_name||'未命名'}}
-														</label>
-														<p class="help-block">@{{field_add_helpblock}}</p>
-													</div>
-												</div>
-
-												<!--3-Number-->
-												<div v-show="show_number">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder">
-													<p class="help-block">@{{field_add_helpblock}}</p>
-												</div>
-
-												<!--4-Date-->
-												<div v-show="show_date">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<input type="text" class="form-control input-sm" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder">
-													<p class="help-block">@{{field_add_helpblock}}</p>
-												</div>
-												
-												<!--5-Textfield-->
-												<div v-show="show_textfield">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<textarea class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder"></textarea>
-													<p class="help-block">@{{field_add_helpblock}}</p>
-												</div>
-												
-												<!--6-Radiogroup-->
-												<div v-show="show_radiogroup">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<div class="form-group">
-													
-														<div v-for="(item,index) in radiochecked" class="radio">
-															<label :style="{background: field_add_bgcolor_hex}">
-																<input type="radio" name="name_radiogroup_example"  :value="item.value" :checked="item.ischecked" @change="radiochecked_change(index)" :disabled="field_add_readonly">
-																@{{item.value}}
-															</label>
-														</div>
-														<p class="help-block">@{{field_add_helpblock}}</p>
-
-													</div>
-												</div>
-												
-												<!--7-Checkboxgroup-->
-												<div v-show="show_checkboxgroup">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<div class="form-group">
-													
-														<div v-for="(item,index) in checkboxchecked">
-															<label :style="{background: field_add_bgcolor_hex}">
-																<input type="checkbox" name="name_checkboxgroup_example"  :value="item.value" :checked="item.ischecked" @change="checkboxchecked_change(index)" :disabled="field_add_readonly">
-																@{{item.value}}
-															</label>
-														</div>
-														<p class="help-block">@{{field_add_helpblock}}</p>
-													
-													</div>
-												</div>
-												
-												<!--8-Combobox-->
-												<div v-show="show_combobox">
-													<label :style="{background: field_add_bgcolor_hex}">@{{field_add_name||'未命名'}}</label>
-													<div class="form-group">
-														<multi-select v-model="comboboxchecked_select" :options="comboboxchecked"  @change="comboboxchecked_change(comboboxchecked_select)" :limit="1" filterable collapse-selected size="sm" :placeholder="field_add_placeholder" :disabled="field_add_readonly"/>
-													</div>
-													<p class="help-block">@{{field_add_helpblock}}</p>
-												</div>
-												
-												<!--9-File-->
-												<div v-show="show_file">
-													<label>@{{field_add_name||'未命名'}}</label>
-													<input id="field_edit_example_file" type="file" :style="{background: field_add_bgcolor_hex}" :disabled="field_add_readonly">
-													<p class="help-block">@{{field_add_helpblock}}</p>
-												</div>
-
-											</div>
-										</div>
-									</div>
-								</div>
-							</tab>
-							
-						</tabs>
-
-					</div>
-					</div>
-					
-				</div>
-
-			</div>
-		</div>
-	</div>
 </div>
-</div>
+
+
+
+
+
+
 @endsection
 
 @section('my_footer')
 @parent
+
+@endsection
+
+@section('my_js_others')
+@parent
 <script src="{{ asset('js/vue-color.min.js') }}"></script>
 <script>
-// var Photoshop = VueColor.Photoshop
-var compact = VueColor.Compact
-
-var vm_field = new Vue({
-    el: '#field_list',
-	components: {
-		// 'material-picker': material,
-		'compact-picker': compact
-		// 'swatches-picker': swatches,
-		// 'slider-picker': slider,
-		// 'sketch-picker': sketch,
-		// 'chrome-picker': chrome,
-		// 'photoshop-picker': photoshop
-	},
+var vm_app = new Vue({
+    el: '#app',
     data: {
+		current_nav: '',
+		current_subnav: '',
+		
+		sideractivename: '2-1-1',
+		sideropennames: ['2', '2-1'],
+
+		
+		tablecolumns: [
+			{
+				title: 'id',
+				key: 'id',
+				sortable: true
+			},
+			{
+				title: 'name',
+				key: 'name'
+			},
+			{
+				title: 'type',
+				key: 'type',
+				sortable: true
+			},
+			{
+				title: 'created_at',
+				key: 'created_at',
+			},
+			{
+				title: 'updated_at',
+				key: 'updated_at',
+			},
+			{
+				title: 'Action',
+				key: 'action',
+				align: 'center',
+				render: (h, params) => {
+					return h('div', [
+						h('Button', {
+							props: {
+								type: 'primary',
+								size: 'small'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.showperson(params.index)
+								}
+							}
+						}, 'View'),
+						h('Button', {
+							props: {
+								type: 'error',
+								size: 'small'
+							},
+							on: {
+								click: () => {
+									vm_app.removeperson(params.index)
+								}
+							}
+						}, 'Delete')
+					]);
+				}
+			}
+		],
+		tabledata: [],
+		
+		//分页
+		page_current: 1,
+		page_total: 1, // 记录总数，非总页数
+		page_size: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
+		page_last: 1,
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		gets: {},
 		perpage: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
 		// 创建ID
@@ -537,7 +211,133 @@ var vm_field = new Vue({
 		// tabs索引
 		currenttabs: 0
     },
+
 	methods: {
+		menuselect: function (name) {
+			navmenuselect(name);
+		},
+		// 1.加载进度条
+		loadingbarstart () {
+			this.$Loading.start();
+		},
+		loadingbarfinish () {
+			this.$Loading.finish();
+		},
+		loadingbarerror () {
+			this.$Loading.error();
+		},
+		// 2.Notice 通知提醒
+		info (nodesc, title, content) {
+			this.$Notice.info({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		success (nodesc, title, content) {
+			this.$Notice.success({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		warning (nodesc, title, content) {
+			this.$Notice.warning({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		error (nodesc, title, content) {
+			this.$Notice.error({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},		
+		// 切换当前页
+		oncurrentpagechange: function (currentpage) {
+			this.fieldgets(currentpage, this.pagelast);
+		},
+		// 切换页记录数
+		onpagesizechange: function (pagesize) {
+			
+			var _this = this;
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_FIELD'] = pagesize;
+			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				cfg_data: cfg_data
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.page_size = pagesize;
+					_this.fieldgets(1, _this.page_last);
+				} else {
+					alert('failed');
+				}
+			})
+			.catch(function (error) {
+				alert('failed');
+				// console.log(error);
+			})
+		},
+		
+		// field列表
+		fieldgets: function(page, last_page){
+			var _this = this;
+			var url = "{{ route('admin.field.fieldgets') }}";
+			// var perPage = 1; // 有待修改，将来使用配置项
+			
+			if (page > last_page) {
+				page = last_page;
+			} else if (page < 1) {
+				page = 1;
+			}
+			// _this.gets.current_page = page;
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					perPage: _this.page_size,
+					page: page
+				}
+			})
+			.then(function (response) {
+				// if (typeof(response.data.data) == "undefined") {
+					// alert(response);
+					// _this.alert_exit();
+				// }
+				// _this.gets = response.data;
+				
+				_this.page_current = response.data.current_page;
+				_this.page_total = response.data.total;
+				_this.page_last = response.data.last_page;
+				_this.tabledata = response.data.data;
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// 显示当前field并切换到编辑界面
 		field_detail: function (index) {
 			var _this = this;
@@ -1014,59 +814,6 @@ var vm_field = new Vue({
 				_this.notification_message();
 			})
 		},
-		// field列表
-		fieldgets: function(page, last_page){
-			var _this = this;
-			var url = "{{ route('admin.field.fieldgets') }}";
-			// var perPage = 1; // 有待修改，将来使用配置项
-			
-			if (page > last_page) {
-				page = last_page;
-			} else if (page < 1) {
-				page = 1;
-			}
-			_this.gets.current_page = page;
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url,{
-				params: {
-					perPage: _this.perpage,
-					page: page
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data.data) == "undefined") {
-					// alert(response);
-					_this.alert_exit();
-				}
-				_this.gets = response.data;
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		configperpageforfield: function (value) {
-			var _this = this;
-			var cfg_data = {};
-			cfg_data['PERPAGE_RECORDS_FOR_FIELD'] = value;
-			var url = "{{ route('admin.config.change') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				cfg_data: cfg_data
-			})
-			.then(function (response) {
-				if (response.data) {
-					_this.perpage = value;
-					_this.fieldgets(1, 1);
-				} else {
-					alert('failed');
-				}
-			})
-			.catch(function (error) {
-				alert('failed');
-				// console.log(error);
-			})
-		}
 	},
 	watch: {
         field_add_bgcolor: function(val) {
