@@ -19,14 +19,33 @@ Admin(Field) -
 
 	<Tabs type="card">
 		<Tab-pane label="Field List">
-		
-		<i-table height="200" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
-		<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
-		
+			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 		</Tab-pane>
 
 		<Tab-pane label="Create/Edit Field">
 		
+			<i-row>
+				<i-col span="15">
+					<Collapse value="createoredit">
+						<Panel name="createoredit">
+							新建/编辑元素
+							
+						</Panel>
+					</Collapse>
+				</i-col>
+				<i-col span="1">
+				&nbsp;
+				</i-col>
+				<i-col span="8">
+					<Collapse value="result">
+						<Panel name="result">
+							示例/结果（新建/编辑）
+						</Panel>
+					</Collapse>
+				</i-col>
+			</i-row>
+			
 		</Tab-pane>
 
 	</Tabs>
@@ -64,7 +83,8 @@ var vm_app = new Vue({
 			{
 				title: 'id',
 				key: 'id',
-				sortable: true
+				sortable: true,
+				width: 80
 			},
 			{
 				title: 'name',
@@ -291,7 +311,7 @@ var vm_app = new Vue({
 			} else if (page < 1) {
 				page = 1;
 			}
-			// _this.gets.current_page = page;
+			_this.loadingbarstart();
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
@@ -310,10 +330,13 @@ var vm_app = new Vue({
 				_this.page_total = response.data.total;
 				_this.page_last = response.data.last_page;
 				_this.tabledata = response.data.data;
+				
+				_this.loadingbarfinish();
 			})
 			.catch(function (error) {
 				console.log(error);
 				alert(error);
+				_this.loadingbarerror();
 			})
 		},
 		
@@ -822,7 +845,8 @@ var vm_app = new Vue({
     },
 	mounted: function(){
 		var _this = this;
-
+		_this.current_nav = '元素管理';
+		_this.current_subnav = '基本元素 - Field';
 		// 显示所有field
 		_this.fieldgets(1, 1); // page: 1, last_page: 1
 	}

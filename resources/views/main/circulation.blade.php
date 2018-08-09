@@ -279,7 +279,7 @@ var vm_app = new Vue({
 				title: 'Creator',
 				key: 'creator',
 				sortable: true,
-				width: 96,
+				width: 100,
 				render: (h, params) => {
 					return h('div', [
 						h('Icon', {
