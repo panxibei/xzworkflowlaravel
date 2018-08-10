@@ -1,4 +1,4 @@
-@extends('admin.layouts.adminbase')
+@extends('admin.layouts.adminbase0')
 
 @section('my_title')
 Admin(Field) - 

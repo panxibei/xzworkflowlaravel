@@ -17,7 +17,7 @@ Admin(Field) -
 
 	<Divider orientation="left">Field Management</Divider>
 
-	<Tabs type="card">
+	<Tabs type="card" v-model="currenttabs">
 		<Tab-pane label="Field List">
 			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
 			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
@@ -26,25 +26,250 @@ Admin(Field) -
 		<Tab-pane label="Create/Edit Field">
 		
 			<i-row>
-				<i-col span="15">
-					<Collapse value="createoredit">
-						<Panel name="createoredit">
-							新建/编辑元素
-							
-						</Panel>
-					</Collapse>
+				<i-col span="6">
+					<Card>
+						<p slot="title">新建/编辑元素</p>
+						<p>
+							<input v-model="field_add_id" type="hidden">
+							名称<br>
+							<i-input v-model="field_add_name" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							类型<br>
+							<i-select v-model="field_selected_add_type" @on-change="value=>field_add_type_change(value)" clearable size="small" style="width:200px">
+								<i-option v-for="item in field_options_add_type" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+							</i-select>
+						</p>
+						<br>
+						<p>
+							背景色<br>
+							<Color-picker v-model="field_add_bgcolor" size="small"/>
+						</p>
+						<br>
+						<p>
+							帮助文本<br>
+							<i-input v-model="field_add_helpblock" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							只读&nbsp;
+							<i-switch v-model="field_add_readonly" size="small">
+								<Icon type="android-done" slot="open"></Icon>
+								<Icon type="android-close" slot="close"></Icon>
+							</i-switch>
+						</p>
+					</Card>
 				</i-col>
 				<i-col span="1">
 				&nbsp;
 				</i-col>
-				<i-col span="8">
-					<Collapse value="result">
-						<Panel name="result">
-							示例/结果（新建/编辑）
-						</Panel>
-					</Collapse>
+				<i-col span="6">
+					<Card>
+						<p slot="title">扩展属性</p>
+					<!--field others-->
+					<!--1-text-->
+					<div v-show="show_text">
+						<p>
+							默认值<br>
+							<i-input v-model="field_add_defaultvalue" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							占位符<br>
+							<i-input v-model="field_add_placeholder" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							正则表达式<br>
+							<i-input v-model="field_add_regexp" size="small" clearable style="width: 200px"></i-input>
+						</p>
+					</div>
+					
+					<!--2-True/False-->
+					<div v-show="show_trueorfalse">
+						<p>
+							默认值<br><br>
+							是否选中？&nbsp;
+							<i-switch v-model="field_add_ischecked" size="small">
+								<Icon type="android-done" slot="open"></Icon>
+								<Icon type="android-close" slot="close"></Icon>
+							</i-switch>
+						</p>
+					</div>
+
+					<!--3-Number-->
+					<div v-show="show_number">
+						<p>
+							默认值<br>
+							<Input-number v-model="field_add_defaultvalue" size="small"></Input-number>
+						</p>
+						<br>
+						<p>
+							占位符<br>
+							<i-input v-model="field_add_placeholder" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							正则表达式<br>
+							<i-input v-model="field_add_regexp" size="small" clearable style="width: 200px"></i-input>
+						</p>
+					</div>
+
+					<!--4-Date-->
+					<div v-show="show_date">
+						<div class="form-group">
+							<label>默认值</label>
+							<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
+						</div>
+						<div class="form-group">
+							<label>占位符</label>
+							<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入日期">
+						</div>
+						<div class="form-group">
+							<label>正则表达式</label>
+							<input v-model="field_add_regexp" type="text" class="form-control input-sm" placeholder="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
+						</div>
+					</div>
+					
+					<!--5-Textfield-->
+					<div v-show="show_textfield">
+						<div class="form-group">
+							<label>默认值</label>
+							<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
+						</div>
+						<div class="form-group">
+							<label>占位符</label>
+							<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入大段文字">
+						</div>
+					</div>
+					
+					<!--6-Radiogroup-->
+					<div v-show="show_radiogroup">
+						<div id="radio_plus_or_minus" class="form-group">
+							<label>(only input fields with valid values will be saved)</label>
+							<br>
+							
+							<div id="spinner_radio" class="input-group spinner" data-trigger="spinner">
+								<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
+								<span class="input-group-addon">
+									<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
+									<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+								</span>
+							</div>
+							<script>
+							$(function(){
+								$("#spinner_radio").spinner('changing', function(e, newVal, oldVal) {
+									vm_field.radiochecked_generate(newVal);
+								});
+							});
+							</script>
+							
+							<br><btn @click="radiochecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
+							
+							<div v-for="(item,index) in radiochecked" class="radio">
+								<input type="radio" name="name_radiogroup"  :value="item.value" :checked="item.ischecked" @change="radiochecked_change(index)">
+								<input type="text" class="form-control input-sm" v-model="item.value">
+							</div>
+							
+						</div>
+					</div>
+					
+					<!--7-Checkboxgroup-->
+					<div v-show="show_checkboxgroup">
+					<div id="checkbox_plus_or_minus" class="form-group">
+						<label>(Input and check the following fields)</label>
+						<br>
+						
+						<div id="spinner_checkbox" class="input-group spinner" data-trigger="spinner">
+							<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
+							<span class="input-group-addon">
+								<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
+								<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+							</span>
+						</div>
+						<script>
+						$(function(){
+							$("#spinner_checkbox").spinner('changing', function(e, newVal, oldVal) {
+								vm_field.checkboxchecked_generate(newVal);
+							});
+						});
+						</script>
+						
+						<br><btn @click="checkboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
+						
+						<div v-for="(item,index) in checkboxchecked" class="checkbox">
+							<input type="checkbox" name="name_checkboxgroup"  :value="item.value" :checked="item.ischecked" @change="checkboxchecked_change(index)">
+							<input type="text" class="form-control input-sm" v-model="item.value">
+						</div>														
+
+					</div>
+					</div>
+					
+					<!--8-Combobox-->
+					<div v-show="show_combobox">
+						<div class="form-group">
+							<label>(Input and check the following fields)</label>
+							<br>
+							
+							<div id="spinner_combobox" class="input-group spinner" data-trigger="spinner">
+								<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
+								<span class="input-group-addon">
+									<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
+									<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+								</span>
+							</div>
+							<script>
+							$(function(){
+								$("#spinner_combobox").spinner('changing', function(e, newVal, oldVal) {
+									vm_field.comboboxchecked_generate(newVal);
+								});
+							});
+							</script>
+							
+							<br><btn @click="comboboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
+							
+							<div v-for="(item,index) in comboboxchecked" class="radio">
+								<input type="radio" name="name_comboboxgroup" :value="item.value" :checked="item.ischecked" @change="comboboxchecked_change(index)">
+								<input type="text" class="form-control input-sm" v-model="item.label">
+							</div>														
+						</div>
+						
+						<div class="form-group">
+							<label>占位符</label>
+							<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入提示文字">
+						</div>
+					</div>
+					
+					<!--9-File-->
+					<div v-show="show_file">
+					</div>
+
+				
+				
+					</Card>
+				</i-col>
+				<i-col span="2">
+					&nbsp;
+				</i-col>
+				<i-col span="6">
+					<i-button type="primary">Create</i-button>&nbsp;&nbsp;
+					<i-button type="primary">Update</i-button>&nbsp;&nbsp;
+					<i-button>Reset</i-button>
+					<br><br>
+					<Card>
+						<p slot="title">示例/结果（新建/编辑）</p>
+						<p>Content of card</p>
+						<p>Content of card</p>
+						<p>Content of card</p>
+					</Card>
+				</i-col>
+				<i-col span="3">
 				</i-col>
 			</i-row>
+		
+		
+
 			
 		</Tab-pane>
 
@@ -229,7 +454,7 @@ var vm_app = new Vue({
 			{value: 5, label:'Option5'}
         ],
 		// tabs索引
-		currenttabs: 0
+		currenttabs: 1
     },
 
 	methods: {

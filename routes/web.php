@@ -95,6 +95,8 @@ Route::group(['prefix'=>'field', 'namespace'=>'Admin', 'middleware'=>['jwtauth',
 
 	// 显示field页面
 	Route::get('fieldIndex', 'FieldController@fieldIndex')->name('admin.field.index');
+	// delete
+	Route::get('fieldIndex0', 'FieldController@fieldIndex0')->name('admin.field.index0');
 
 	// field列表
 	Route::get('fieldGets', 'FieldController@fieldGets')->name('admin.field.fieldgets');

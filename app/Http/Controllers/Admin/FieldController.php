@@ -37,7 +37,20 @@ class FieldController extends Controller
         return view('admin.field', $share);
 			// ->with('user', $user);
 			// ->with('user',$user);
+    }
+	
+	// delete
+    public function fieldIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.field0', $share);
     }	
+	
+	
+	
 	
     /**
      * 列出field ajax
