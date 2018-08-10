@@ -118,92 +118,79 @@ Admin(Field) -
 
 					<!--4-Date-->
 					<div v-show="show_date">
-						<div class="form-group">
-							<label>默认值</label>
-							<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>占位符</label>
-							<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入日期">
-						</div>
-						<div class="form-group">
-							<label>正则表达式</label>
-							<input v-model="field_add_regexp" type="text" class="form-control input-sm" placeholder="^\\d{4}(\\-|\\/|\\.)\\d{1,2}\\1\\d{1,2}$">
-						</div>
+						<p>
+							默认值</br>
+							<Date-picker v-model="field_add_defaultvalue" type="date" size="small" style="width: 200px"></Date-picker>
+						</p>
+						<br>
+						<p>
+							占位符<br>
+							<i-input v-model="field_add_placeholder" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							正则表达式<br>
+							<i-input v-model="field_add_regexp" size="small" clearable style="width: 200px"></i-input>
+						</p>
 					</div>
 					
 					<!--5-Textfield-->
 					<div v-show="show_textfield">
-						<div class="form-group">
-							<label>默认值</label>
-							<input v-model="field_add_defaultvalue" type="text" class="form-control input-sm">
-						</div>
-						<div class="form-group">
-							<label>占位符</label>
-							<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入大段文字">
-						</div>
+						<p>
+							默认值<br>
+							<i-input v-model="field_add_defaultvalue" type="textarea" :rows="1" size="small" style="width: 200px"></i-input>
+						</p>
+						<br>
+						<p>
+							占位符<br>
+							<i-input v-model="field_add_placeholder" size="small" clearable style="width: 200px"></i-input>
+						</p>
 					</div>
 					
 					<!--6-Radiogroup-->
 					<div v-show="show_radiogroup">
-						<div id="radio_plus_or_minus" class="form-group">
-							<label>(only input fields with valid values will be saved)</label>
-							<br>
-							
-							<div id="spinner_radio" class="input-group spinner" data-trigger="spinner">
-								<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
-								<span class="input-group-addon">
-									<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
-									<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+						<p>
+							(only input fields with valid values will be saved)
+						</p>
+						<br>
+						<p>
+							<Input-number v-model="field_add_radio_quantity" @on-change="value=>radiochecked_generate(value)" min="2" size="small" style="width: 80px"></Input-number>
+							&nbsp;&nbsp;<i-button @click="radiochecked_reset" size="small" icon="ios-refresh">Reset selections</i-button>
+						</p>
+						<br>
+						<p>
+							<Radio-group v-model="field_add_radio_select" vertical>
+								<span v-for="(item, index) in radiochecked">
+									<Radio :label="index+1"></Radio>
+									<i-input type="text" v-model="item.value" size="small" style="width: 200px">
+									<br>
 								</span>
-							</div>
-							<script>
-							$(function(){
-								$("#spinner_radio").spinner('changing', function(e, newVal, oldVal) {
-									vm_field.radiochecked_generate(newVal);
-								});
-							});
-							</script>
-							
-							<br><btn @click="radiochecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
-							
-							<div v-for="(item,index) in radiochecked" class="radio">
-								<input type="radio" name="name_radiogroup"  :value="item.value" :checked="item.ischecked" @change="radiochecked_change(index)">
-								<input type="text" class="form-control input-sm" v-model="item.value">
-							</div>
-							
-						</div>
+							</Radio-group>
+						</p>
 					</div>
 					
 					<!--7-Checkboxgroup-->
 					<div v-show="show_checkboxgroup">
-					<div id="checkbox_plus_or_minus" class="form-group">
-						<label>(Input and check the following fields)</label>
+						<p>
+							(Input and check the following fields)
+						</p>
 						<br>
-						
-						<div id="spinner_checkbox" class="input-group spinner" data-trigger="spinner">
-							<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
-							<span class="input-group-addon">
-								<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
-								<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
-							</span>
-						</div>
-						<script>
-						$(function(){
-							$("#spinner_checkbox").spinner('changing', function(e, newVal, oldVal) {
-								vm_field.checkboxchecked_generate(newVal);
-							});
-						});
-						</script>
-						
-						<br><btn @click="checkboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
-						
-						<div v-for="(item,index) in checkboxchecked" class="checkbox">
-							<input type="checkbox" name="name_checkboxgroup"  :value="item.value" :checked="item.ischecked" @change="checkboxchecked_change(index)">
-							<input type="text" class="form-control input-sm" v-model="item.value">
-						</div>														
-
-					</div>
+						<p>
+							<Input-number v-model="field_add_checkbox_quantity" @on-change="value=>checkboxchecked_generate(value)" min="2" size="small" style="width: 80px"></Input-number>
+							&nbsp;&nbsp;<i-button @click="checkboxchecked_reset" size="small" icon="ios-refresh">Reset selections</i-button>
+						</p>
+						<br>
+						<p>
+							<Checkbox-group v-model="field_add_checkbox_select">
+								<span v-for="(item, index) in checkboxchecked">
+									<Checkbox :label="index+1"></Checkbox>
+									<i-input type="text" v-model="item.value" size="small" style="width: 200px">
+									<br>
+								</span>
+							</Checkbox-group>
+						</p>					
+					
+					
 					</div>
 					
 					<!--8-Combobox-->
@@ -370,6 +357,26 @@ var vm_app = new Vue({
 		page_total: 1, // 记录总数，非总页数
 		page_size: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
 		page_last: 1,
+		
+		field_add_radio_quantity: 2,
+		field_add_radio_select: '',
+		
+		// 创建radiochecked
+		radiochecked: [
+			{value: ''},
+			{value: ''}
+		],
+		
+		// 创建checkbox
+		checkboxchecked: [
+			{value: ''},
+			{value: ''}
+		],
+
+		
+		field_add_checkbox_quantity: 2,
+		field_add_checkbox_select: [],
+
 
 		
 		
@@ -416,16 +423,6 @@ var vm_app = new Vue({
 		field_add_regexp: '',
 		// 创建是否选中
 		field_add_ischecked: false,
-		// 创建radiochecked
-		radiochecked: [
-			{value: '', ischecked: false},
-			{value: '', ischecked: false}
-		],
-		// 创建checkbox
-		checkboxchecked: [
-			{value: '', ischecked: false},
-			{value: '', ischecked: false}
-		],
 		// 创建combobox
 		comboboxchecked_select: [],
 		comboboxchecked: [
@@ -565,6 +562,54 @@ var vm_app = new Vue({
 			})
 		},
 		
+		// 生成radio
+		radiochecked_generate: function (counts) {
+			var len = this.radiochecked.length;
+			
+			if (counts > len) {
+				for (var i=0;i<counts-len;i++) {
+					this.radiochecked.push({value: ''});
+				}
+			} else if (counts < len) {
+				for (var i=0;i<len-counts;i++) {
+					this.radiochecked.pop();
+				}
+				if (this.field_add_radio_select > this.radiochecked.length) {
+					this.field_add_radio_select = '';
+				}
+			}
+		},
+		
+		// 取消radio选中状态
+		radiochecked_reset: function () {
+			this.field_add_radio_select = '';
+		},
+		
+		// 生成checkbox
+		checkboxchecked_generate: function (counts) {
+			var len = this.checkboxchecked.length;
+			
+			if (counts > len) {
+				for (var i=0;i<counts-len;i++) {
+					this.checkboxchecked.push({value: ''});
+				}
+			} else if (counts < len) {
+				for (var i=0;i<len-counts;i++) {
+					this.checkboxchecked.pop();
+					for (j in this.field_add_checkbox_select) {
+						if (this.field_add_checkbox_select[j] > this.checkboxchecked.length) {
+							this.field_add_checkbox_select.splice(j, 1);
+						}
+					}
+				}
+			}
+		},
+		
+		// 取消checkbox选中状态
+		checkboxchecked_reset: function () {
+			this.field_add_checkbox_select = [];
+		},
+
 		
 		
 		
@@ -700,41 +745,10 @@ var vm_app = new Vue({
 			});
 			
 		},
-		// 生成radio
-		radiochecked_generate: function (counts) {
-			var arr = [];
-			for(var i=0;i<counts;i++)
-			{
-				arr.push({value: '', ischecked: false});
-			}
-			this.radiochecked = arr;
-		},
-		// 取消radio选中状态
-		radiochecked_reset: function () {
-			// console.log(this.radiochecked[0].value);
-			this.radiochecked.map(function (v,i) {
-				v.ischecked = false
-			});
-		},
+
 		// 点击checkbox后选中的状态
 		checkboxchecked_change: function (index) {
 			this.checkboxchecked[index].ischecked = ! this.checkboxchecked[index].ischecked
-		},
-		// 生成checkbox
-		checkboxchecked_generate: function (counts) {
-			var arr = [];
-			for(var i=0;i<counts;i++)
-			{
-				arr.push({value: '', ischecked: false});
-			}
-			this.checkboxchecked = arr;
-		},
-		// 取消checkbox选中状态
-		checkboxchecked_reset: function () {
-			// console.log(this.radiochecked[0].value);
-			this.checkboxchecked.map(function (v,i) {
-				v.ischecked = false
-			});
 		},
 		// 点击combobox后选中的状态
 		comboboxchecked_change: function (index) {
