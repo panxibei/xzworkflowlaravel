@@ -31,12 +31,12 @@ Admin(Field) -
 						<p slot="title">新建/编辑元素</p>
 						<p>
 							<input v-model="field_add_id" type="hidden">
-							名称<br>
+							* 名称<br>
 							<i-input v-model="field_add_name" size="small" clearable style="width: 200px"></i-input>
 						</p>
 						<br>
 						<p>
-							类型<br>
+							* 类型<br>
 							<i-select v-model="field_selected_add_type" @on-change="value=>field_add_type_change(value)" clearable size="small" style="width:200px">
 								<i-option v-for="item in field_options_add_type" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 							</i-select>
@@ -92,8 +92,6 @@ Admin(Field) -
 							默认值<br><br>
 							是否选中？&nbsp;
 							<i-switch v-model="field_add_ischecked" size="small">
-								<Icon type="android-done" slot="open"></Icon>
-								<Icon type="android-close" slot="close"></Icon>
 							</i-switch>
 						</p>
 					</div>
@@ -162,7 +160,7 @@ Admin(Field) -
 							<Radio-group v-model="field_add_radio_select" vertical>
 								<span v-for="(item, index) in radiochecked">
 									<Radio :label="index+1"></Radio>
-									<i-input type="text" v-model="item.value" size="small" style="width: 200px">
+									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
 									<br>
 								</span>
 							</Radio-group>
@@ -184,7 +182,7 @@ Admin(Field) -
 							<Checkbox-group v-model="field_add_checkbox_select">
 								<span v-for="(item, index) in checkboxchecked">
 									<Checkbox :label="index+1"></Checkbox>
-									<i-input type="text" v-model="item.value" size="small" style="width: 200px">
+									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
 									<br>
 								</span>
 							</Checkbox-group>
@@ -195,41 +193,36 @@ Admin(Field) -
 					
 					<!--8-Combobox-->
 					<div v-show="show_combobox">
-						<div class="form-group">
-							<label>(Input and check the following fields)</label>
-							<br>
-							
-							<div id="spinner_combobox" class="input-group spinner" data-trigger="spinner">
-								<input type="text" class="form-control text-center" value="2" data-rule="quantity" data-min="2">
-								<span class="input-group-addon">
-									<a href="javascript:;" class="spin-up" data-spin="up"><i class="fa fa-caret-up"></i></a>
-									<a href="javascript:;" class="spin-down" data-spin="down"><i class="fa fa-caret-down"></i></a>
+						<p>(Input and check the following fields)</p>
+						<br>
+						<p>
+							<Input-number v-model="field_add_combobox_quantity" @on-change="value=>comboboxchecked_generate(value)" min="2" size="small" style="width: 80px"></Input-number>
+							&nbsp;&nbsp;<i-button @click="comboboxchecked_reset" size="small" icon="ios-refresh">Reset selections</i-button>
+						</p>
+						<br>
+						<p>
+							<Radio-group v-model="field_add_combobox_select" vertical>
+								<span v-for="(item, index) in comboboxchecked">
+									<Radio :label="index+1"></Radio>
+									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
+									<br>
 								</span>
-							</div>
-							<script>
-							$(function(){
-								$("#spinner_combobox").spinner('changing', function(e, newVal, oldVal) {
-									vm_field.comboboxchecked_generate(newVal);
-								});
-							});
-							</script>
-							
-							<br><btn @click="comboboxchecked_reset" size="sm" type="default"><i class="fa fa-undo fa-fw"></i> Reset selections</btn>
-							
-							<div v-for="(item,index) in comboboxchecked" class="radio">
-								<input type="radio" name="name_comboboxgroup" :value="item.value" :checked="item.ischecked" @change="comboboxchecked_change(index)">
-								<input type="text" class="form-control input-sm" v-model="item.label">
-							</div>														
-						</div>
-						
-						<div class="form-group">
-							<label>占位符</label>
-							<input v-model="field_add_placeholder" type="text" class="form-control input-sm" placeholder="例：请输入提示文字">
-						</div>
+							</Radio-group>
+						</p>
+						<br>
+						<p>
+							占位符<br>
+							<i-input v-model="field_add_placeholder" size="small" clearable style="width: 200px"></i-input>
+						</p>
 					</div>
 					
 					<!--9-File-->
 					<div v-show="show_file">
+						<p>
+							* URL<br>
+							<i-input v-model="field_add_url" size="small" clearable style="width: 200px"></i-input>
+						</p>
+					
 					</div>
 
 				
@@ -246,9 +239,56 @@ Admin(Field) -
 					<br><br>
 					<Card>
 						<p slot="title">示例/结果（新建/编辑）</p>
-						<p>Content of card</p>
-						<p>Content of card</p>
-						<p>Content of card</p>
+
+						<!--field example-->
+						<!--1-text-->
+						<p v-show="show_text">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<i-input v-model.lazy="field_add_defaultvalue" :readonly="field_add_readonly" :placeholder="field_add_placeholder" size="small" clearable style="width: 200px;"></i-input>
+							<br><span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
+						
+						<!--2-True/False-->
+						<p v-show="show_trueorfalse">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span>&nbsp;
+							<i-switch v-model.lazy="field_add_ischecked" :disabled="field_add_readonly" size="small">
+							</i-switch>
+							<br><span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
+
+						<!--3-Number-->
+						<p v-show="show_number">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<Input-number v-model.lazy="field_add_defaultvalue" :readonly="field_add_readonly" :placeholder="field_add_placeholder" size="small" clearable style="width: 200px;"></Input-number>
+							<br><span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
+
+						<!--4-Date-->
+						<p v-show="show_date">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<Date-picker v-model.lazy="field_add_defaultvalue" type="date" :readonly="field_add_readonly" :placeholder="field_add_placeholder" size="small" style="width: 200px"></Date-picker>
+							<br><span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
+						
+						<!--5-Textfield-->
+						<div v-show="show_textfield">
+							<label>@{{field_add_name||'未命名'}}</label>
+							<textarea class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder"></textarea>
+							<p class="help-block">@{{field_add_helpblock}}</p>
+						</div>
+						
+
+
+
+
+
+
+
+
+
+
+
+
 					</Card>
 				</i-col>
 				<i-col span="3">
@@ -361,6 +401,12 @@ var vm_app = new Vue({
 		field_add_radio_quantity: 2,
 		field_add_radio_select: '',
 		
+		field_add_checkbox_quantity: 2,
+		field_add_checkbox_select: [],
+
+		field_add_combobox_quantity: 2,
+		field_add_combobox_select: [],
+		
 		// 创建radiochecked
 		radiochecked: [
 			{value: ''},
@@ -372,10 +418,29 @@ var vm_app = new Vue({
 			{value: ''},
 			{value: ''}
 		],
-
 		
-		field_add_checkbox_quantity: 2,
-		field_add_checkbox_select: [],
+		// 创建combobox
+		comboboxchecked: [
+			{value: ''},
+			{value: ''}
+		],
+
+		// 创建是否选中
+		field_add_ischecked: false,
+		// 创建帮助文本
+		field_add_helpblock: '',
+		// 创建只读
+		field_add_readonly: false,
+		// 创建背景色
+		field_add_bgcolor: '',
+		// 创建默认值
+		field_add_defaultvalue: '',
+		// 创建占位符
+		field_add_placeholder: '',
+		// 创建正则
+		field_add_regexp: '',
+		// url
+		field_add_url: '',
 
 
 		
@@ -408,27 +473,8 @@ var vm_app = new Vue({
 			{value: '8-Combobox', label: '8-Combobox'},
 			{value: '9-File', label: '9-File'}
 		],
-		// 创建背景色
-		field_add_bgcolor: '',
 		field_add_bgcolor_hex: '',
-		// 创建帮助文本
-		field_add_helpblock: '',
-		// 创建只读
-		field_add_readonly: false,
-		// 创建默认值
-		field_add_defaultvalue: '',
-		// 创建占位符
-		field_add_placeholder: '',
-		// 创建正则
-		field_add_regexp: '',
-		// 创建是否选中
-		field_add_ischecked: false,
-		// 创建combobox
-		comboboxchecked_select: [],
-		comboboxchecked: [
-			{value: 1, label: '', ischecked: false},
-			{value: 2, label: '', ischecked: false}
-		],
+
 		// field_add_others: '',
 		// field动态示例
 		// field_add_example: '',
@@ -609,6 +655,29 @@ var vm_app = new Vue({
 		checkboxchecked_reset: function () {
 			this.field_add_checkbox_select = [];
 		},
+		
+		// 生成combobox
+		comboboxchecked_generate: function (counts) {
+			var len = this.comboboxchecked.length;
+			
+			if (counts > len) {
+				for (var i=0;i<counts-len;i++) {
+					this.comboboxchecked.push({value: ''});
+				}
+			} else if (counts < len) {
+				for (var i=0;i<len-counts;i++) {
+					this.comboboxchecked.pop();
+				}
+				if (this.field_add_combobox_select > this.comboboxchecked.length) {
+					this.field_add_combobox_select = '';
+				}
+			}
+		},
+		
+		// 取消combobox选中状态
+		comboboxchecked_reset: function () {
+			this.field_add_combobox_select = [];
+		},
 
 		
 		
@@ -775,26 +844,6 @@ var vm_app = new Vue({
 				});
 			}
 
-		},
-		// 生成combobox
-		comboboxchecked_generate: function (counts) {
-			var arr = [];
-			for(var i=0;i<counts;i++)
-			{
-				arr.push({value: i});
-			}
-			this.comboboxchecked = arr;
-			this.comboboxchecked_select = [];
-		},
-		// 取消combobox选中状态
-		comboboxchecked_reset: function () {
-			this.comboboxchecked_select = [];
-			this.comboboxchecked = [];
-			// this.comboboxchecked_generate(2);
-			// this.comboboxchecked = [
-				// {value: 1, label: ''},
-				// {value: 2, label: ''}
-			// ];
 		},
 		fieldreset: function () {
 			var _this = this;
