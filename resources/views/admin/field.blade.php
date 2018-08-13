@@ -159,7 +159,7 @@ Admin(Field) -
 						<p>
 							<Radio-group v-model="field_add_radio_select" vertical>
 								<span v-for="(item, index) in radiochecked">
-									<Radio :label="index+1"></Radio>
+									<Radio :label="item.value"></Radio>
 									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
 									<br>
 								</span>
@@ -181,7 +181,7 @@ Admin(Field) -
 						<p>
 							<Checkbox-group v-model="field_add_checkbox_select">
 								<span v-for="(item, index) in checkboxchecked">
-									<Checkbox :label="index+1"></Checkbox>
+									<Checkbox :label="item.value"></Checkbox>
 									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
 									<br>
 								</span>
@@ -203,7 +203,7 @@ Admin(Field) -
 						<p>
 							<Radio-group v-model="field_add_combobox_select" vertical>
 								<span v-for="(item, index) in comboboxchecked">
-									<Radio :label="index+1"></Radio>
+									<Radio :label="item.value"></Radio>
 									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
 									<br>
 								</span>
@@ -271,17 +271,42 @@ Admin(Field) -
 						</p>
 						
 						<!--5-Textfield-->
-						<div v-show="show_textfield">
-							<label>@{{field_add_name||'未命名'}}</label>
-							<textarea class="form-control" rows="3" style="resize:none;" :style="{background: field_add_bgcolor_hex}" :readonly="field_add_readonly" v-model="field_add_defaultvalue" :placeholder="field_add_placeholder"></textarea>
-							<p class="help-block">@{{field_add_helpblock}}</p>
-						</div>
+						<p v-show="show_textfield">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<i-input v-model.lazy="field_add_defaultvalue" :readonly="field_add_readonly" :placeholder="field_add_placeholder" type="textarea" :rows="1" size="small" clearable style="width: 200px;"></i-input>
+							<br><span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
 						
+						<!--6-Radiogroup-->
+						<p v-show="show_radiogroup">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<Radio-group v-model="field_add_radio_select" vertical>
+								<span v-for="(item, index) in radiochecked">
+									<Radio :label="item.value" :disabled="field_add_readonly"></Radio>
+								</span>
+							</Radio-group>
+							<br><span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
 
+						<!--7-Checkboxgroup-->
+						<p v-show="show_checkboxgroup">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<Checkbox-group v-model="field_add_checkbox_select">
+								<span v-for="(item, index) in checkboxchecked">
+									<Checkbox :label="item.value" :disabled="field_add_readonly"></Checkbox>
+								</span>
+							</Checkbox-group>
+							<span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
 
-
-
-
+						<!--8-Combobox-->
+						<p v-show="show_combobox">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<i-select v-model="field_add_combobox_select" clearable size="small" style="width:200px">
+								<i-option v-for="item in comboboxchecked" :value="item.value" :key="item.value">@{{ item.value }}</i-option>
+							</i-select>
+							<span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+						</p>
 
 
 
@@ -409,20 +434,20 @@ var vm_app = new Vue({
 		
 		// 创建radiochecked
 		radiochecked: [
-			{value: ''},
-			{value: ''}
+			{value: 'radio1'},
+			{value: 'radio2'}
 		],
 		
 		// 创建checkbox
 		checkboxchecked: [
-			{value: ''},
-			{value: ''}
+			{value: 'checkbox1'},
+			{value: 'checkbox2'}
 		],
 		
 		// 创建combobox
 		comboboxchecked: [
-			{value: ''},
-			{value: ''}
+			{value: 'combobox1'},
+			{value: 'combobox2'}
 		],
 
 		// 创建是否选中
@@ -614,14 +639,20 @@ var vm_app = new Vue({
 			
 			if (counts > len) {
 				for (var i=0;i<counts-len;i++) {
-					this.radiochecked.push({value: ''});
+					this.radiochecked.push({value: 'radio'+parseInt(len+i+1)});
 				}
 			} else if (counts < len) {
+				if (this.field_add_radio_select != '') {
+					for (var i=counts;i<len;i++) {
+						if (this.field_add_radio_select == this.radiochecked[i].value) {
+							this.field_add_radio_select = '';
+							break;
+						}
+					}
+				}
+				
 				for (var i=0;i<len-counts;i++) {
 					this.radiochecked.pop();
-				}
-				if (this.field_add_radio_select > this.radiochecked.length) {
-					this.field_add_radio_select = '';
 				}
 			}
 		},
@@ -637,16 +668,16 @@ var vm_app = new Vue({
 			
 			if (counts > len) {
 				for (var i=0;i<counts-len;i++) {
-					this.checkboxchecked.push({value: ''});
+					this.checkboxchecked.push({value: 'checkbox'+parseInt(len+i+1)});
 				}
 			} else if (counts < len) {
-				for (var i=0;i<len-counts;i++) {
-					this.checkboxchecked.pop();
+				for (var i=len-1;i>counts-1;i--) {
 					for (j in this.field_add_checkbox_select) {
-						if (this.field_add_checkbox_select[j] > this.checkboxchecked.length) {
+						if (this.field_add_checkbox_select[j] == this.checkboxchecked[i].value) {
 							this.field_add_checkbox_select.splice(j, 1);
 						}
 					}
+					this.checkboxchecked.pop();
 				}
 			}
 		},
@@ -662,15 +693,21 @@ var vm_app = new Vue({
 			
 			if (counts > len) {
 				for (var i=0;i<counts-len;i++) {
-					this.comboboxchecked.push({value: ''});
+					this.comboboxchecked.push({value: 'combobox'+parseInt(len+i+1)});
 				}
 			} else if (counts < len) {
+				if (this.field_add_combobox_select != '') {
+					for (var i=counts;i<len;i++) {
+						if (this.field_add_combobox_select == this.comboboxchecked[i].value) {
+							this.field_add_combobox_select = '';
+							break;
+						}
+					}
+				}
+				
 				for (var i=0;i<len-counts;i++) {
 					this.comboboxchecked.pop();
-				}
-				if (this.field_add_combobox_select > this.comboboxchecked.length) {
-					this.field_add_combobox_select = '';
-				}
+				}				
 			}
 		},
 		
