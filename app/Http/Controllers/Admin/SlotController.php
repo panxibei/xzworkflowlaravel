@@ -34,6 +34,16 @@ class SlotController extends Controller
 
         return view('admin.slot', $share);
     }
+
+    // delete
+    public function slotIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.slot0', $share);
+    }
 	
     /**
      * slot列表 ajax

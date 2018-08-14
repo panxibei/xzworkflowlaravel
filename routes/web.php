@@ -114,6 +114,8 @@ Route::group(['prefix'=>'slot', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 
 	// 显示slot页面
 	Route::get('slotIndex', 'SlotController@slotIndex')->name('admin.slot.index');
+	// delete
+	Route::get('slotIndex0', 'SlotController@slotIndex0')->name('admin.slot.index0');
 
 	// slot列表
 	Route::get('slotGets', 'SlotController@slotGets')->name('admin.slot.slotgets');

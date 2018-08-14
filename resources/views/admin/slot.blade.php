@@ -12,158 +12,277 @@ Admin(slot) -
 
 @section('my_body')
 @parent
-<div id="slot_list" v-cloak>
-<div id="page-wrapper">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">Slot Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					Slot 管理
-				</div>
-				<div class="panel-body">
-					<div class="row">
 
-					<div class="panel-body">
-						<tabs v-model="currenttabs">
-							<tab title="Slot List">
-								<!--slot列表-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
-									<div class="table-responsive">
-										<table class="table table-condensed">
-											<thead>
-												<tr>
-													<th>id</th>
-													<th>name</th>
-													<th>created_at</th>
-													<th>updated_at</th>
-													<th>操作</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr v-for="(val, index) in gets.data">
-													<td><div>@{{ val.id }}</div></td>
-													<td><div>@{{ val.name }}</div></td>
-													<td><div>@{{ val.created_at }}</div></td>
-													<td><div>@{{ val.updated_at }}</div></td>
-													<td><div>
-													<btn @click="slot_detail(index)" type="primary" size="xs"><i class="fa fa-edit fa-fw"></i></btn>&nbsp;
-													<btn @click="slot_delete(val.id)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
-												</tr>
-											</tbody>
-										</table>
+<div>
 
-										<div class="dropup">
-											<tr>
-												<td colspan="9">
-													<div>
-														<nav>
-															<ul class="pagination pagination-sm">
-																<li><a aria-label="Previous" @click="slotgets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+	<Divider orientation="left">Slot Management</Divider>
 
-																<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-																	<a v-if="n==1" @click="slotgets(1, gets.last_page)" href="javascript:;">1</a>
-																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="slotgets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
-																	<a v-else-if="n==2||n==gets.last_page">...</a>
-																</li>&nbsp;
+	<Tabs type="card" v-model="currenttabs">
+		<Tab-pane label="Slot List">
+			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+		</Tab-pane>
 
-																<li><a aria-label="Next" @click="slotgets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-																<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+		<Tab-pane label="Create/Edit Field">
+		
+			<i-row>
+				<i-col span="6">
+					<Card>
+						<p slot="title">新建/编辑SLOT</p>
+						<p>
+							<input v-model="slot_add_id" type="hidden">
+							* 名称<br>
+							<i-input v-model="slot_add_name" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<i-button type="primary" @click="slotcreateorupdate('create')">Create</i-button>&nbsp;&nbsp;
+						<i-button type="primary" @click="slotcreateorupdate('update')">Update</i-button>&nbsp;&nbsp;
+						<i-button @click="onreset()">Reset</i-button>
+					</Card>
+				</i-col>
+				<i-col span="18">
+				&nbsp;
+				</i-col>
+			</i-row>
 
-																	<div class="col-xs-2">
-																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="slotgets($event.target.value, gets.last_page)">
-																	</div>
+		</Tab-pane>
 
-																<div class="btn-group">
-																<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
-																<ul class="dropdown-menu">
-																<li><a @click="configperpageforslot(2)" href="javascript:;"><small>2条记录</small></a></li>
-																<li><a @click="configperpageforslot(5)" href="javascript:;"><small>5条记录</small></a></li>
-																<li><a @click="configperpageforslot(10)" href="javascript:;"><small>10条记录</small></a></li>
-																<li><a @click="configperpageforslot(20)" href="javascript:;"><small>20条记录</small></a></li>
-																</ul>
-																</div>
-															</ul>
-														</nav>
-													</div>
-												</td>
-											</tr>
-										</div>
+	</Tabs>	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
-									</div>
-								</div>
-							</tab>
-							<tab title="Create/Edit Slot">
-								<!--操作1-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
 
-									<div class="col-lg-12">
-										<div class="panel panel-default">
-											<div class="panel-heading"><label>新建/编辑元素</label></div>
-											<div class="panel-body">
 
-												<div class="col-lg-4">
-													<div class="form-group">
-														<label>名称</label>
-														<input v-model="slot_add_id" type="hidden" class="form-control input-sm">
-														<input v-model="slot_add_name" type="text" class="form-control input-sm">
-													</div>
 
-													<div class="form-group">
-														<btn type="primary" @click="slotcreateorupdate('create')" size="sm">Create</btn>&nbsp;
-														<btn type="primary" @click="slotcreateorupdate('update')" size="sm">Update</btn>&nbsp;
-														<btn type="default" @click="slotreset" size="sm">Reset</btn>
-													</div>
-												</div>
 
-											</div>
-										</div>
-									</div>
-									
-									
-									
-									
-									
-								</div>
-							</tab>
-							
-						</tabs>
 
-					</div>
-					</div>
-					
-				</div>
 
-			</div>
-		</div>
-	</div>
-</div>
+
 </div>
 @endsection
 
 @section('my_footer')
 @parent
+
+@endsection
+
+@section('my_js_others')
+@parent
 <script>
 var vm_slot = new Vue({
-    el: '#slot_list',
+    el: '#app',
     data: {
-		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
+		current_nav: '',
+		current_subnav: '',
+		
+		sideractivename: '2-1-1',
+		sideropennames: ['2', '2-1'],
+
+		tablecolumns: [
+			{
+				type: 'index',
+				width: 60,
+				align: 'center'
+			},
+			{
+				title: 'id',
+				key: 'id',
+				sortable: true,
+				width: 80
+			},
+			{
+				title: 'name',
+				key: 'name'
+			},
+			{
+				title: 'created_at',
+				key: 'created_at',
+			},
+			{
+				title: 'updated_at',
+				key: 'updated_at',
+			},
+			{
+				title: 'Action',
+				key: 'action',
+				align: 'center',
+				render: (h, params) => {
+					return h('div', [
+						h('Button', {
+							props: {
+								type: 'primary',
+								size: 'small'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.field_detail(params.row)
+								}
+							}
+						}, 'View'),
+						h('Button', {
+							props: {
+								type: 'error',
+								size: 'small'
+							},
+							on: {
+								click: () => {
+									vm_app.field_delete(params.row.id)
+								}
+							}
+						}, 'Delete')
+					]);
+				}
+			}
+		],
+		tabledata: [],
+		
+		//分页
+		page_current: 1,
+		page_total: 1, // 记录总数，非总页数
+		page_size: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
+		page_last: 1,		
+		
 		// 创建ID
 		slot_add_id: '',
 		// 创建名称
 		slot_add_name: '',
 
 		// tabs索引
-		currenttabs: 0
+		currenttabs: 0,
+		
+		
+		
+		
+		
+		
+		
+		
+		
     },
 	methods: {
+		menuselect: function (name) {
+			navmenuselect(name);
+		},
+		// 1.加载进度条
+		loadingbarstart () {
+			this.$Loading.start();
+		},
+		loadingbarfinish () {
+			this.$Loading.finish();
+		},
+		loadingbarerror () {
+			this.$Loading.error();
+		},
+		// 2.Notice 通知提醒
+		info (nodesc, title, content) {
+			this.$Notice.info({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		success (nodesc, title, content) {
+			this.$Notice.success({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		warning (nodesc, title, content) {
+			this.$Notice.warning({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		error (nodesc, title, content) {
+			this.$Notice.error({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},		
+		// 切换当前页
+		oncurrentpagechange: function (currentpage) {
+			this.slotgets(currentpage, this.pagelast);
+		},
+		// 切换页记录数
+		onpagesizechange: function (pagesize) {
+			
+			var _this = this;
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_SLOT'] = pagesize;
+			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				cfg_data: cfg_data
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.page_size = pagesize;
+					_this.slotgets(1, _this.page_last);
+				} else {
+					_this.warning(false, 'Warning', 'failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', 'failed!');
+			})
+		},		
+		
+		// slot列表
+		slotgets: function(page, last_page){
+			var _this = this;
+			var url = "{{ route('admin.slot.slotgets') }}";
+			
+			if (page > last_page) {
+				page = last_page;
+			} else if (page < 1) {
+				page = 1;
+			}
+			_this.loadingbarstart();
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					perPage: _this.page_size,
+					page: page
+				}
+			})
+			.then(function (response) {
+				if (response.data.length == 0 || response.data.data == undefined) {
+					_this.alert_exit();
+				}
+				_this.page_current = response.data.current_page;
+				_this.page_total = response.data.total;
+				_this.page_last = response.data.last_page;
+				_this.tabledata = response.data.data;
+				
+				_this.loadingbarfinish();
+			})
+			.catch(function (error) {
+				_this.loadingbarerror();
+				_this.error(false, 'Error', error);
+			})
+		},		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// 显示当前slot并切换到编辑界面
 		slot_detail: function (index) {
 			var _this = this;
@@ -280,7 +399,7 @@ var vm_slot = new Vue({
 					_this.notification_message();
 					
 					// 刷新
-					_this.slotgets(_this.gets.current_page, _this.gets.last_page);
+					_this.slotgets(_this.current_page, _this.last_page);
 				}
 			})
 			.catch(function (error) {
@@ -290,36 +409,7 @@ var vm_slot = new Vue({
 				_this.notification_message();
 			})
 		},
-		// slot列表
-		slotgets: function(page, last_page){
-			var _this = this;
-			var url = "{{ route('admin.slot.slotgets') }}";
-			
-			if (page > last_page) {
-				page = last_page;
-			} else if (page < 1) {
-				page = 1;
-			}
-			_this.gets.current_page = page;
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url,{
-				params: {
-					perPage: _this.perpage,
-					page: page
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data.data) == "undefined") {
-					// alert(response);
-					_this.alert_exit();
-				}
-				_this.gets = response.data;
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
+
 		configperpageforslot: function (value) {
 			var _this = this;
 			var cfg_data = {};
@@ -344,8 +434,11 @@ var vm_slot = new Vue({
 		}
 	},
 	mounted: function(){
+		var _this = this;
+		_this.current_nav = '元素管理';
+		_this.current_subnav = '基本元素 - Slot';
 		// 显示所有slot
-		this.slotgets(1, 1); // page: 1, last_page: 1
+		_this.slotgets(1, 1); // page: 1, last_page: 1
 	}
 });
 </script>

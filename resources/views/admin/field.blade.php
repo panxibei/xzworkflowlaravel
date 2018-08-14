@@ -596,9 +596,8 @@ var vm_app = new Vue({
 				_this.loadingbarfinish();
 			})
 			.catch(function (error) {
-				console.log(error);
-				alert(error);
 				_this.loadingbarerror();
+				_this.error(false, 'Error', error);
 			})
 		},
 		
