@@ -233,9 +233,9 @@ Admin(Field) -
 					&nbsp;
 				</i-col>
 				<i-col span="6">
-					<i-button type="primary">Create</i-button>&nbsp;&nbsp;
-					<i-button type="primary">Update</i-button>&nbsp;&nbsp;
-					<i-button>Reset</i-button>
+					<i-button type="primary" @click="fieldcreateorupdate('create')">Create</i-button>&nbsp;&nbsp;
+					<i-button type="primary" @click="fieldcreateorupdate('update')">Update</i-button>&nbsp;&nbsp;
+					<i-button @click="onreset()">Reset</i-button>
 					<br><br>
 					<Card>
 						<p slot="title">示例/结果（新建/编辑）</p>
@@ -308,32 +308,29 @@ Admin(Field) -
 							<span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
 						</p>
 
-
-
-
-
-
+						<!--9-File-->
+						<p v-show="show_file">
+							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
+							<Upload
+								multiple
+								:action="field_add_url">
+								<i-button icon="ios-cloud-upload-outline" :disabled="field_add_readonly">Upload files</i-button>
+							</Upload>
+							<span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
+							
+						</p>
 
 					</Card>
 				</i-col>
 				<i-col span="3">
 				</i-col>
 			</i-row>
-		
-		
 
-			
 		</Tab-pane>
 
 	</Tabs>
 
-
 </div>
-
-
-
-
-
 
 @endsection
 
@@ -344,7 +341,6 @@ Admin(Field) -
 
 @section('my_js_others')
 @parent
-<script src="{{ asset('js/vue-color.min.js') }}"></script>
 <script>
 var vm_app = new Vue({
     el: '#app',
@@ -355,7 +351,6 @@ var vm_app = new Vue({
 		sideractivename: '2-1-1',
 		sideropennames: ['2', '2-1'],
 
-		
 		tablecolumns: [
 			{
 				title: 'id',
@@ -423,6 +418,24 @@ var vm_app = new Vue({
 		page_size: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
 		page_last: 1,
 		
+		// 创建ID
+		field_add_id: '',
+		// 创建名称
+		field_add_name: '',
+		// 创建类型
+		field_selected_add_type: [],
+        field_options_add_type: [
+			{value: '1-Text', label: '1-Text'},
+			{value: '2-True/False', label: '2-True/False'},
+			{value: '3-Number', label: '3-Number'},
+			{value: '4-Date', label: '4-Date'},
+			{value: '5-Textfield', label: '5-Textfield'},
+			{value: '6-Radiogroup', label: '6-Radiogroup'},
+			{value: '7-Checkboxgroup', label: '7-Checkboxgroup'},
+			{value: '8-Combobox', label: '8-Combobox'},
+			{value: '9-File', label: '9-File'}
+		],
+		
 		field_add_radio_quantity: 2,
 		field_add_radio_select: '',
 		
@@ -430,7 +443,7 @@ var vm_app = new Vue({
 		field_add_checkbox_select: [],
 
 		field_add_combobox_quantity: 2,
-		field_add_combobox_select: [],
+		field_add_combobox_select: '',
 		
 		// 创建radiochecked
 		radiochecked: [
@@ -466,6 +479,7 @@ var vm_app = new Vue({
 		field_add_regexp: '',
 		// url
 		field_add_url: '',
+		
 
 
 		
@@ -480,24 +494,7 @@ var vm_app = new Vue({
 		
 		
 		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
-		// 创建ID
-		field_add_id: '',
-		// 创建名称
-		field_add_name: '',
-		// 创建类型
-		field_selected_add_type: [],
-        field_options_add_type: [
-			{value: '1-Text', label: '1-Text'},
-			{value: '2-True/False', label: '2-True/False'},
-			{value: '3-Number', label: '3-Number'},
-			{value: '4-Date', label: '4-Date'},
-			{value: '5-Textfield', label: '5-Textfield'},
-			{value: '6-Radiogroup', label: '6-Radiogroup'},
-			{value: '7-Checkboxgroup', label: '7-Checkboxgroup'},
-			{value: '8-Combobox', label: '8-Combobox'},
-			{value: '9-File', label: '9-File'}
-		],
+		// perpage: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
 		field_add_bgcolor_hex: '',
 
 		// field_add_others: '',
@@ -713,9 +710,169 @@ var vm_app = new Vue({
 		
 		// 取消combobox选中状态
 		comboboxchecked_reset: function () {
-			this.field_add_combobox_select = [];
+			this.field_add_combobox_select = '';
 		},
+		
+		// Reset
+		onreset: function () {
+			this.field_selected_add_type = [];
+		},
+		
+		// 创建或更新field
+		fieldcreateorupdate: function (createorupdate) {
+			var _this = this;
+			var field_add_id = _this.field_add_id;
+			var field_add_name = _this.field_add_name;
+			
+			if(field_add_name.length==0){
+				_this.warning(false, 'Warning', 'Please input the field name!');
+				return false;
+			}
+			
+			var postdata = {};
+			postdata['createorupdate'] = createorupdate;
+			
+			postdata['id'] = field_add_id;
+			postdata['name'] = field_add_name;
+			
+			var field_selected_add_type = _this.field_selected_add_type[0];
+			postdata['type'] = field_selected_add_type;
+			
+			var field_add_bgcolor = _this.field_add_bgcolor;
+			postdata['bgcolor'] = field_add_bgcolor || '';
+			
+			var field_add_helpblock = _this.field_add_helpblock;
+			postdata['helpblock'] = field_add_helpblock || '';
+			
+			var field_add_readonly = _this.field_add_readonly;
+			postdata['readonly'] = field_add_readonly ? '1' : '0';
+			
+			var field_add_defaultvalue = _this.field_add_defaultvalue;
+			var field_add_placeholder = _this.field_add_placeholder;
+			var field_add_regexp = _this.field_add_regexp;
+			var field_add_ischecked = _this.field_add_ischecked;
 
+			var tmpstr = '';
+			// radiogroup
+			_this.radiochecked.map(function (v,i) {
+				tmpstr += v.value + '---';
+			});
+			var radiochecked = tmpstr.substring(0, tmpstr.length-3) + '|' + _this.field_add_radio_select;
+			
+			tmpstr = '';
+			// checkboxgroup;
+			_this.checkboxchecked.map(function (v,i) {
+				tmpstr += v.value + '---';
+			});
+			var checkboxchecked = tmpstr.substring(0, tmpstr.length-3);
+			tmpstr = '';
+			_this.field_add_checkbox_select.map(function (v,i) {
+				tmpstr += v + ',';
+			});
+			checkboxchecked = checkboxchecked + '|' + tmpstr.substring(0, tmpstr.length-1);
+
+			tmpstr = '';
+			// comboboxgroup
+			_this.comboboxchecked.map(function (v,i) {
+				tmpstr += v.value + '---';
+			});
+			if (_this.field_add_combobox_select != undefined) {
+				var comboboxchecked = tmpstr.substring(0, tmpstr.length-3) + '|' + _this.field_add_combobox_select;
+			} else {
+				var comboboxchecked = tmpstr.substring(0, tmpstr.length-3) + '|';
+			}
+			console.log(comboboxchecked);return false;
+			
+			// 分配
+			switch(field_selected_add_type)
+			{
+				case '1-Text': //text
+					postdata['value'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					postdata['regexp'] = field_add_regexp;
+					break;
+
+				case '2-True/False': //True/False
+					postdata['value'] = field_add_ischecked?'1':'0';
+					break;
+
+				case '3-Number': //Number
+					postdata['value'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					postdata['regexp'] = field_add_regexp;
+					break;
+
+				case '4-Date': //Date
+					postdata['value'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					postdata['regexp'] = field_add_regexp;
+					break;
+
+				case '5-Textfield': //Textfield
+					postdata['defaultvalue'] = field_add_defaultvalue;
+					postdata['placeholder'] = field_add_placeholder;
+					break;
+
+				case '6-Radiogroup': //Radiogroup
+					postdata['value'] = radiochecked;
+					break;
+
+				case '7-Checkboxgroup': //Checkboxgroup
+					postdata['value'] = checkboxchecked;
+					break;
+
+				case '8-Combobox': //Combobox
+					postdata['value'] = comboboxchecked;
+					postdata['placeholder'] = field_add_placeholder;
+					break;
+
+				case '9-File': //File
+					break;
+				
+				default:
+					_this.notification_type = 'danger';
+					_this.notification_title = 'Error';
+					_this.notification_content = 'Field type error!';
+					_this.notification_message();
+					return false;
+			}
+			postdata['placeholder'] = postdata['placeholder'] || '';
+			postdata['regexp'] = postdata['regexp'] || '';
+			postdata['value'] = postdata['value'] || '';
+
+
+			var url = "{{ route('admin.field.createorupdate') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				params: {
+					postdata: postdata
+				}
+			})
+			.then(function (response) {
+				// console.log(response);
+				if (typeof(response.data) == "undefined") {
+					_this.notification_type = 'danger';
+					_this.notification_title = 'Error';
+					_this.notification_content = 'Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
+					_this.notification_message();
+				} else {
+					_this.notification_type = 'success';
+					_this.notification_title = 'Success';
+					_this.notification_content = 'Field [' + field_add_name + '] ' + createorupdate + ' successfully!';
+					_this.notification_message();
+
+					if (createorupdate=='create') {_this.fieldreset()}
+
+				}
+			})
+			.catch(function (error) {
+				_this.notification_type = 'warning';
+				_this.notification_title = 'Warning';
+				// _this.notification_content = error.response.data.message;
+					_this.notification_content = 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
+				_this.notification_message();
+			})
+		},
 		
 		
 		
@@ -970,154 +1127,7 @@ var vm_app = new Vue({
 					// _this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
 			}
 		},
-		// 创建或更新field
-		fieldcreateorupdate: function (createorupdate) {
-			var _this = this;
-			var field_add_id = _this.field_add_id;
-			var field_add_name = _this.field_add_name;
-			
-			if(field_add_name.length==0){
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please input the field name!';
-				_this.notification_message();
-				return false;
-			}
-			
-			var postdata = {};
-			postdata['createorupdate'] = createorupdate;
-			
-			postdata['id'] = field_add_id;
-			postdata['name'] = field_add_name;
-			
-			var field_selected_add_type = _this.field_selected_add_type[0];
-			postdata['type'] = field_selected_add_type;
-			
-			var field_add_bgcolor_hex = _this.field_add_bgcolor_hex;
-			postdata['bgcolor'] = field_add_bgcolor_hex || '';
-			
-			var field_add_helpblock = _this.field_add_helpblock;
-			postdata['helpblock'] = field_add_helpblock || '';
-			
-			var field_add_readonly = _this.field_add_readonly;
-			postdata['readonly'] = field_add_readonly ? '1' : '0';
-			
-			var field_add_defaultvalue = _this.field_add_defaultvalue;
-			var field_add_placeholder = _this.field_add_placeholder;
-			var field_add_regexp = _this.field_add_regexp;
-			var field_add_ischecked = _this.field_add_ischecked;
 
-			var tmpstr = '';
-			// radiogroup
-			_this.radiochecked.map(function (v,i) {
-				tmpstr += v.value + '---' + (v.ischecked?1:0) + '---';
-			});
-			var radiochecked = tmpstr.substring(0, tmpstr.length-3);
-
-			tmpstr = '';
-			// checkboxgroup;
-			_this.checkboxchecked.map(function (v,i) {
-				tmpstr += v.value + '---' + (v.ischecked?1:0) + '---';
-			});
-			var checkboxchecked = tmpstr.substring(0, tmpstr.length-3);
-
-			tmpstr = '';
-			// comboboxgroup
-			_this.comboboxchecked.map(function (v,i) {
-				tmpstr += v.label + '---' + (_this.comboboxchecked_select[0]==v.value?1:0) + '---';
-			});
-			var comboboxchecked = tmpstr.substring(0, tmpstr.length-3);
-			
-			// 分配
-			switch(field_selected_add_type)
-			{
-				case '1-Text': //text
-					postdata['value'] = field_add_defaultvalue;
-					postdata['placeholder'] = field_add_placeholder;
-					postdata['regexp'] = field_add_regexp;
-					break;
-
-				case '2-True/False': //True/False
-					postdata['value'] = field_add_ischecked?'1':'0';
-					break;
-
-				case '3-Number': //Number
-					postdata['value'] = field_add_defaultvalue;
-					postdata['placeholder'] = field_add_placeholder;
-					postdata['regexp'] = field_add_regexp;
-					break;
-
-				case '4-Date': //Date
-					postdata['value'] = field_add_defaultvalue;
-					postdata['placeholder'] = field_add_placeholder;
-					postdata['regexp'] = field_add_regexp;
-					break;
-
-				case '5-Textfield': //Textfield
-					postdata['defaultvalue'] = field_add_defaultvalue;
-					postdata['placeholder'] = field_add_placeholder;
-					break;
-
-				case '6-Radiogroup': //Radiogroup
-					postdata['value'] = radiochecked;
-					break;
-
-				case '7-Checkboxgroup': //Checkboxgroup
-					postdata['value'] = checkboxchecked;
-					break;
-
-				case '8-Combobox': //Combobox
-					postdata['value'] = comboboxchecked;
-					postdata['placeholder'] = field_add_placeholder;
-					break;
-
-				case '9-File': //File
-					break;
-				
-				default:
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Field type error!';
-					_this.notification_message();
-					return false;
-			}
-			postdata['placeholder'] = postdata['placeholder'] || '';
-			postdata['regexp'] = postdata['regexp'] || '';
-			postdata['value'] = postdata['value'] || '';
-
-
-			var url = "{{ route('admin.field.createorupdate') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					postdata: postdata
-				}
-			})
-			.then(function (response) {
-				// console.log(response);
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
-					_this.notification_message();
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Field [' + field_add_name + '] ' + createorupdate + ' successfully!';
-					_this.notification_message();
-
-					if (createorupdate=='create') {_this.fieldreset()}
-
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				// _this.notification_content = error.response.data.message;
-					_this.notification_content = 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
-				_this.notification_message();
-			})
-		},
 		// 删除field
 		field_delete: function (id) {
 			var _this = this;
