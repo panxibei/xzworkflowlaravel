@@ -157,7 +157,7 @@ Admin(Field) -
 						</p>
 						<br>
 						<p>
-							<Radio-group v-model="field_add_radio_select" vertical>
+							<Radio-group v-model.lazy="field_add_radio_select" vertical>
 								<span v-for="(item, index) in radiochecked">
 									<Radio :label="item.value"></Radio>
 									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
@@ -179,7 +179,7 @@ Admin(Field) -
 						</p>
 						<br>
 						<p>
-							<Checkbox-group v-model="field_add_checkbox_select">
+							<Checkbox-group v-model.lazy="field_add_checkbox_select">
 								<span v-for="(item, index) in checkboxchecked">
 									<Checkbox :label="item.value"></Checkbox>
 									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
@@ -201,13 +201,13 @@ Admin(Field) -
 						</p>
 						<br>
 						<p>
-							<Radio-group v-model="field_add_combobox_select" vertical>
+							<Checkbox-group v-model.lazy="field_add_combobox_select" vertical>
 								<span v-for="(item, index) in comboboxchecked">
-									<Radio :label="item.value"></Radio>
+									<Checkbox :label="item.value"></Checkbox>
 									* <i-input type="text" v-model="item.value" size="small" style="width: 200px">
 									<br>
 								</span>
-							</Radio-group>
+							</Checkbox-group>
 						</p>
 						<br>
 						<p>
@@ -280,7 +280,7 @@ Admin(Field) -
 						<!--6-Radiogroup-->
 						<p v-show="show_radiogroup">
 							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
-							<Radio-group v-model="field_add_radio_select" vertical>
+							<Radio-group v-model.lazy="field_add_radio_select" vertical>
 								<span v-for="(item, index) in radiochecked">
 									<Radio :label="item.value" :disabled="field_add_readonly"></Radio>
 								</span>
@@ -291,7 +291,7 @@ Admin(Field) -
 						<!--7-Checkboxgroup-->
 						<p v-show="show_checkboxgroup">
 							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
-							<Checkbox-group v-model="field_add_checkbox_select">
+							<Checkbox-group v-model.lazy="field_add_checkbox_select">
 								<span v-for="(item, index) in checkboxchecked">
 									<Checkbox :label="item.value" :disabled="field_add_readonly"></Checkbox>
 								</span>
@@ -302,7 +302,7 @@ Admin(Field) -
 						<!--8-Combobox-->
 						<p v-show="show_combobox">
 							<span :style="{background: field_add_bgcolor}">@{{field_add_name||'未命名'}}</span><br>
-							<i-select v-model="field_add_combobox_select" clearable size="small" style="width:200px">
+							<i-select v-model="field_add_combobox_select" multiple clearable filterable size="small" style="width:200px">
 								<i-option v-for="item in comboboxchecked" :value="item.value" :key="item.value">@{{ item.value }}</i-option>
 							</i-select>
 							<span style="color: rgb(128, 132, 143);">@{{field_add_helpblock}}</span>
@@ -423,7 +423,7 @@ var vm_app = new Vue({
 		// 创建名称
 		field_add_name: '',
 		// 创建类型
-		field_selected_add_type: [],
+		field_selected_add_type: '',
         field_options_add_type: [
 			{value: '1-Text', label: '1-Text'},
 			{value: '2-True/False', label: '2-True/False'},
@@ -443,7 +443,7 @@ var vm_app = new Vue({
 		field_add_checkbox_select: [],
 
 		field_add_combobox_quantity: 2,
-		field_add_combobox_select: '',
+		field_add_combobox_select: [],
 		
 		// 创建radiochecked
 		radiochecked: [
@@ -693,11 +693,13 @@ var vm_app = new Vue({
 					this.comboboxchecked.push({value: 'combobox'+parseInt(len+i+1)});
 				}
 			} else if (counts < len) {
-				if (this.field_add_combobox_select != '') {
+				if (this.field_add_combobox_select[0] != '') {
 					for (var i=counts;i<len;i++) {
-						if (this.field_add_combobox_select == this.comboboxchecked[i].value) {
-							this.field_add_combobox_select = '';
-							break;
+						var len0 = this.field_add_combobox_select.length;
+						for (var j=0;j<len0;j++) {
+							if (this.field_add_combobox_select[j] == this.comboboxchecked[i].value) {
+								this.field_add_combobox_select.splice(j, 1);
+							}
 						}
 					}
 				}
@@ -710,12 +712,12 @@ var vm_app = new Vue({
 		
 		// 取消combobox选中状态
 		comboboxchecked_reset: function () {
-			this.field_add_combobox_select = '';
+			this.field_add_combobox_select = [];
 		},
 		
 		// Reset
 		onreset: function () {
-			this.field_selected_add_type = [];
+			this.field_selected_add_type = '';
 		},
 		
 		// 创建或更新field
@@ -735,7 +737,7 @@ var vm_app = new Vue({
 			postdata['id'] = field_add_id;
 			postdata['name'] = field_add_name;
 			
-			var field_selected_add_type = _this.field_selected_add_type[0];
+			var field_selected_add_type = _this.field_selected_add_type;
 			postdata['type'] = field_selected_add_type;
 			
 			var field_add_bgcolor = _this.field_add_bgcolor;
@@ -758,7 +760,7 @@ var vm_app = new Vue({
 				tmpstr += v.value + '---';
 			});
 			var radiochecked = tmpstr.substring(0, tmpstr.length-3) + '|' + _this.field_add_radio_select;
-			
+
 			tmpstr = '';
 			// checkboxgroup;
 			_this.checkboxchecked.map(function (v,i) {
@@ -776,12 +778,12 @@ var vm_app = new Vue({
 			_this.comboboxchecked.map(function (v,i) {
 				tmpstr += v.value + '---';
 			});
-			if (_this.field_add_combobox_select != undefined) {
-				var comboboxchecked = tmpstr.substring(0, tmpstr.length-3) + '|' + _this.field_add_combobox_select;
-			} else {
-				var comboboxchecked = tmpstr.substring(0, tmpstr.length-3) + '|';
-			}
-			console.log(comboboxchecked);return false;
+			var comboboxchecked = tmpstr.substring(0, tmpstr.length-3);
+			tmpstr = '';
+			_this.field_add_combobox_select.map(function (v,i) {
+				tmpstr += v + ',';
+			});
+			comboboxchecked = comboboxchecked + '|' + tmpstr.substring(0, tmpstr.length-1);
 			
 			// 分配
 			switch(field_selected_add_type)
@@ -830,10 +832,7 @@ var vm_app = new Vue({
 					break;
 				
 				default:
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Field type error!';
-					_this.notification_message();
+					_this.error(false, 'Error', 'Field type error!');
 					return false;
 			}
 			postdata['placeholder'] = postdata['placeholder'] || '';
@@ -844,34 +843,42 @@ var vm_app = new Vue({
 			var url = "{{ route('admin.field.createorupdate') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					postdata: postdata
-				}
+				postdata: postdata
 			})
 			.then(function (response) {
 				// console.log(response);
 				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
-					_this.notification_message();
+					_this.warning(false, 'Error', 'Field [' + field_add_name + '] failed to ' + createorupdate + ' !');
 				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Field [' + field_add_name + '] ' + createorupdate + ' successfully!';
-					_this.notification_message();
+					_this.success(false, 'Success', 'Field [' + field_add_name + '] ' + createorupdate + ' successfully!');
 
 					if (createorupdate=='create') {_this.fieldreset()}
 
 				}
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				// _this.notification_content = error.response.data.message;
-					_this.notification_content = 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !';
-				_this.notification_message();
+				_this.error(false, 'Error', 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !');
 			})
+		},
+		
+		fieldreset: function () {
+			var _this = this;
+			_this.field_add_id = '';
+			_this.field_add_name = '';
+			_this.field_selected_add_type = '';
+			_this.field_add_bgcolor = '';
+			_this.field_add_helpblock = '';
+			_this.field_add_readonly = false;
+			_this.field_add_defaultvalue = '';
+			_this.field_add_placeholder = '';
+			_this.field_add_regexp = '';
+			_this.field_add_ischecked = false;
+			
+			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
+		
+			_this.radiochecked_generate(2);
+			_this.checkboxchecked_generate(2);
+			_this.comboboxchecked_generate(2);
 		},
 		
 		
@@ -1039,26 +1046,7 @@ var vm_app = new Vue({
 			}
 
 		},
-		fieldreset: function () {
-			var _this = this;
-			_this.field_add_id = '';
-			_this.field_add_name = '';
-			_this.field_selected_add_type = [];
-			_this.field_add_bgcolor = '';
-			_this.field_add_bgcolor_hex = '';
-			_this.field_add_helpblock = '';
-			_this.field_add_readonly = false;
-			_this.field_add_defaultvalue = '';
-			_this.field_add_placeholder = '';
-			_this.field_add_regexp = '';
-			_this.field_add_ischecked = false;
-			
-			_this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
-		
-			_this.radiochecked_generate(2);
-			_this.checkboxchecked_generate(2);
-			_this.comboboxchecked_generate(2);
-		},
+
 		alert_exit: function () {
 			this.$alert({
 				title: '会话超时',

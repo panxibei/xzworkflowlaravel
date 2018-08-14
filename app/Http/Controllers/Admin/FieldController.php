@@ -107,7 +107,7 @@ class FieldController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$postdata = $request->input('params.postdata');
+		$postdata = $request->input('postdata');
 		// dd($postdata);
 		
 		if ('create' == $postdata['createorupdate']) {
