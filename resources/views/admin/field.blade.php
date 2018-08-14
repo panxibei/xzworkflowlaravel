@@ -353,6 +353,11 @@ var vm_app = new Vue({
 
 		tablecolumns: [
 			{
+				type: 'index',
+				width: 60,
+				align: 'center'
+			},
+			{
 				title: 'id',
 				key: 'id',
 				sortable: true,
@@ -391,7 +396,7 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.showperson(params.index)
+									vm_app.field_detail(params.row)
 								}
 							}
 						}, 'View'),
@@ -402,7 +407,7 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.removeperson(params.index)
+									vm_app.field_delete(params.row.id)
 								}
 							}
 						}, 'Delete')
@@ -436,28 +441,25 @@ var vm_app = new Vue({
 			{value: '9-File', label: '9-File'}
 		],
 		
+		// 创建radiochecked
 		field_add_radio_quantity: 2,
 		field_add_radio_select: '',
-		
-		field_add_checkbox_quantity: 2,
-		field_add_checkbox_select: [],
-
-		field_add_combobox_quantity: 2,
-		field_add_combobox_select: [],
-		
-		// 创建radiochecked
 		radiochecked: [
 			{value: 'radio1'},
 			{value: 'radio2'}
 		],
 		
 		// 创建checkbox
+		field_add_checkbox_quantity: 2,
+		field_add_checkbox_select: [],
 		checkboxchecked: [
 			{value: 'checkbox1'},
 			{value: 'checkbox2'}
 		],
 		
 		// 创建combobox
+		field_add_combobox_quantity: 2,
+		field_add_combobox_select: [],
 		comboboxchecked: [
 			{value: 'combobox1'},
 			{value: 'combobox2'}
@@ -480,26 +482,7 @@ var vm_app = new Vue({
 		// url
 		field_add_url: '',
 		
-
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		gets: {},
-		// perpage: {{ $config['PERPAGE_RECORDS_FOR_FIELD'] }},
-		field_add_bgcolor_hex: '',
-
-		// field_add_others: '',
-		// field动态示例
-		// field_add_example: '',
+		// 显示扩展属性
 		show_text: false,
 		show_trueorfalse: false,
 		show_number: false,
@@ -509,17 +492,8 @@ var vm_app = new Vue({
 		show_checkboxgroup: false,
 		show_combobox: false,
 		show_file: false,
-		// select样例
-		selected: [],
-        options: [
-			{value: 1, label:'Option1'},
-			{value: 2, label:'Option2'},
-			{value: 3, label:'Option3333333333'},
-			{value: 4, label:'Option4'},
-			{value: 5, label:'Option5'}
-        ],
 		// tabs索引
-		currenttabs: 1
+		currenttabs: 0
     },
 
 	methods: {
@@ -610,11 +584,9 @@ var vm_app = new Vue({
 				}
 			})
 			.then(function (response) {
-				// if (typeof(response.data.data) == "undefined") {
-					// alert(response);
-					// _this.alert_exit();
-				// }
-				// _this.gets = response.data;
+				if (response.data.length == 0 || response.data.data == undefined) {
+					_this.alert_exit();
+				}
 				
 				_this.page_current = response.data.current_page;
 				_this.page_total = response.data.total;
@@ -717,7 +689,7 @@ var vm_app = new Vue({
 		
 		// Reset
 		onreset: function () {
-			this.field_selected_add_type = '';
+			this.fieldreset();
 		},
 		
 		// 创建或更新field
@@ -846,15 +818,15 @@ var vm_app = new Vue({
 				postdata: postdata
 			})
 			.then(function (response) {
-				// console.log(response);
-				if (typeof(response.data) == "undefined") {
+				if (response.data != 1) {
 					_this.warning(false, 'Error', 'Field [' + field_add_name + '] failed to ' + createorupdate + ' !');
 				} else {
 					_this.success(false, 'Success', 'Field [' + field_add_name + '] ' + createorupdate + ' successfully!');
 
 					if (createorupdate=='create') {_this.fieldreset()}
-
 				}
+				// 刷新
+				_this.fieldgets(_this.current_page, _this.last_page);
 			})
 			.catch(function (error) {
 				_this.error(false, 'Error', 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !');
@@ -881,112 +853,89 @@ var vm_app = new Vue({
 			_this.comboboxchecked_generate(2);
 		},
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		// 显示当前field并切换到编辑界面
-		field_detail: function (index) {
+		field_detail: function (row) {
 			var _this = this;
-			// console.log(index);
-			// console.log(_this.gets.data[index].readonly);
-			// _this.field_add_type_change(_this.gets.data[index].type);
 			
-			_this.field_add_id = _this.gets.data[index].id;
-			_this.field_add_name = _this.gets.data[index].name;
-			_this.field_selected_add_type = [_this.gets.data[index].type];
-			_this.field_add_bgcolor_hex = _this.gets.data[index].bgcolor;
+			_this.field_add_id = row.id;
+			_this.field_add_name = row.name;
+			_this.field_selected_add_type = row.type;
+			_this.field_add_bgcolor = row.bgcolor || '';
 			
-			_this.field_add_helpblock = _this.gets.data[index].helpblock;
-			_this.field_add_readonly = _this.gets.data[index].readonly ? true : false;
-			_this.field_add_placeholder = _this.gets.data[index].placeholder;
-			_this.field_add_regexp = _this.gets.data[index].regexp;
+			_this.field_add_helpblock = row.helpblock;
+			_this.field_add_readonly = row.readonly ? true : false;
+			_this.field_add_placeholder = row.placeholder;
+			_this.field_add_regexp = row.regexp;
 
-			
-			// _this.field_add_defaultvalue = _this.gets.data[index].defaultvalue;
 			// 选择不同field显示不同值
-			switch(_this.gets.data[index].type)
+			switch(row.type)
 			{
 				case '1-Text': //text
-					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					_this.field_add_defaultvalue = row.value;
 					break;
 
 				case '2-True/False': //True/False
-					_this.field_add_ischecked = _this.gets.data[index].value == 1 ? true : false;
+					_this.field_add_ischecked = row.value == 1 ? true : false;
 					break;
 
 				case '3-Number': //Number
-					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					_this.field_add_defaultvalue = row.value;
 					break;
 
 				case '4-Date': //Date
-					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					_this.field_add_defaultvalue = row.value;
 					break;
 
 				case '5-Textfield': //Textfield
-					_this.field_add_defaultvalue = _this.gets.data[index].value;
+					_this.field_add_defaultvalue = row.value;
 					break;
 
 				case '6-Radiogroup': //Radiogroup
-					var arr_tmp = _this.gets.data[index].value.split('---');
-					var arr_counts = arr_tmp.length;
-					var arr_result = [];
+					var arr_tmp = row.value.split('|');
+					var arr_tmp_options = arr_tmp[0].split('---');
+					var arr_tmp_selects = arr_tmp[1].split(',');
 					
-					for(var i=0;i<arr_counts;i+=2)
-					{
-						arr_result.push({value: arr_tmp[i], ischecked: arr_tmp[i+1]==1?true:false});
-					}
-					_this.radiochecked = arr_result;
-
+					_this.radiochecked = [];
+					arr_tmp_options.map(function (v,i) {
+						_this.radiochecked.push({value: v});
+					});
+					
+					_this.field_add_radio_select = arr_tmp_selects[0];
+					
 					break;
 
 				case '7-Checkboxgroup': //Checkboxgroup
-					arr_tmp = _this.gets.data[index].value.split('---');
-					arr_counts = arr_tmp.length;
-					arr_result = [];
+					var arr_tmp = row.value.split('|');
+					var arr_tmp_options = arr_tmp[0].split('---');
+					var arr_tmp_selects = arr_tmp[1].split(',');
+				
+					_this.checkboxchecked = [];
+					arr_tmp_options.map(function (v,i) {
+						_this.checkboxchecked.push({value: v});
+					});
 					
-					for(var i=0;i<arr_counts;i+=2)
-					{
-						arr_result.push({value: arr_tmp[i], ischecked: arr_tmp[i+1]==1?true:false});
-					console.log(arr_tmp[i+1]);
-					}
-					_this.checkboxchecked = arr_result;
+					_this.field_add_checkbox_select = [];
+					arr_tmp_selects.map(function (v,i) {
+						_this.field_add_checkbox_select.push(v);
+					});
 
 					break;
 
 				case '8-Combobox': //Combobox
-					arr_tmp = _this.gets.data[index].value.split('---');
-					arr_counts = arr_tmp.length;
-					arr_result = [];
-					var selectstring = '';
+					var arr_tmp = row.value.split('|');
+					var arr_tmp_options = arr_tmp[0].split('---');
+					var arr_tmp_selects = arr_tmp[1].split(',');
 					
-					for(var i=0;i<arr_counts;i+=2)
-					{
-						// arr_result.push({value: arr_tmp[i], label: arr_tmp[i+1]==1?true:false});
-						arr_result.push({value: arr_tmp[i], label: arr_tmp[i]});
-						if (arr_tmp[i+1] == 1) {
-							selectstring = arr_tmp[i];
-						}
-					}
-					_this.comboboxchecked = arr_result;
-					_this.comboboxchecked_select = [selectstring];
+					_this.comboboxchecked = [];
+					arr_tmp_options.map(function (v,i) {
+						_this.comboboxchecked.push({value: v});
+					});
 					
+					_this.field_add_combobox_select = [];
+					arr_tmp_selects.map(function (v,i) {
+						_this.field_add_combobox_select.push(v);
+					});
+
 					break;
 
 				case '9-File': //File
@@ -996,78 +945,45 @@ var vm_app = new Vue({
 				default:
 			}
 
-
-
 			// 切换出相应field状态			
-			_this.field_add_type_change(_this.gets.data[index].type);
+			_this.field_add_type_change(row.type);
 
 			// 切换到第二个面板
 			_this.currenttabs = 1;
-		},
-		// 点击radio后选中的状态
-		radiochecked_change: function (index) {
-			this.radiochecked.map(function (v,i) {
-			if(i==index){
-					v.ischecked = true
-				}else{
-					v.ischecked = false
-				}
-			});
+		},		
+		
+		
+		// 删除field
+		field_delete: function (id) {
+			var _this = this;
 			
-		},
-
-		// 点击checkbox后选中的状态
-		checkboxchecked_change: function (index) {
-			this.checkboxchecked[index].ischecked = ! this.checkboxchecked[index].ischecked
-		},
-		// 点击combobox后选中的状态
-		comboboxchecked_change: function (index) {
-			// console.log(index);return false;
-			// console.log(this.comboboxchecked[index]);
-			// console.log(this.comboboxchecked[index].label);
-			// console.log(this.comboboxchecked[index].value);
-			if (this.comboboxchecked[index] == undefined) {
-				this.comboboxchecked_select = [];
-				this.comboboxchecked.map(function (v,i) {
-					v.ischecked = false
-				});
-				
-			} else {
-				this.comboboxchecked_select = [
-					this.comboboxchecked[index].value
-				];
-				this.comboboxchecked.map(function (v,i) {
-					if(i==index){
-						v.ischecked = true
-					}else{
-						v.ischecked = false
-					}
-				});
+			if (id == undefined) {
+				_this.error(false, 'Error', 'Please select the field(s)!');
+				return false;
 			}
-
-		},
-
-		alert_exit: function () {
-			this.$alert({
-				title: '会话超时',
-				content: '会话超时，请重新登录！'
-			// }, (msg) => {
-			}, function (msg) {
-				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`);
-				// this.$notify('You selected ${msg}.');
-				// window.setTimeout(function(){
-					window.location.href = "{{ route('admin.config.index') }}";
-				// },1000);
+			
+			var url = "{{ route('admin.field.fielddelete') }}";
+			// alert(url);return false;
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				id: id
 			})
-		},
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
+			.then(function (response) {
+				if (typeof(response.data) == "undefined") {
+					_this.warning(false, 'Warning', 'Field(s) failed to delete!');
+				} else {
+					_this.success(false, 'Success', 'Field(s) deleted successfully!');
+					
+					// 刷新
+					_this.fieldgets(_this.current_page, _this.last_page);
+				}
 			})
-		},
+			.catch(function (error) {
+				_this.error(false, 'Error', error.response.data.message);
+			})
+		},		
+		
+
 		// 选择不同类型
 		field_add_type_change: function (value) {
 			var _this = this;
@@ -1115,57 +1031,21 @@ var vm_app = new Vue({
 					// _this.show_text=_this.show_trueorfalse=_this.show_number=_this.show_date=_this.show_textfield=_this.show_radiogroup=_this.show_checkboxgroup=_this.show_combobox=_this.show_file=false;
 			}
 		},
-
-		// 删除field
-		field_delete: function (id) {
-			var _this = this;
-			
-			if (id == undefined) {
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please select the field(s)!';
-				_this.notification_message();
-				return false;
-			}
-			
-			var url = "{{ route('admin.field.fielddelete') }}";
-			// alert(url);return false;
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					id: id
+		
+		alert_exit: function () {
+			this.$Notice.error({
+				title: '会话超时',
+				desc: '会话超时，请重新登录！',
+				duration: 2,
+				onClose: function () {
+					window.location.href = "{{ route('login') }}";
 				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Field(s) failed to delete!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Field(s) deleted successfully!';
-					_this.notification_message();
-					
-					// 刷新
-					_this.fieldgets(_this.gets.current_page, _this.gets.last_page);
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
+			});
 		},
+
+
+
 	},
-	watch: {
-        field_add_bgcolor: function(val) {
-            this.field_add_bgcolor_hex = val['hex'];
-        }
-    },
 	mounted: function(){
 		var _this = this;
 		_this.current_nav = '元素管理';

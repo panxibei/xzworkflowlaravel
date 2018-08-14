@@ -131,8 +131,6 @@ class FieldController extends Controller
 				$result = 0;
 			}
 
-			return $result;
-		
 		} elseif ('update' == $postdata['createorupdate']) {
 			
 			// 更新field
@@ -158,6 +156,8 @@ class FieldController extends Controller
 		} else {
 			$result = 0;
 		}
+		
+		return $result;
     }
 	
     /**
@@ -170,7 +170,7 @@ class FieldController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$id = $request->only('params.id');
+		$id = $request->only('id');
 
 		$result = Field::whereIn('id', $id)->delete();
 		return $result;
