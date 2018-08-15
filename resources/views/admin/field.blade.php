@@ -825,7 +825,7 @@ var vm_app = new Vue({
 					if (createorupdate=='create') {_this.fieldreset()}
 				}
 				// 刷新
-				_this.fieldgets(_this.current_page, _this.last_page);
+				_this.fieldgets(_this.page_current, _this.last_page);
 			})
 			.catch(function (error) {
 				_this.error(false, 'Error', 'Error! Field [' + field_add_name + '] failed to ' + createorupdate + ' !');
@@ -968,13 +968,13 @@ var vm_app = new Vue({
 				id: id
 			})
 			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
+				if (response.data == undefined) {
 					_this.warning(false, 'Warning', 'Field(s) failed to delete!');
 				} else {
 					_this.success(false, 'Success', 'Field(s) deleted successfully!');
 					
 					// 刷新
-					_this.fieldgets(_this.current_page, _this.last_page);
+					_this.fieldgets(_this.page_current, _this.last_page);
 				}
 			})
 			.catch(function (error) {

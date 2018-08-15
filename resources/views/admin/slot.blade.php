@@ -23,12 +23,12 @@ Admin(slot) -
 			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 		</Tab-pane>
 
-		<Tab-pane label="Create/Edit Field">
+		<Tab-pane label="Create/Edit Slot">
 		
 			<i-row>
-				<i-col span="6">
+				<i-col span="8">
 					<Card>
-						<p slot="title">新建/编辑SLOT</p>
+						<p slot="title">新建/编辑 SLOT</p>
 						<p>
 							<input v-model="slot_add_id" type="hidden">
 							* 名称<br>
@@ -40,30 +40,14 @@ Admin(slot) -
 						<i-button @click="onreset()">Reset</i-button>
 					</Card>
 				</i-col>
-				<i-col span="18">
+				<i-col span="16">
 				&nbsp;
 				</i-col>
 			</i-row>
 
 		</Tab-pane>
 
-	</Tabs>	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-
-
-
-
-
+	</Tabs>
 
 </div>
 @endsection
@@ -76,13 +60,13 @@ Admin(slot) -
 @section('my_js_others')
 @parent
 <script>
-var vm_slot = new Vue({
+var vm_app = new Vue({
     el: '#app',
     data: {
 		current_nav: '',
 		current_subnav: '',
 		
-		sideractivename: '2-1-1',
+		sideractivename: '2-1-2',
 		sideropennames: ['2', '2-1'],
 
 		tablecolumns: [
@@ -125,7 +109,7 @@ var vm_slot = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.field_detail(params.row)
+									vm_app.slot_detail(params.row)
 								}
 							}
 						}, 'View'),
@@ -136,7 +120,7 @@ var vm_slot = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.field_delete(params.row.id)
+									vm_app.slot_delete(params.row.id)
 								}
 							}
 						}, 'Delete')
@@ -207,7 +191,19 @@ var vm_slot = new Vue({
 				title: title,
 				desc: nodesc ? '' : content
 			});
-		},		
+		},
+		
+		alert_exit: function () {
+			this.$Notice.error({
+				title: '会话超时',
+				desc: '会话超时，请重新登录！',
+				duration: 2,
+				onClose: function () {
+					window.location.href = "{{ route('login') }}";
+				}
+			});
+		},
+		
 		// 切换当前页
 		oncurrentpagechange: function (currentpage) {
 			this.slotgets(currentpage, this.pagelast);
@@ -269,55 +265,13 @@ var vm_slot = new Vue({
 				_this.loadingbarerror();
 				_this.error(false, 'Error', error);
 			})
-		},		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// 显示当前slot并切换到编辑界面
-		slot_detail: function (index) {
-			var _this = this;
-			
-			_this.slot_add_id = _this.gets.data[index].id;
-			_this.slot_add_name = _this.gets.data[index].name;
-
-			// 切换到第二个面板
-			_this.currenttabs = 1;
 		},
-		slotreset: function () {
+		
+		onreset: function () {
 			this.slot_add_id = '';
 			this.slot_add_name = '';
 		},
-		alert_exit: function () {
-			this.$alert({
-				title: '会话超时',
-				content: '会话超时，请重新登录！'
-			// }, (msg) => {
-			}, function (msg) {
-				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`);
-				// this.$notify('You selected ${msg}.');
-				// window.setTimeout(function(){
-					window.location.href = "{{ route('admin.config.index') }}";
-				// },1000);
-			})
-		},
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
-			})
-		},
+		
 		// 创建或更新slot
 		slotcreateorupdate: function (createorupdate) {
 			var _this = this;
@@ -327,111 +281,72 @@ var vm_slot = new Vue({
 			postdata['createorupdate'] = createorupdate;
 			
 			if(postdata['name'].length==0){
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please input the slot name!';
-				_this.notification_message();
+				_this.error(false, 'Error', 'Please input the slot name!');
 				return false;
 			}
 
 			var url = "{{ route('admin.slot.createorupdate') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					postdata: postdata
-				}
+				postdata: postdata
 			})
 			.then(function (response) {
 				// console.log(response);
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'slot failed to ' + createorupdate + ' !';
-					_this.notification_message();
+				if (response.data != 1) {
+					_this.error(false, 'Error', 'slot failed to ' + createorupdate + ' !');
 				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'slot ' + createorupdate + ' successfully!';
-					_this.notification_message();
+					_this.success(false, 'Success', 'slot ' + createorupdate + ' successfully!');
 
-					if (createorupdate=='create') {_this.slotreset()}
-
+					if (createorupdate=='create') {_this.onreset()}
 				}
+				// 刷新
+				_this.slotgets(_this.page_current, _this.last_page);
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				// _this.notification_content = error.response.data.message;
-					_this.notification_content = 'Error! slot failed to ' + createorupdate + ' !';
-				_this.notification_message();
+				_this.error(false, 'Error', 'Error! slot failed to ' + createorupdate + ' !');
 			})
+		},		
+		
+		// 显示当前slot并切换到编辑界面
+		slot_detail: function (row) {
+			var _this = this;
+			
+			_this.slot_add_id = row.id;
+			_this.slot_add_name = row.name;
+
+			// 切换到第二个面板
+			_this.currenttabs = 1;
 		},
+		
 		// 删除slot
 		slot_delete: function (id) {
 			var _this = this;
 			
 			if (id == undefined) {
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please select the slot(s)!';
-				_this.notification_message();
+				_this.error(false, 'Error', 'Please select the slot(s)!');
 				return false;
 			}
 			
 			var url = "{{ route('admin.slot.slotdelete') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					id: id
-				}
+				id: id
 			})
 			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'slot(s) failed to delete!';
-					_this.notification_message();
-					
+				if (response.data == undefined) {
+					_this.warning(false, 'Warning', 'Slot(s) failed to delete!');
 				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'slot(s) deleted successfully!';
-					_this.notification_message();
+					_this.success(false, 'Success', 'Slot(s) deleted successfully!');
 					
 					// 刷新
-					_this.slotgets(_this.current_page, _this.last_page);
+					_this.slotgets(_this.page_current, _this.last_page);
 				}
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
+				_this.error(false, 'Error', error.response.data.message);
 			})
 		},
-
-		configperpageforslot: function (value) {
-			var _this = this;
-			var cfg_data = {};
-			cfg_data['PERPAGE_RECORDS_FOR_SLOT'] = value;
-			var url = "{{ route('admin.config.change') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				cfg_data: cfg_data
-			})
-			.then(function (response) {
-				if (response.data) {
-					_this.perpage = value;
-					_this.slotgets(1, 1);
-				} else {
-					alert('failed');
-				}
-			})
-			.catch(function (error) {
-				alert('failed');
-				// console.log(error);
-			})
-		}
+		
 	},
 	mounted: function(){
 		var _this = this;

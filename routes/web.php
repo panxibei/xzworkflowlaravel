@@ -132,9 +132,11 @@ Route::group(['prefix'=>'slot', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 // TemplateController路由
 Route::group(['prefix'=>'template', 'namespace'=>'Admin', 'middleware'=>['jwtauth','permission:permission_page_user']], function() {
 
-	// 显示field页面
+	// 显示template页面
 	Route::get('templateIndex', 'TemplateController@templateIndex')->name('admin.template.index');
-
+	// delete
+	Route::get('templateIndex0', 'TemplateController@templateIndex0')->name('admin.template.index0');
+	
 	// slot列表
 	Route::get('templateGets', 'TemplateController@templateGets')->name('admin.template.templategets');
 

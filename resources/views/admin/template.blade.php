@@ -12,284 +12,247 @@ Admin(template) -
 
 @section('my_body')
 @parent
-<div id="template_list" v-cloak>
-<div id="page-wrapper">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">Template Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					Template 管理
-				</div>
-				<div class="panel-body">
-					<div class="row">
+<div>
 
-					<div class="panel-body">
-						<tabs v-model="currenttabs">
-							<tab title="Template List">
-								<!--template列表-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
-									<div class="table-responsive">
-										<table class="table table-condensed">
-											<thead>
-												<tr>
-													<th>id</th>
-													<th>name</th>
-													<th>created_at</th>
-													<th>updated_at</th>
-													<th>操作</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr v-for="(val, index) in gets.data">
-													<td><div>@{{ val.id }}</div></td>
-													<td><div>@{{ val.name }}</div></td>
-													<td><div>@{{ val.created_at }}</div></td>
-													<td><div>@{{ val.updated_at }}</div></td>
-													<td><div>
-													<btn @click="template_detail(index)" type="primary" size="xs"><i class="fa fa-edit fa-fw"></i></btn>&nbsp;
-													<btn @click="template_delete(val.id)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
-												</tr>
-											</tbody>
-										</table>
+	<Divider orientation="left">Template Management</Divider>
 
-										<div class="dropup">
-											<tr>
-												<td colspan="9">
-													<div>
-														<nav>
-															<ul class="pagination pagination-sm">
-																<li><a aria-label="Previous" @click="templategets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+	<Tabs type="card" v-model="currenttabs">
+		<Tab-pane label="Template List">
+			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+		</Tab-pane>
 
-																<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-																	<a v-if="n==1" @click="templategets(1, gets.last_page)" href="javascript:;">1</a>
-																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="templategets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
-																	<a v-else-if="n==2||n==gets.last_page">...</a>
-																</li>&nbsp;
+		<Tab-pane label="Create/Edit Template">
+		
+			<i-row>
+				<i-col span="8">
+					<Card>
+						<p slot="title">新建/编辑 TEMPLATE</p>
+						<p>
+							<input v-model="template_add_id" type="hidden">
+							* 名称<br>
+							<i-input v-model="template_add_name" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<i-button type="primary" @click="templatecreateorupdate('create')">Create</i-button>&nbsp;&nbsp;
+						<i-button type="primary" @click="templatecreateorupdate('update')">Update</i-button>&nbsp;&nbsp;
+						<i-button @click="onreset()">Reset</i-button>
+					</Card>
+				</i-col>
+				<i-col span="16">
+				&nbsp;
+				</i-col>
+			</i-row>
 
-																<li><a aria-label="Next" @click="templategets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-																<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
+		</Tab-pane>
 
-																	<div class="col-xs-2">
-																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="templategets($event.target.value, gets.last_page)">
-																	</div>
+	</Tabs>
 
-																<div class="btn-group">
-																<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
-																<ul class="dropdown-menu">
-																<li><a @click="configperpagefortemplate(2)" href="javascript:;"><small>2条记录</small></a></li>
-																<li><a @click="configperpagefortemplate(5)" href="javascript:;"><small>5条记录</small></a></li>
-																<li><a @click="configperpagefortemplate(10)" href="javascript:;"><small>10条记录</small></a></li>
-																<li><a @click="configperpagefortemplate(20)" href="javascript:;"><small>20条记录</small></a></li>
-																</ul>
-																</div>
-															</ul>
-														</nav>
-													</div>
-												</td>
-											</tr>
-										</div>
-
-									</div>
-								</div>
-							</tab>
-							<tab title="Create/Edit Template">
-								<!--操作1-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
-
-									<div class="col-lg-12">
-										<div class="panel panel-default">
-											<div class="panel-heading"><label>新建/编辑元素</label></div>
-											<div class="panel-body">
-
-												<div class="col-lg-4">
-													<div class="form-group">
-														<label>名称</label>
-														<input v-model="template_add_id" type="hidden" class="form-control input-sm">
-														<input v-model="template_add_name" type="text" class="form-control input-sm">
-													</div>
-
-													<div class="form-group">
-														<btn type="primary" @click="templatecreateorupdate('create')" size="sm">Create</btn>&nbsp;
-														<btn type="primary" @click="templatecreateorupdate('update')" size="sm">Update</btn>&nbsp;
-														<btn type="default" @click="templatereset" size="sm">Reset</btn>
-													</div>
-												</div>
-
-											</div>
-										</div>
-									</div>
-									
-									
-									
-									
-									
-								</div>
-							</tab>
-							
-						</tabs>
-
-					</div>
-					</div>
-					
-				</div>
-
-			</div>
-		</div>
-	</div>
 </div>
-</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @endsection
 
 @section('my_footer')
 @parent
+
+@endsection
+
+@section('my_js_others')
+@parent
 <script>
-var vm_template = new Vue({
-    el: '#template_list',
+var vm_app = new Vue({
+    el: '#app',
     data: {
-		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
+		current_nav: '',
+		current_subnav: '',
+		
+		sideractivename: '2-1-3',
+		sideropennames: ['2', '2-1'],
+
+		tablecolumns: [
+			{
+				type: 'index',
+				width: 60,
+				align: 'center'
+			},
+			{
+				title: 'id',
+				key: 'id',
+				sortable: true,
+				width: 80
+			},
+			{
+				title: 'name',
+				key: 'name'
+			},
+			{
+				title: 'created_at',
+				key: 'created_at',
+			},
+			{
+				title: 'updated_at',
+				key: 'updated_at',
+			},
+			{
+				title: 'Action',
+				key: 'action',
+				align: 'center',
+				render: (h, params) => {
+					return h('div', [
+						h('Button', {
+							props: {
+								type: 'primary',
+								size: 'small'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.template_detail(params.row)
+								}
+							}
+						}, 'View'),
+						h('Button', {
+							props: {
+								type: 'error',
+								size: 'small'
+							},
+							on: {
+								click: () => {
+									vm_app.template_delete(params.row.id)
+								}
+							}
+						}, 'Delete')
+					]);
+				}
+			}
+		],
+		tabledata: [],
+		
+		//分页
+		page_current: 1,
+		page_total: 1, // 记录总数，非总页数
+		page_size: {{ $config['PERPAGE_RECORDS_FOR_TEMPLATE'] }},
+		page_last: 1,		
+		
 		// 创建ID
 		template_add_id: '',
 		// 创建名称
 		template_add_name: '',
 
 		// tabs索引
-		currenttabs: 0
+		currenttabs: 0,		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
     },
 	methods: {
-		// 显示当前template并切换到编辑界面
-		template_detail: function (index) {
-			var _this = this;
-			
-			_this.template_add_id = _this.gets.data[index].id;
-			_this.template_add_name = _this.gets.data[index].name;
-
-			// 切换到第二个面板
-			_this.currenttabs = 1;
+		menuselect: function (name) {
+			navmenuselect(name);
 		},
-		templatereset: function () {
-			this.template_add_id = '';
-			this.template_add_name = '';
+		// 1.加载进度条
+		loadingbarstart () {
+			this.$Loading.start();
 		},
+		loadingbarfinish () {
+			this.$Loading.finish();
+		},
+		loadingbarerror () {
+			this.$Loading.error();
+		},
+		// 2.Notice 通知提醒
+		info (nodesc, title, content) {
+			this.$Notice.info({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		success (nodesc, title, content) {
+			this.$Notice.success({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		warning (nodesc, title, content) {
+			this.$Notice.warning({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		error (nodesc, title, content) {
+			this.$Notice.error({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		
 		alert_exit: function () {
-			this.$alert({
+			this.$Notice.error({
 				title: '会话超时',
-				content: '会话超时，请重新登录！'
-			// }, (msg) => {
-			}, function (msg) {
-				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`);
-				// this.$notify('You selected ${msg}.');
-				// window.setTimeout(function(){
-					window.location.href = "{{ route('admin.config.index') }}";
-				// },1000);
-			})
-		},
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
-			})
-		},
-		// 创建或更新template
-		templatecreateorupdate: function (createorupdate) {
-			var _this = this;
-			var postdata = {};
-			postdata['id'] = _this.template_add_id;
-			postdata['name'] = _this.template_add_name;
-			postdata['createorupdate'] = createorupdate;
-			
-			if(postdata['name'].length==0){
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please input the template name!';
-				_this.notification_message();
-				return false;
-			}
-
-			var url = "{{ route('admin.template.createorupdate') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					postdata: postdata
+				desc: '会话超时，请重新登录！',
+				duration: 2,
+				onClose: function () {
+					window.location.href = "{{ route('login') }}";
 				}
+			});
+		},		
+		
+		// 切换当前页
+		oncurrentpagechange: function (currentpage) {
+			this.templategets(currentpage, this.page_last);
+		},
+		// 切换页记录数
+		onpagesizechange: function (pagesize) {
+			
+			var _this = this;
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_TEMPLATE'] = pagesize;
+			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				cfg_data: cfg_data
 			})
 			.then(function (response) {
-				// console.log(response);
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'template failed to ' + createorupdate + ' !';
-					_this.notification_message();
+				if (response.data) {
+					_this.page_size = pagesize;
+					_this.templategets(1, _this.page_last);
 				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'template ' + createorupdate + ' successfully!';
-					_this.notification_message();
-
-					if (createorupdate=='create') {_this.templatereset()}
-
+					_this.warning(false, 'Warning', 'failed!');
 				}
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				// _this.notification_content = error.response.data.message;
-					_this.notification_content = 'Error! template failed to ' + createorupdate + ' !';
-				_this.notification_message();
+				_this.error(false, 'Error', 'failed!');
 			})
-		},
-		// 删除template
-		template_delete: function (id) {
-			var _this = this;
-			
-			if (id == undefined) {
-				_this.notification_type = 'danger';
-				_this.notification_title = 'Error';
-				_this.notification_content = 'Please select the template(s)!';
-				_this.notification_message();
-				return false;
-			}
-			
-			var url = "{{ route('admin.template.templatedelete') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					id: id
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'template(s) failed to delete!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'template(s) deleted successfully!';
-					_this.notification_message();
-					
-					// 刷新
-					_this.templategets(_this.gets.current_page, _this.gets.last_page);
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
+		},				
+		
 		// template列表
 		templategets: function(page, last_page){
 			var _this = this;
@@ -300,50 +263,123 @@ var vm_template = new Vue({
 			} else if (page < 1) {
 				page = 1;
 			}
-			_this.gets.current_page = page;
+			_this.loadingbarstart();
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
-					perPage: _this.perpage,
+					perPage: _this.page_size,
 					page: page
 				}
 			})
 			.then(function (response) {
-				if (typeof(response.data.data) == "undefined") {
-					// alert(response);
+				if (response.data.length == 0 || response.data.data == undefined) {
 					_this.alert_exit();
 				}
-				_this.gets = response.data;
+				_this.page_current = response.data.current_page;
+				_this.page_total = response.data.total;
+				_this.page_last = response.data.last_page;
+				_this.tabledata = response.data.data;
+				
+				_this.loadingbarfinish();
 			})
 			.catch(function (error) {
-				console.log(error);
-				alert(error);
+				_this.loadingbarerror();
+				_this.error(false, 'Error', error);
 			})
+		},		
+		
+		onreset: function () {
+			this.template_add_id = '';
+			this.template_add_name = '';
 		},
-		configperpagefortemplate: function (value) {
+		
+		// 创建或更新template
+		templatecreateorupdate: function (createorupdate) {
 			var _this = this;
-			var cfg_data = {};
-			cfg_data['PERPAGE_RECORDS_FOR_SLOT'] = value;
-			var url = "{{ route('admin.config.change') }}";
+			var postdata = {};
+			postdata['id'] = _this.template_add_id;
+			postdata['name'] = _this.template_add_name;
+			postdata['createorupdate'] = createorupdate;
+			
+			if(postdata['name'].length==0){
+				_this.error(false, 'Error', 'Please input the template name!');
+				return false;
+			}
+
+			var url = "{{ route('admin.template.createorupdate') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				cfg_data: cfg_data
+			axios.post(url,{
+				postdata: postdata
 			})
 			.then(function (response) {
-				if (response.data) {
-					_this.perpage = value;
-					_this.templategets(1, 1);
+				// console.log(response);
+				if (response.data != 1) {
+					_this.error(false, 'Error', 'template failed to ' + createorupdate + ' !');
 				} else {
-					alert('failed');
+					_this.success(false, 'Success', 'template ' + createorupdate + ' successfully!');
+
+					if (createorupdate=='create') {_this.onreset()}
 				}
+				// 刷新
+				_this.templategets(_this.page_current, _this.last_page);
+				
 			})
 			.catch(function (error) {
-				alert('failed');
-				// console.log(error);
+				_this.error(false, 'Error', 'Error! template failed to ' + createorupdate + ' !');
 			})
-		}
+		},
+
+		// 显示当前template并切换到编辑界面
+		template_detail: function (row) {
+			var _this = this;
+			
+			_this.template_add_id = row.id;
+			_this.template_add_name = row.name;
+
+			// 切换到第二个面板
+			_this.currenttabs = 1;
+		},
+
+		// 删除template
+		template_delete: function (id) {
+			var _this = this;
+			
+			if (id == undefined) {
+				_this.error(false, 'Error', 'Please select the template(s)!');
+				return false;
+			}
+			
+			var url = "{{ route('admin.template.templatedelete') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				id: id
+			})
+			.then(function (response) {
+				if (response.data == undefined) {
+					_this.warning(false, 'Warning', 'Template(s) failed to delete!');
+				} else {
+					_this.success(false, 'Success', 'Template(s) deleted successfully!');
+					
+					// 刷新
+					_this.templategets(_this.page_current, _this.last_page);
+				}
+
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error.response.data.message);
+			})
+		},
+
+
+
+
+
+
 	},
 	mounted: function(){
+		var _this = this;
+		_this.current_nav = '元素管理';
+		_this.current_subnav = '基本元素 - Template';
 		// 显示所有template
 		this.templategets(1, 1); // page: 1, last_page: 1
 	}

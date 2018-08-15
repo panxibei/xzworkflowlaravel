@@ -33,6 +33,16 @@ class TemplateController extends Controller
 		$share = compact('config', 'user');
 
         return view('admin.template', $share);
+    }
+
+	// delete
+    public function templateIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.template0', $share);
     }	
 	
     /**
@@ -66,7 +76,7 @@ class TemplateController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$postdata = $request->input('params.postdata');
+		$postdata = $request->input('postdata');
 		// dd($postdata);
 		
 		if ('create' == $postdata['createorupdate']) {
@@ -82,8 +92,6 @@ class TemplateController extends Controller
 				// echo 'Message: ' .$e->getMessage();
 				$result = 0;
 			}
-
-			return $result;
 		
 		} elseif ('update' == $postdata['createorupdate']) {
 			
@@ -103,6 +111,8 @@ class TemplateController extends Controller
 		} else {
 			$result = 0;
 		}
+		
+		return $result;
     }
 	
     /**
@@ -115,7 +125,7 @@ class TemplateController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$id = $request->only('params.id');
+		$id = $request->only('id');
 
 		$result = Template::whereIn('id', $id)->delete();
 		return $result;

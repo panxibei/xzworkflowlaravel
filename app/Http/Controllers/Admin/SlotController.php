@@ -76,7 +76,7 @@ class SlotController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$postdata = $request->input('params.postdata');
+		$postdata = $request->input('postdata');
 		// dd($postdata);
 		
 		if ('create' == $postdata['createorupdate']) {
@@ -93,8 +93,6 @@ class SlotController extends Controller
 				$result = 0;
 			}
 
-			return $result;
-		
 		} elseif ('update' == $postdata['createorupdate']) {
 			
 			// 更新slot
@@ -113,6 +111,8 @@ class SlotController extends Controller
 		} else {
 			$result = 0;
 		}
+		
+		return $result;
     }
 	
     /**
@@ -125,7 +125,7 @@ class SlotController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$id = $request->only('params.id');
+		$id = $request->only('id');
 
 		$result = Slot::whereIn('id', $id)->delete();
 		return $result;
