@@ -59,6 +59,11 @@
 .layout-footer-center{
     text-align: center;
 }
+/* 穿梭框 */
+.ivu-transfer-list{
+	height: 320px;
+	width: 300px;
+}
 </style>
 @yield('my_style')
 <script src="{{ asset('js/functions.js') }}"></script>

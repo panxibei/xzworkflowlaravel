@@ -153,6 +153,8 @@ Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwta
 
 	// 显示slot2field页面
 	Route::get('slot2fieldIndex', 'Slot2fieldController@slot2fieldIndex')->name('admin.slot2field.index');
+	// delete
+	Route::get('slot2fieldIndex0', 'Slot2fieldController@slot2fieldIndex0')->name('admin.slot2field.index0');
 
 	// slot2field列表
 	Route::get('slot2fieldGets', 'Slot2fieldController@slot2fieldGets')->name('admin.slot2field.slot2fieldgets');

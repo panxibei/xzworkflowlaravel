@@ -37,6 +37,16 @@ class Slot2fieldController extends Controller
 
         return view('admin.slot2field', $share);
     }
+	
+	// delete
+    public function slot2fieldIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.slot2field0', $share);
+    }
 
     /**
      * slot2field列表 ajax
@@ -49,7 +59,7 @@ class Slot2fieldController extends Controller
 		if (! $request->ajax()) { return null; }
 		
 		$limit = $request->only('limit');
-		$limit = empty($limit) ? 10 : $limit;
+		$limit = empty($limit) ? 1000 : $limit;
 // dd($limit);
 		// 所有的slot
 		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
@@ -88,7 +98,8 @@ class Slot2fieldController extends Controller
 // dd($arr_fieldid);		
 		
 		foreach ($arr_fieldid as $value) {
-			$field[] = Field::select('id', 'name')
+			// $field[] = Field::select('id', 'name')
+			$field[] = Field::select('id')
 				->where('id', $value)
 				->first();
 		}
