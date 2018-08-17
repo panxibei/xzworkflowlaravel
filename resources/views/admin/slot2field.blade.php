@@ -19,22 +19,42 @@ Admin(slot2field) -
 	<Card>
 		<p slot="title">编辑 Slot2field</p>
 		<p>
-			<i-select v-model="slot_select" @on-change="change_slot" clearable placeholder="select slot" style="width:200px">
-				<i-option v-for="item in slot_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-			</i-select>
-			&nbsp;&nbsp;
-			<i-button type="primary" @click="slotupdate()">Update</i-button>
+			<i-row :gutter="16">
+				<i-col span="8">
+					<i-select v-model="slot_select" @on-change="change_slot" clearable placeholder="select slot">
+						<i-option v-for="item in slot_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</i-col>
+				<i-col span="9">
+					&nbsp;
+				</i-col>
+				<i-col span="7">
+					<i-button type="primary" @click="slotupdate()">Update</i-button>
+				</i-col>
+			</i-row>
+			<br>
 		</p>
 		<br>
 		<p>
-			<Transfer
-				:titles="titlestransfer"
-				:data="datatransfer"
-				filterable
-				:target-keys="targetKeystransfer"
-				:render-format="rendertransfer"
-				@on-change="onChangeTransfer">
-			</Transfer>
+		<i-row :gutter="16">
+			<i-col span="8">
+				<i-table height="320" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+			</i-col>
+			<i-col span="1">
+			&nbsp;
+			</i-col>
+			<i-col span="15">
+				<Transfer
+					:titles="titlestransfer"
+					:data="datatransfer"
+					filterable
+					:target-keys="targetKeystransfer"
+					:render-format="rendertransfer"
+					@on-change="onChangeTransfer">
+				</Transfer>
+			</i-col>
+		</i-row>
+		&nbsp;
 		</p>
 	</Card>
 	<br>
@@ -70,8 +90,60 @@ var vm_app = new Vue({
 		datatransfer: [],
 		targetKeystransfer: [], // ['1', '2'] key
 		
-		
-		
+		tablecolumns: [
+			{
+				type: 'index',
+				width: 60,
+				align: 'center'
+			},
+			{
+				title: 'id',
+				key: 'id',
+				width: 60
+			},
+			{
+				title: 'name',
+				key: 'name'
+			},
+			{
+				title: 'Action',
+				key: 'action',
+				align: 'center',
+				width: 100,
+				render: (h, params) => {
+					return h('div', [
+						h('Button', {
+							props: {
+								type: 'default',
+								size: 'small',
+								icon: 'md-arrow-round-down'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.field_up(params.row)
+								}
+							}
+						}),
+						h('Button', {
+							props: {
+								type: 'default',
+								size: 'small',
+								icon: 'md-arrow-round-up'
+							},
+							on: {
+								click: () => {
+									vm_app.field_down(params.row)
+								}
+							}
+						})
+					]);
+				}
+			}
+		],
+		tabledata: [],		
 		
 		
 		
@@ -172,7 +244,7 @@ var vm_app = new Vue({
 			for (var key in json) {
 				arr.push(json[key].id.toString());
 			}
-			return arr.reverse();
+			return arr;
 		},
 		
 		// 穿梭框显示文本
@@ -235,6 +307,9 @@ var vm_app = new Vue({
 				
 				var json = response.data;
 				_this.targetKeystransfer = _this.json2transfer4slot(json);
+				
+				_this.tabledata = json;
+				
 				return false;
 
 				

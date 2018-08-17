@@ -62,7 +62,7 @@
 /* 穿梭框 */
 .ivu-transfer-list{
 	height: 320px;
-	width: 300px;
+	width: 260px;
 }
 </style>
 @yield('my_style')

@@ -99,7 +99,7 @@ class Slot2fieldController extends Controller
 		
 		foreach ($arr_fieldid as $value) {
 			// $field[] = Field::select('id', 'name')
-			$field[] = Field::select('id')
+			$field[] = Field::select('id', 'name')
 				->where('id', $value)
 				->first();
 		}
