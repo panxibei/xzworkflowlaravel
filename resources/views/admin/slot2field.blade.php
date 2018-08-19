@@ -20,7 +20,7 @@ Admin(slot2field) -
 		<p slot="title">编辑 Slot2field</p>
 		<p>
 			<i-row :gutter="16">
-				<i-col span="8">
+				<i-col span="9">
 					<i-select v-model="slot_select" @on-change="change_slot" clearable placeholder="select slot">
 						<i-option v-for="item in slot_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
@@ -28,8 +28,9 @@ Admin(slot2field) -
 				<i-col span="9">
 					&nbsp;
 				</i-col>
-				<i-col span="7">
+				<i-col span="6">
 					<i-button type="primary" :disabled="boo_update" @click="slotupdate()">Update</i-button>
+					<i-button type="primary" @click="slot_review()">Review</i-button>
 				</i-col>
 			</i-row>
 			<br>
@@ -37,13 +38,13 @@ Admin(slot2field) -
 		<br>
 		<p>
 		<i-row :gutter="16">
-			<i-col span="8">
+			<i-col span="9">
 				<i-table height="320" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
 			</i-col>
 			<i-col span="1">
 			&nbsp;
 			</i-col>
-			<i-col span="15">
+			<i-col span="14">
 				<Transfer
 					:titles="titlestransfer"
 					:data="datatransfer"
@@ -61,6 +62,115 @@ Admin(slot2field) -
 	<Card>
 		<p slot="title">Review Slot</p>
 	
+		<p>
+			<!--slot，有field时显示，否则显示空的slot-->
+			<Collapse v-model="collapse_something" v-if="gets_review_fields.slot!=null">
+				<Panel name="collapse_something">
+					@{{ gets_review_fields.slot.name }}
+					<div slot="content" v-if="gets_review_fields.field!=null">
+
+						<i-row :gutter="16">
+							<i-col span="6" v-for="(val, k) in gets_review_fields.field">
+							
+								<!--1-Text-->
+								<div v-if="val.type=='1-Text'" style="height: 100px">
+									<strong>@{{val.name||'未命名'}}</strong><br>
+									<i-input size="small" clearable :style="{background: val.bgcolor}" style="width: 200px" :readonly="val.readonly||false" :placeholder="val.placeholder"></i-input>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+								</div>
+								<!--2-True/False-->
+								<div v-else-if="val.type=='2-True/False'" style="height: 100px">
+									<strong :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</strong><br>
+									<i-switch :disabled="val.readonly||false">
+										<Icon type="android-done" slot="open"></Icon>
+										<Icon type="android-close" slot="close"></Icon>
+									</i-switch>
+									
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+								</div>
+								<!--3-Number-->
+								<div v-else-if="val.type=='3-Number'" style="height: 100px">
+									<strong>@{{val.name||'未命名'}}</strong><br>
+									<Input-number :style="{background: val.bgcolor}" :readonly="val.readonly" :placeholder="val.placeholder" size="small" style="width: 200px"></Input-number>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+								</div>
+								<!--4-Date-->
+								<div v-else-if="val.type=='4-Date'" style="height: 100px">
+									<strong>@{{val.name||'未命名'}}</strong><br>
+									<Date-picker type="datetime" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" style="width: 200px" size="small"></Date-picker>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+								</div>
+								<!--5-Textfield-->
+								<div v-else-if="val.type=='5-Textfield'" style="height: 100px">
+									<strong>@{{val.name||'未命名'}}</strong><br>
+									<i-input type="textarea" :rows="1" style="width:200px;" :style="{background: val.bgcolor}" :readonly="val.readonly||false" :placeholder="val.placeholder" size="small" clearable></i-input>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+								</div>
+								<!--6-Radiogroup-->
+								<div v-else-if="val.type=='6-Radiogroup'" style="height: 100px">
+									<strong>@{{val.name||'未命名'}}</strong><br>
+									<Radio-group>
+										<Radio v-for="(item,index) in val.value.split('|')[0].split('---')" :label="item" :style="{background: val.bgcolor}" :disabled="val.readonly||false"></Radio>
+									</Radio-group>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+									
+								</div>
+								<!--7-Checkboxgroup-->
+								<div v-else-if="val.type=='7-Checkboxgroup'" style="height: 100px">
+									<strong>@{{val.name||'未命名'}}</strong><br>
+									<Checkbox-group>
+										<Checkbox v-for="(item,index) in val.value.split('|')[0].split('---')" :label="item" :style="{background: val.bgcolor}" :disabled="val.readonly||false"></Checkbox>
+									</Checkbox-group>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+
+								</div>
+								<!--8-Combobox-->
+								<!--
+								<div v-else-if="val.type=='8-Combobox'" style="height: 100px">
+									<strong :style="{background: val.bgcolor}">@{{val.name||'未命名'}}</strong><br>
+									<i-select :placeholder="val.placeholder" :disabled="val.readonly||false" clearable multiple size="small" style="width:200px">
+										<i-option v-for="item in formItem.option[key+'_'+k]" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+									</i-select>
+									<p style="color: #80848f">@{{val.helpblock}}</p>
+								</div>-->
+
+
+								
+							</i-col>
+
+							<!--
+							<div class="ivu-col ivu-col-span-6" v-for="n in 4-value.field.length%4">
+								<div style="height: 100px;"></div>
+							</div>
+							-->
+						
+						</i-row>
+
+						&nbsp;
+						
+						
+						
+						
+					</div>
+					<div slot="content" v-else>
+					
+						<div>
+							These's no fields ... <a href="{{ route('admin.slot2field.index') }}" class="alert-link">Goto add field now</a>.
+						</div>
+					
+					&nbsp;
+					</div>
+					
+					
+					
+				</Panel>
+			</Collapse>
+					
+			<!--slot，否则显示空的slot-->
+	
+	
+	
+		</p>
 	</Card>
 
 </div>
@@ -111,7 +221,7 @@ var vm_app = new Vue({
 				title: 'Action',
 				key: 'action',
 				align: 'center',
-				width: 100,
+				width: 140,
 				render: (h, params) => {
 					return h('div', [
 						h('Button', {
@@ -135,9 +245,24 @@ var vm_app = new Vue({
 								size: 'small',
 								icon: 'md-arrow-round-up'
 							},
+							style: {
+								marginRight: '5px'
+							},
 							on: {
 								click: () => {
 									vm_app.field_up(params)
+								}
+							}
+						}),
+						h('Button', {
+							props: {
+								type: 'default',
+								size: 'small',
+								icon: 'md-close'
+							},
+							on: {
+								click: () => {
+									vm_app.field_remove(params)
 								}
 							}
 						})
@@ -147,6 +272,12 @@ var vm_app = new Vue({
 		],
 		tabledata: [],		
 		
+		// 预览slot
+		gets_review_fields: {},
+		
+		//
+		collapse_something: 'collapse_something',
+		collapse_null: 'collapse_null',
 		
 		
 		
@@ -158,15 +289,6 @@ var vm_app = new Vue({
 		
 		
 		
-		gets: {},
-		// perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
-		slot_select: [],
-        slot_options: [],
-		field_select: [],
-        field_options: [],
-
-		// tabs索引
-		currenttabs: 0
     },
 	methods: {
 		menuselect: function (name) {
@@ -267,7 +389,11 @@ var vm_app = new Vue({
 			var url = "{{ route('admin.slot2field.slot2fieldgets') }}";
 			_this.loadingbarstart();
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url)
+			axios.get(url,{
+				params: {
+					limit: 1000
+				}
+			})
 			.then(function (response) {
 				if (response.data.length == 0 || response.data == undefined) {
 					_this.alert_exit();
@@ -314,6 +440,8 @@ var vm_app = new Vue({
 					var json = response.data;
 					_this.targetkeystransfer = _this.json2transfer4slot(json);
 					_this.tabledata = json;
+					
+					// _this.slot_review;
 				} else {
 					_this.targetkeystransfer = [];
 					_this.tabledata = [];
@@ -401,68 +529,85 @@ var vm_app = new Vue({
 			.catch(function (error) {
 				_this.error(false, 'Error', error);
 			})
-		},		
-		
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
-			})
 		},
-
-
-
-		slot2field_remove: function (index) {
+		
+		// 删除field
+		field_remove: function (params) {
 			var _this = this;
-			var slotid = _this.slot_select[0];
-			// console.log(slotid);
-			// console.log(fieldid);
-			// return false;
+			var slotid = _this.slot_select;
+			var index = params.index;
 			
 			if (slotid == undefined || index == undefined) return false;
 			
 			var url = "{{ route('admin.slot2field.slot2fieldremove') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					slotid: slotid,
-					index: index
-				}
+				slotid: slotid,
+				index: index
 			})
 			.then(function (response) {
 				// console.log(response.data);
-				if (response.data != undefined) {
+				if (response.data == 1) {
 					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
-				console.log(error);
-				alert(error);
+				_this.error(false, 'Error', error);
 			})
-			
-			
-		},
+		},		
+		
+		
 
-		slot2field_review: function () {
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+
+
+
+		// 待完成
+		slot_review: function () {
+			var _this = this;
+			var slotid = _this.slot_select;
+
+			if (slotid == undefined) return false;
 			
-		}
+			var url = "{{ route('admin.slot2field.slotreview') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					slotid: slotid
+				}
+			})
+			.then(function (response) {
+				// console.log(response.data);
+				// return false;
+				
+				_this.gets_review_fields = response.data;
+				
+
+
+
+			})
+			.catch(function (error) {
+				console.log(error);
+			})			
+		},
 	},
 	mounted: function(){
+		var _this = this;
+		_this.current_nav = '元素管理';
+		_this.current_subnav = '元素关联 - Slot2Field';
 		// 显示所有slot2field
-		this.slot2fieldgets();
+		_this.slot2fieldgets();
 	}
 });
 </script>

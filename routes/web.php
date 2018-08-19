@@ -159,6 +159,9 @@ Route::group(['prefix'=>'slot2field', 'namespace'=>'Admin', 'middleware'=>['jwta
 	// slot2field列表
 	Route::get('slot2fieldGets', 'Slot2fieldController@slot2fieldGets')->name('admin.slot2field.slot2fieldgets');
 
+	// slotReview
+	Route::get('slotreview', 'Slot2fieldController@slotReview')->name('admin.slot2field.slotreview');
+
 	// changeslot
 	Route::get('changeSlot', 'Slot2fieldController@changeSlot')->name('admin.slot2field.changeslot');
 

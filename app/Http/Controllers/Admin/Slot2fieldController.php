@@ -59,7 +59,7 @@ class Slot2fieldController extends Controller
 		if (! $request->ajax()) { return null; }
 		
 		$limit = $request->only('limit');
-		$limit = empty($limit) ? 1000 : $limit;
+		$limit = empty($limit) ? 1000 : $limit['limit'];
 // dd($limit);
 		// 所有的slot
 		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
@@ -178,7 +178,7 @@ class Slot2fieldController extends Controller
 	
 
 	/**
-     * slot2fieldUpdate 未用保留未用保留
+     * slot2fieldUpdate
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -229,6 +229,55 @@ class Slot2fieldController extends Controller
 			
 		return $result;
 	}
+	
+    /**
+     * slotReview
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function slotReview(Request $request)
+    {
+		if (! $request->ajax()) { return null; }
+		
+		$slotid = $request->only('slotid');
+		// dd($slotid);
+
+		// 1.查询slot2field信息
+		$slot2field = Slot2field::select('slot_id', 'field_id')
+			->where('id', $slotid['slotid'])
+			->first();
+		
+		// 2.查询slot信息
+		$slot = Slot::select('id', 'name')
+			->where('id', $slot2field['slot_id'])
+			->first();
+		$result['slot'] = $slot;
+		// dd($result);
+		// $result['slot']['id'] = $slot['id'];
+		// $result['slot']['name'] = $slot['name'];
+		
+		// 3.查询field信息
+		$field_id = explode(',', $slot2field['field_id']);
+		if (empty($field_id)) {
+			$result['field'] = null;
+		} else {
+			foreach ($field_id as $value) {
+				$result['field'][] = Field::where('id', $value)
+					->first();
+			}
+		}
+		// dd($result);
+		
+		
+
+		return $result;
+    }	
+	
+	
+	
+	
+	
 
 	/**
      * slot2fieldAdd 未用保留未用保留
@@ -298,11 +347,11 @@ class Slot2fieldController extends Controller
 	{
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$slotid = $request->only('params.slotid');
-		$slotid = $slotid['params']['slotid'];
+		$slotid = $request->only('slotid');
+		$slotid = $slotid['slotid'];
 
-		$index = $request->only('params.index');
-		$index = $index['params']['index'];
+		$index = $request->only('index');
+		$index = $index['index'];
 
 		$fieldid_before = Slot2field::select('field_id')
 			->where('slot_id', $slotid)
@@ -324,6 +373,7 @@ class Slot2fieldController extends Controller
 				->update([
 					'field_id' => $fieldid_after
 				]);
+			$result = 1;
 		}
 		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
