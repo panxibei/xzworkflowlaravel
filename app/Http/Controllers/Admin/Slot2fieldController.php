@@ -98,7 +98,6 @@ class Slot2fieldController extends Controller
 // dd($arr_fieldid);		
 		
 		foreach ($arr_fieldid as $value) {
-			// $field[] = Field::select('id', 'name')
 			$field[] = Field::select('id', 'name')
 				->where('id', $value)
 				->first();
@@ -117,12 +116,12 @@ class Slot2fieldController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$sortinfo = $request->only('params.fieldid', 'params.index', 'params.slotid', 'params.sort');
-// dd($sortinfo['params']['index']);
+		$sortinfo = $request->only('fieldid', 'index', 'slotid', 'sort');
+// dd($sortinfo['index']);
 
 		// 1.查询所有fieldid
 		$fieldid = Slot2field::select('field_id')
-			->where('slot_id', $sortinfo['params']['slotid'])
+			->where('slot_id', $sortinfo['slotid'])
 			->first();
 		
 		// 2.所有fieldid变成一维数组
@@ -131,24 +130,24 @@ class Slot2fieldController extends Controller
 
 		// 3.判断是向前还是向后排序
 		$arr_temp = [];
-		if ('up' == $sortinfo['params']['sort']) {
+		if ('up' == $sortinfo['sort']) {
 
 			foreach ($arr_fieldid as $index => $value) {
-				if ($index == $sortinfo['params']['index']-1) {
+				if ($index == $sortinfo['index']-1) {
 					$arr_temp[] = $arr_fieldid[$index+1];
-				} elseif ($index == $sortinfo['params']['index']) {
+				} elseif ($index == $sortinfo['index']) {
 					$arr_temp[] = $arr_fieldid[$index-1];
 				} else {
 					$arr_temp[] = $value;
 				}
 			}
 
-		} elseif ('down' == $sortinfo['params']['sort']) {
+		} elseif ('down' == $sortinfo['sort']) {
 
 			foreach ($arr_fieldid as $index => $value) {
-				if ($index == $sortinfo['params']['index']) {
+				if ($index == $sortinfo['index']) {
 					$arr_temp[] = $arr_fieldid[$index+1];
-				} elseif ($index == $sortinfo['params']['index']+1) {
+				} elseif ($index == $sortinfo['index']+1) {
 					$arr_temp[] = $arr_fieldid[$index-1];
 				} else {
 					$arr_temp[] = $value;
@@ -160,20 +159,79 @@ class Slot2fieldController extends Controller
 		}
 		
 		$fieldid = implode(',', $arr_temp);
-// dd($fieldid);
 		
 		// 根据slotid查询相应的field
-		$result = Slot2field::where('slot_id', $sortinfo['params']['slotid'])
-			->update([
-				'field_id' => $fieldid
-			]);
-// dd($result);
+		try {
+			$result = Slot2field::where('slot_id', $sortinfo['slotid'])
+				->update([
+					'field_id' => $fieldid
+				]);
+			$result = 1;
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
 		
 		return $result;
     }
+	
 
 	/**
-     * slot2fieldAdd ajax
+     * slot2fieldUpdate 未用保留未用保留
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	 public function slot2fieldUpdate(Request $request)
+	 {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$slotid = $request->only('slotid');
+		$slotid = $slotid['slotid'];
+
+		$fieldid = $request->only('fieldid');
+		$fieldid = implode(',', $fieldid['fieldid']);
+
+		$fieldid_exist = Slot2field::select('id')
+			->where('slot_id', $slotid)
+			->first();
+
+		// 如果记录为空，则$fieldid_after直接为要添加的fieldid，并且用create
+		if (empty($fieldid_exist)) {
+
+			try {
+				$result = Slot2field::create([
+					'slot_id' => $slotid,
+					'field_id' => $fieldid
+				]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		
+		} else {
+			// 如果有记录，则根据id更新即可
+			try {
+				$result = Slot2field::where('id', $slotid)
+					->update([
+						'field_id' => $fieldid
+					]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		}
+			
+		return $result;
+	}
+
+	/**
+     * slot2fieldAdd 未用保留未用保留
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -231,7 +289,7 @@ class Slot2fieldController extends Controller
 	}
 
 	/**
-     * slot2fieldRemove ajax
+     * slot2fieldRemove 未用保留未用保留
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response

@@ -29,7 +29,7 @@ Admin(slot2field) -
 					&nbsp;
 				</i-col>
 				<i-col span="7">
-					<i-button type="primary" @click="slotupdate()">Update</i-button>
+					<i-button type="primary" :disabled="boo_update" @click="slotupdate()">Update</i-button>
 				</i-col>
 			</i-row>
 			<br>
@@ -48,7 +48,7 @@ Admin(slot2field) -
 					:titles="titlestransfer"
 					:data="datatransfer"
 					filterable
-					:target-keys="targetKeystransfer"
+					:target-keys="targetkeystransfer"
 					:render-format="rendertransfer"
 					@on-change="onChangeTransfer">
 				</Transfer>
@@ -88,7 +88,9 @@ var vm_app = new Vue({
 		
 		titlestransfer: ['待选', '已选'], // ['源列表', '目的列表']
 		datatransfer: [],
-		targetKeystransfer: [], // ['1', '2'] key
+		targetkeystransfer: [], // ['1', '2'] key
+		
+		boo_update: true,
 		
 		tablecolumns: [
 			{
@@ -123,7 +125,7 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.field_up(params.row)
+									vm_app.field_down(params)
 								}
 							}
 						}),
@@ -135,7 +137,7 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.field_down(params.row)
+									vm_app.field_up(params)
 								}
 							}
 						})
@@ -256,7 +258,7 @@ var vm_app = new Vue({
 			// console.log(newTargetKeys);
 			// console.log(direction);
 			// console.log(moveKeys);
-			this.targetKeystransfer = newTargetKeys;
+			this.targetkeystransfer = newTargetKeys;
 		},
 		
 		// slot2field列表
@@ -291,9 +293,12 @@ var vm_app = new Vue({
 			var slotid = _this.slot_select;
 			// console.log(slotid);return false;
 			if (slotid == undefined || slotid == '') {
+				_this.targetkeystransfer = [];
+				_this.tabledata = [];
+				_this.boo_update = true;
 				return false;
 			}
-			
+			_this.boo_update = false;
 			var url = "{{ route('admin.slot2field.changeslot') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
@@ -305,26 +310,99 @@ var vm_app = new Vue({
 				// console.log(response.data);
 				// console.log(_this.json2transfer4slot(response.data));return false;
 				
-				var json = response.data;
-				_this.targetKeystransfer = _this.json2transfer4slot(json);
-				
-				_this.tabledata = json;
-				
-				return false;
-
-				
-				if (response.data != undefined && response.data != null) {
-					_this.gets = response.data;
+				if (response.data) {
+					var json = response.data;
+					_this.targetkeystransfer = _this.json2transfer4slot(json);
+					_this.tabledata = json;
 				} else {
-					_this.gets = '';
+					_this.targetkeystransfer = [];
+					_this.tabledata = [];
 				}
 			})
 			.catch(function (error) {
-				console.log(error);
-				alert(error);
+				_this.error(false, 'Error', error);
 			})
 			
 		},
+		
+		// update
+		slotupdate: function () {
+			var _this = this;
+			var slotid = _this.slot_select;
+			var fieldid = _this.targetkeystransfer;
+			
+			if (slotid == undefined || fieldid == undefined || slotid == '' || fieldid == '') return false;
+			
+			var url = "{{ route('admin.slot2field.slot2fieldupdate') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				slotid: slotid,
+				fieldid: fieldid
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.success(false, 'Success', 'Update OK!');
+					_this.change_slot();
+				} else {
+					_this.warning(false, 'Warning', 'Update failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},
+		
+		// sort向前
+		field_up: function (params) {
+			var _this = this;
+			var fieldid = params.row.id;
+			var index = params.index;
+
+			if (fieldid==undefined || index==0) return false;
+			var slotid = _this.slot_select;
+			var url = "{{ route('admin.slot2field.fieldsort') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				fieldid: fieldid,
+				index: index,
+				slotid: slotid,
+				sort: 'up'
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.change_slot();
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},
+
+		// sort向后
+		field_down: function (params) {
+			var _this = this;
+			var fieldid = params.row.id;
+			var index = params.index;
+			if (fieldid==undefined || index==_this.tabledata.length-1) return false;
+			var slotid = _this.slot_select;
+			var url = "{{ route('admin.slot2field.fieldsort') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				fieldid: fieldid,
+				index: index,
+				slotid: slotid,
+				sort: 'down'
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.change_slot();
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},		
+		
 
 		
 		
@@ -346,56 +424,7 @@ var vm_app = new Vue({
 		},
 
 
-		// sort向前
-		field_up: function (fieldid, index) {
-			var _this = this;
-			if (fieldid==undefined || index==0) return false;
-			var slotid = _this.slot_select[0];
-			var url = "{{ route('admin.slot2field.fieldsort') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					fieldid: fieldid,
-					index: index,
-					slotid: slotid,
-					sort: 'up'
-				}
-			})
-			.then(function (response) {
-				if (response.data != undefined) {
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		// sort向后
-		field_down: function (fieldid, index) {
-			var _this = this;
-			if (fieldid==undefined || index==_this.gets.length-1) return false;
-			var slotid = _this.slot_select[0];
-			var url = "{{ route('admin.slot2field.fieldsort') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					fieldid: fieldid,
-					index: index,
-					slotid: slotid,
-					sort: 'down'
-				}
-			})
-			.then(function (response) {
-				if (response.data != undefined) {
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
+
 		slot2field_remove: function (index) {
 			var _this = this;
 			var slotid = _this.slot_select[0];
@@ -426,35 +455,7 @@ var vm_app = new Vue({
 			
 			
 		},
-		slot2field_add: function () {
-			var _this = this;
-			var slotid = _this.slot_select[0];
-			var fieldid = _this.field_select;
-			// console.log(slotid);
-			// console.log(fieldid);
-			// return false;
-			
-			if (slotid == undefined || fieldid == undefined) return false;
-			
-			var url = "{{ route('admin.slot2field.slot2fieldadd') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					slotid: slotid,
-					fieldid: fieldid
-				}
-			})
-			.then(function (response) {
-				// console.log(response.data);
-				if (response.data != undefined) {
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
+
 		slot2field_review: function () {
 			
 		}
