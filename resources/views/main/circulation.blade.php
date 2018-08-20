@@ -715,7 +715,7 @@ var vm_app = new Vue({
 								_this.$set(_this.formItem.radiogroup, i + '_' + key, _this.gets_review_fields[i].field[key].value.split('|')[1]);
 							}
 							else if (_this.gets_review_fields[i].field[key].type == '7-Checkboxgroup') {
-								_this.$set(_this.formItem.checkboxgroup, i + '_' + key, _this.gets_review_fields[i].field[key].value.split('|')[1].split(','));
+								_this.$set(_this.formItem.checkboxgroup, i + '_' + key, _this.gets_review_fields[i].field[key].value.split('|')[1].split('---'));
 							}
 							else if (_this.gets_review_fields[i].field[key].type == '8-Combobox') {
 								var v = _this.gets_review_fields[i].field[key].value;

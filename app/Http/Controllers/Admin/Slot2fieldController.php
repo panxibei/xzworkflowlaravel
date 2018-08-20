@@ -241,21 +241,19 @@ class Slot2fieldController extends Controller
 		if (! $request->ajax()) { return null; }
 		
 		$slotid = $request->only('slotid');
-		// dd($slotid);
+		// dd($slotid['slotid']);
 
-		// 1.查询slot2field信息
-		$slot2field = Slot2field::select('slot_id', 'field_id')
+		// 1.查询slot信息
+		$slot = Slot::select('id', 'name')
 			->where('id', $slotid['slotid'])
 			->first();
-		
-		// 2.查询slot信息
-		$slot = Slot::select('id', 'name')
-			->where('id', $slot2field['slot_id'])
-			->first();
 		$result['slot'] = $slot;
-		// dd($result);
-		// $result['slot']['id'] = $slot['id'];
-		// $result['slot']['name'] = $slot['name'];
+
+		// 2.查询slot2field信息
+		$slot2field = Slot2field::select('field_id')
+			->where('slot_id', $slotid['slotid'])
+			->first();
+		// dd($slot2field);
 		
 		// 3.查询field信息
 		$field_id = explode(',', $slot2field['field_id']);
@@ -268,9 +266,6 @@ class Slot2fieldController extends Controller
 			}
 		}
 		// dd($result);
-		
-		
-
 		return $result;
     }	
 	

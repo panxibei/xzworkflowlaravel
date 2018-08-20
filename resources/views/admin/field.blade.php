@@ -740,7 +740,7 @@ var vm_app = new Vue({
 			var checkboxchecked = tmpstr.substring(0, tmpstr.length-3);
 			tmpstr = '';
 			_this.field_add_checkbox_select.map(function (v,i) {
-				tmpstr += v + ',';
+				tmpstr += v + '---';
 			});
 			checkboxchecked = checkboxchecked + '|' + tmpstr.substring(0, tmpstr.length-1);
 
@@ -752,7 +752,7 @@ var vm_app = new Vue({
 			var comboboxchecked = tmpstr.substring(0, tmpstr.length-3);
 			tmpstr = '';
 			_this.field_add_combobox_select.map(function (v,i) {
-				tmpstr += v + ',';
+				tmpstr += v + '---';
 			});
 			comboboxchecked = comboboxchecked + '|' + tmpstr.substring(0, tmpstr.length-1);
 			
