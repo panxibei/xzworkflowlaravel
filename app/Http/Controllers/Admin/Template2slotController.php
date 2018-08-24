@@ -38,6 +38,16 @@ class Template2slotController extends Controller
         return view('admin.template2slot', $share);
     }
 
+	// delete
+    public function template2slotIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.template2slot0', $share);
+    }
+
     /**
      * template2slot列表 ajax
      *
@@ -49,7 +59,7 @@ class Template2slotController extends Controller
 		if (! $request->ajax()) { return null; }
 		
 		$limit = $request->only('limit');
-		$limit = empty($limit) ? 10 : $limit;
+		$limit = empty($limit) ? 1000 : $limit['limit'];
 // dd($limit);
 		// 所有的slot
 		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
@@ -78,7 +88,7 @@ class Template2slotController extends Controller
 		
 		// 根据slotid查询相应的field
 		$slotid = Template2slot::select('slot_id')
-			->where('template_id', $templateid)
+			->where('template_id', $templateid['templateid'])
 			->first();
 // dd(empty($slotid));
 		if (empty($slotid)) return null;
@@ -106,13 +116,12 @@ class Template2slotController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$sortinfo = $request->only('params.slotid', 'params.index', 'params.templateid', 'params.sort');
+		$sortinfo = $request->only('slotid', 'index', 'templateid', 'sort');
 // dd($sortinfo);
-// dd($sortinfo['params']['index']);
 
 		// 1.查询所有slotid
 		$slotid = Template2slot::select('slot_id')
-			->where('template_id', $sortinfo['params']['templateid'])
+			->where('template_id', $sortinfo['templateid'])
 			->first();
 		
 		// 2.所有slotid变成一维数组
@@ -121,24 +130,24 @@ class Template2slotController extends Controller
 
 		// 3.判断是向前还是向后排序
 		$arr_temp = [];
-		if ('up' == $sortinfo['params']['sort']) {
+		if ('up' == $sortinfo['sort']) {
 
 			foreach ($arr_slotid as $index => $value) {
-				if ($index == $sortinfo['params']['index']-1) {
+				if ($index == $sortinfo['index']-1) {
 					$arr_temp[] = $arr_slotid[$index+1];
-				} elseif ($index == $sortinfo['params']['index']) {
+				} elseif ($index == $sortinfo['index']) {
 					$arr_temp[] = $arr_slotid[$index-1];
 				} else {
 					$arr_temp[] = $value;
 				}
 			}
 
-		} elseif ('down' == $sortinfo['params']['sort']) {
+		} elseif ('down' == $sortinfo['sort']) {
 
 			foreach ($arr_slotid as $index => $value) {
-				if ($index == $sortinfo['params']['index']) {
+				if ($index == $sortinfo['index']) {
 					$arr_temp[] = $arr_slotid[$index+1];
-				} elseif ($index == $sortinfo['params']['index']+1) {
+				} elseif ($index == $sortinfo['index']+1) {
 					$arr_temp[] = $arr_slotid[$index-1];
 				} else {
 					$arr_temp[] = $value;
@@ -150,20 +159,131 @@ class Template2slotController extends Controller
 		}
 		
 		$slotid = implode(',', $arr_temp);
-// dd($slotid);
 		
 		// 根据templateid查询相应的slot
-		$result = Template2slot::where('template_id', $sortinfo['params']['templateid'])
-			->update([
-				'slot_id' => $slotid
-			]);
-// dd($result);
-		
+		try {
+			$result = Template2slot::where('template_id', $sortinfo['templateid'])
+				->update([
+					'slot_id' => $slotid
+				]);
+			$result = 1;
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+
 		return $result;
     }
+	
 
 	/**
-     * template2slotAdd ajax
+     * template2slotUpdate
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	 public function template2slotUpdate(Request $request)
+	 {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$templateid = $request->input('templateid');
+		$slotid = $request->input('slotid');
+		$slotid = implode(',', $slotid);
+
+		$slotid_exist = Template2slot::select('id')
+			->where('template_id', $templateid)
+			->first();
+
+		// 如果记录为空，则$fieldid_after直接为要添加的fieldid，并且用create
+		if (empty($slotid_exist)) {
+
+			try {
+				$result = Template2slot::create([
+					'template_id' => $templateid,
+					'slot_id' => $slotid
+				]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		
+		} else {
+			// 如果有记录，则根据id更新即可
+			try {
+				$result = Template2slot::where('id', $templateid)
+					->update([
+						'slot_id' => $slotid
+					]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		}
+			
+		return $result;
+	}
+	
+	/**
+     * template2slotRemove ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	public function template2slotRemove(Request $request)
+	{
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$templateid = $request->input('templateid');
+		$index = $request->input('index');
+
+		$slotid_before = Template2slot::select('slot_id')
+			->where('template_id', $templateid)
+			->first();
+
+		$slotid_before = explode(',', $slotid_before['slot_id']);
+
+		$slotid_after = [];
+		foreach ($slotid_before as $key => $value) {
+			if ($key != $index) {
+				$slotid_after[] = $value;
+			}
+		}
+
+		$slotid_after = implode(',', $slotid_after);
+
+		try {
+			$result = Template2slot::where('template_id', $templateid)
+				->update([
+					'slot_id' => $slotid_after
+				]);
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+
+		return $result;
+	}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	/**
+     * template2slotAdd  未用保留未用保留
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -220,50 +340,7 @@ class Template2slotController extends Controller
 		return $result;
 	}
 
-	/**
-     * template2slotRemove ajax
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-	public function template2slotRemove(Request $request)
-	{
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$templateid = $request->only('params.templateid');
-		$templateid = $templateid['params']['templateid'];
-
-		$index = $request->only('params.index');
-		$index = $index['params']['index'];
-
-		$slotid_before = Template2slot::select('slot_id')
-			->where('template_id', $templateid)
-			->first();
-
-		$slotid_before = explode(',', $slotid_before['slot_id']);
-
-		$slotid_after = [];
-		foreach ($slotid_before as $key => $value) {
-			if ($key != $index) {
-				$slotid_after[] = $value;
-			}
-		}
-
-		$slotid_after = implode(',', $slotid_after);
-
-		try {
-			$result = Template2slot::where('template_id', $templateid)
-				->update([
-					'slot_id' => $slotid_after
-				]);
-		}
-		catch (Exception $e) {
-			// echo 'Message: ' .$e->getMessage();
-			$result = 0;
-		}
-
-		return $result;
-	}
 
 
 }

@@ -184,6 +184,8 @@ Route::group(['prefix'=>'template2slot', 'namespace'=>'Admin', 'middleware'=>['j
 
 	// 显示template2slot页面
 	Route::get('template2slotIndex', 'Template2slotController@template2slotIndex')->name('admin.template2slot.index');
+	// delete
+	Route::get('template2slotIndex0', 'Template2slotController@template2slotIndex0')->name('admin.template2slot.index0');
 
 	// template2slot列表
 	Route::get('template2slotGets', 'Template2slotController@template2slotGets')->name('admin.template2slot.template2slotgets');
@@ -193,6 +195,9 @@ Route::group(['prefix'=>'template2slot', 'namespace'=>'Admin', 'middleware'=>['j
 
 	// slotsort
 	Route::post('slotSort', 'Template2slotController@slotSort')->name('admin.template2slot.slotsort');
+
+	// template2slotupdate
+	Route::post('template2slotupdate', 'Template2slotController@template2slotUpdate')->name('admin.template2slot.template2slotupdate');
 
 	// slot2fieldadd
 	Route::post('template2slotAdd', 'Template2slotController@template2slotAdd')->name('admin.template2slot.template2slotadd');

@@ -88,7 +88,7 @@ class Slot2fieldController extends Controller
 		
 		// 根据slotid查询相应的field
 		$fieldid = Slot2field::select('field_id')
-			->where('slot_id', $slotid)
+			->where('slot_id', $slotid['slotid'])
 			->first();
 // dd($fieldid);
 		if (empty($fieldid)) return null;
@@ -332,6 +332,7 @@ class Slot2fieldController extends Controller
 		return $result;
 	}
 
+
 	/**
      * slot2fieldRemove 未用保留未用保留
      *
@@ -342,11 +343,8 @@ class Slot2fieldController extends Controller
 	{
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$slotid = $request->only('slotid');
-		$slotid = $slotid['slotid'];
-
-		$index = $request->only('index');
-		$index = $index['index'];
+		$slotid = $request->input('slotid');
+		$index = $request->input('index');
 
 		$fieldid_before = Slot2field::select('field_id')
 			->where('slot_id', $slotid)
