@@ -212,6 +212,8 @@ Route::group(['prefix'=>'mailinglist', 'namespace'=>'Admin', 'middleware'=>['jwt
 
 	// mailinglistIndex
 	Route::get('mailinglistIndex', 'MailinglistController@mailinglistIndex')->name('admin.mailinglist.index');
+	// delete
+	Route::get('mailinglistIndex0', 'MailinglistController@mailinglistIndex0')->name('admin.mailinglist.index0');
 
 	// mailinglistList
 	Route::get('mailinglistList', 'MailinglistController@mailinglistList')->name('admin.mailinglist.list');

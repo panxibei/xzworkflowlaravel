@@ -38,6 +38,16 @@ class MailinglistController extends Controller
 
         return view('admin.mailinglist', $share);
     }
+	
+	// delete
+    public function mailinglistIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.mailinglist0', $share);
+    }
 
     /**
      * 列出mailinglist页面 ajax

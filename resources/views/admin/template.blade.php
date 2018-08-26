@@ -256,14 +256,15 @@ var vm_app = new Vue({
 		// template列表
 		templategets: function(page, last_page){
 			var _this = this;
-			var url = "{{ route('admin.template.templategets') }}";
 			
 			if (page > last_page) {
 				page = last_page;
 			} else if (page < 1) {
 				page = 1;
 			}
+
 			_this.loadingbarstart();
+			var url = "{{ route('admin.template.templategets') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
@@ -381,7 +382,7 @@ var vm_app = new Vue({
 		_this.current_nav = '元素管理';
 		_this.current_subnav = '基本元素 - Template';
 		// 显示所有template
-		this.templategets(1, 1); // page: 1, last_page: 1
+		_this.templategets(1, 1); // page: 1, last_page: 1
 	}
 });
 </script>
