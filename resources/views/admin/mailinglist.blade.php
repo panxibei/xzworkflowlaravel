@@ -31,13 +31,14 @@ Admin(Mailinglist) -
 						<p>
 							<input v-model="mailinglist_add_id" type="hidden">
 							* 名称<br>
-							<i-input v-model="mailinglist_add_name" size="small" clearable style="width: 200px"></i-input>
+							<i-input v-model="mailinglist_add_name" size="small" clearable style="width: 280px"></i-input>
 						</p>
 						<br>
 						<p>
-							<input v-model="mailinglist_add_template_id" type="hidden">
 							* Template<br>
-							<i-input v-model="mailinglist_add_template_name" size="small" clearable style="width: 200px"></i-input>
+							<i-select v-model="mailinglist_add_template_select" clearable placeholder="select template" style="width: 280px;">
+								<i-option v-for="item in mailinglist_add_template_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+							</i-select>
 						</p>
 						<br>
 						<i-button type="primary" @click="createmailinglist()">Create</i-button>&nbsp;&nbsp;
@@ -128,12 +129,12 @@ var vm_app = new Vue({
 			{
 				title: 'created_at',
 				key: 'created_at',
-				width: 100
+				width: 110
 			},
 			{
 				title: 'updated_at',
 				key: 'updated_at',
-				width: 100
+				width: 110
 			},
 			{
 				title: 'Action',
@@ -185,9 +186,9 @@ var vm_app = new Vue({
 		mailinglist_add_name: '',
 
 		// 创建ID
-		mailinglist_add_template_id: '',
+		mailinglist_add_template_select: '',
 		// 创建名称
-		mailinglist_add_template_name: '',		
+		mailinglist_add_template_options: '',		
 		
 		// tabs索引
 		currenttabs: 0,
@@ -216,31 +217,7 @@ var vm_app = new Vue({
 		
 		
 		
-		show_progress: true,
-		progress: 100,
-		show_table: false,
-		// show_update: false,
-		gets: {},
-		// perpage: {{ $config['PERPAGE_RECORDS_FOR_MAILINGLIST'] }},
-		// 编辑时值
-		edit_id: '',
-		edit_name: '',
-		currentmailinglist_name: '',
-		// currentmailinglistpassword: '',
-		// 创建
-		show_createmailinglist: false,
-		createmailinglist_name: '',
-		createmailinglist_templateid: '',
-		selected_create_template: [],
-		options_create_template: [],
-		selected_edit_template: [],
-		options_edit_template: [],
-		// 编辑
-		show_editmailinglist: false,
-		editmailinglist_name: '',
-		editmailinglist_email: '',
-		// 查询
-		open_querymailinglist: false,
+
     },
 	methods: {
 		menuselect: function (name) {
@@ -321,6 +298,15 @@ var vm_app = new Vue({
 			})
 		},
 		
+		// 把laravel返回的结果转换成select能接受的格式
+		json2select: function (json) {
+			var arr = [];
+			for (var key in json) {
+				arr.push({ value: key, label: json[key] });
+			}
+			return arr.reverse();
+		},
+		
 		mailinglistlist: function(page, last_page){
 			var _this = this;
 			var queryfilter_name = _this.queryfilter_name;
@@ -370,9 +356,13 @@ var vm_app = new Vue({
 		createmailinglist: function () {
 			var _this = this;
 			var name = _this.mailinglist_add_name;
-			var templateid = _this.selected_create_template[0];
+			// var templateid = _this.selected_create_template[0];
+			var templateid = _this.mailinglist_add_template_select;
 
-			if ( name.length == 0 || templateid.length == 0) {return false;}
+			if ( name.length == 0 || templateid.length == 0) {
+				_this.warning(false, 'Warning', 'Values are incorrect!');
+				return false;
+			}
 
 			var url = "{{ route('admin.mailinglist.create') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
@@ -382,17 +372,14 @@ var vm_app = new Vue({
 			})
 			.then(function (response) {
 				if (response.data) {
-					_this.$notify('Mailinglist created successfully!');
-					_this.createmailinglist_name = '';
-					_this.selected_create_template = [];
-					_this.mailinglistlist(_this.gets.current_page, _this.gets.last_page);
+					_this.success(false, 'Success', 'Mailinglist created successfully!');
+					_this.mailinglistlist(_this.page_current, _this.page_last);
 				} else {
-					_this.$notify('Mailinglist created failed!');
+					_this.warning(false, 'Warning', 'Mailinglist created failed! Template has slots yet?');
 				}
 			})
 			.catch(function (error) {
-				_this.$notify('Error! Mailinglist created failed!');
-				// console.log(error);
+				_this.error(false, 'Error', error);
 			})
 		},
 		
@@ -404,16 +391,18 @@ var vm_app = new Vue({
 			// console.log(_this.selected_edit_template[0]);
 			// return false;
 			
-			var id = _this.edit_id;
-			var name = _this.edit_name;
-			var template_id = _this.selected_edit_template[0];
+			var id = _this.mailinglist_add_id;
+			var name = _this.mailinglist_add_name;
+			var template_id = _this.mailinglist_add_template_select;
 			
-			if (id == undefined || name == undefined || name.length == 0 || template_id == undefined) {
-				_this.$notify('Values are incorrect!');
+			if (id == undefined || id == '' ||
+				name == undefined || name == '' ||
+				template_id == undefined || template_id == '') {
+				_this.warning(false, 'Warning', 'Values are incorrect! Edit from using table button!');
 				return false;
 			}
 
-			var url = "{{ route('admin.mailinglist.edit') }}";
+			var url = "{{ route('admin.mailinglist.update') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
 				id: id,
@@ -422,16 +411,15 @@ var vm_app = new Vue({
 			})
 			.then(function (response) {
 				if (response.data) {
-					_this.show_editmailinglist = false;
-					_this.$notify('Mailinglist updated successfully!');
-					_this.mailinglistlist(_this.gets.current_page, _this.gets.last_page);
+					_this.success(false, 'Success', 'Mailinglist updated successfully!');
+					
+					_this.mailinglistlist(_this.page_current, _this.page_last);
 				} else {
-					_this.$notify('Mailinglist updated failed!');
+					_this.warning(false, 'Warning', 'Mailinglist updated failed!');
 				}
 			})
 			.catch(function (error) {
-				_this.$notify('Error! Mailinglist updated failed!');
-				// console.log(error);
+				_this.error(false, 'Error', error);
 			})
 		},
 
@@ -442,6 +430,7 @@ var vm_app = new Vue({
 			
 			_this.mailinglist_add_id = row.id;
 			_this.mailinglist_add_name = row.name;
+			_this.mailinglist_add_template_select = row.template_id.toString();
 
 			// 切换到第二个面板
 			_this.currenttabs = 1;
@@ -481,8 +470,32 @@ var vm_app = new Vue({
 		onreset: function () {
 			this.mailinglist_add_id = '';
 			this.mailinglist_add_name = '';
+			this.mailinglist_add_template_select = '';
 		},
-
+		
+		// template列表
+		templategets: function(){
+			var _this = this;
+			var url = "{{ route('admin.template2slot.template2slotgets') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					limit: 1000
+				}
+			})
+			.then(function (response) {
+				if (response.data.length == 0 || response.data == undefined) {
+					_this.alert_exit();
+				}
+				
+				var json = response.data.template;
+				_this.mailinglist_add_template_options = _this.json2select(json);
+				
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},
 		
 		
 		
@@ -504,7 +517,7 @@ var vm_app = new Vue({
 		_this.current_nav = '元素管理';
 		_this.current_subnav = '用户关联 - Mailinglist';
 		_this.mailinglistlist(1, 1);
-		// _this.load_templateid();
+		_this.templategets();
 	}
 });
 </script>

@@ -221,8 +221,8 @@ Route::group(['prefix'=>'mailinglist', 'namespace'=>'Admin', 'middleware'=>['jwt
 	// mailinglistCreate
 	Route::post('mailinglistCreate', 'MailinglistController@mailinglistCreate')->name('admin.mailinglist.create');
 
-	// mailinglistEdit
-	Route::post('mailinglistEdit', 'MailinglistController@mailinglistEdit')->name('admin.mailinglist.edit');
+	// mailinglistUpdate
+	Route::post('mailinglistUpdate', 'MailinglistController@mailinglistUpdate')->name('admin.mailinglist.update');
 
 	// mailinglistDelete
 	Route::post('mailinglistDelete', 'MailinglistController@mailinglistDelete')->name('admin.mailinglist.delete');

@@ -120,6 +120,11 @@ class MailinglistController extends Controller
 		$slot_id = Template2slot::select('slot_id')
 			->where('template_id', $new['templateid'])
 			->first();
+		
+		if (empty($slot_id)) {
+			return null;
+		}
+		
 		$slot_id = explode(',', $slot_id['slot_id']);
 
 		// 2.添加相应的slot_id和空user_id到slot2user中去
@@ -152,12 +157,12 @@ class MailinglistController extends Controller
 	
 
     /**
-     * 编辑mailinglist ajax
+     * 更新mailinglist ajax
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function mailinglistEdit(Request $request)
+    public function mailinglistUpdate(Request $request)
     {
         //
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
@@ -192,11 +197,11 @@ class MailinglistController extends Controller
         //
 		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
 
-		$mailinglist_id = $request->only('mailinglist_id');
+		$id = $request->input('id');
 		
 		// 1.删除mailinglist相关的slot2user项
 		$slot2user_id = Mailinglist::select('slot2user_id')
-			->where('id', $mailinglist_id['mailinglist_id'])
+			->where('id', $id)
 			->first();
 		
 		DB::beginTransaction();
@@ -223,7 +228,7 @@ class MailinglistController extends Controller
 
 		// 2.删除mailinglist本身
 		try	{
-			$result = Mailinglist::where('id', $mailinglist_id['mailinglist_id'])->delete();
+			$result = Mailinglist::where('id', $id)->delete();
 		}
 		catch (Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
