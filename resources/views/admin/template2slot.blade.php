@@ -437,7 +437,19 @@ var vm_app = new Vue({
 			.catch(function (error) {
 				_this.error(false, 'Error', error);
 			})
-		},				
+		},
+		
+		// 预览template
+		template_review: function () {
+			var _this = this;
+			var templateid = _this.template_select;
+			if (templateid == undefined || templateid == '') {
+				_this.warning(false, 'Warning', 'Template is not selected!');
+				return false;
+			}
+				
+			alert('功能未完成！');
+		},
 
 
 	},
