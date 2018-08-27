@@ -64,18 +64,26 @@ class MailinglistController extends Controller
 		$page = $request->input('page');
 		
 		$queryfilter_name = $request->input('queryfilter_name');
-		$queryfilter_email = $request->input('queryfilter_email');
-		$queryfilter_datefrom = $request->input('queryfilter_datefrom');
-		$queryfilter_dateto = $request->input('queryfilter_dateto');
-
-		$queryfilter_datefrom = strtotime($queryfilter_datefrom) ? $queryfilter_datefrom : '1970-01-01';
-		$queryfilter_dateto = strtotime($queryfilter_dateto) ? $queryfilter_dateto : '9999-12-31';
+		// $queryfilter_datefrom = $request->input('queryfilter_datefrom');
+		// $queryfilter_dateto = $request->input('queryfilter_dateto');
+		$queryfilter_date = $request->input('queryfilter_date');
+// dd($queryfilter_date);
+		if (empty($queryfilter_date) || $queryfilter_date[0] == '' || $queryfilter_date[1] == '') {
+			 $queryfilter_date = ['1970-01-01', '9999-12-31'];
+		}
+// dd($queryfilter_date);
+		// $queryfilter_datefrom = strtotime($queryfilter_datefrom) ? $queryfilter_datefrom : '1970-01-01';
+		// $queryfilter_dateto = strtotime($queryfilter_dateto) ? $queryfilter_dateto : '9999-12-31';
 
 
 		if (null == $page) $page = 1;
 
 		$mailinglist = Mailinglist::select('id', 'name', 'template_id', 'isdefault', 'slot2user_id', 'created_at', 'updated_at')
-			->where('name', 'like', '%'.$queryfilter_name.'%')
+			// ->where('name', 'like', '%'.$queryfilter_name.'%')
+			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->whereBetween('created_at', $queryfilter_date)
 			->paginate($perPage, ['*'], 'page', $page);
 			
 		foreach ($mailinglist as $key => $value) {

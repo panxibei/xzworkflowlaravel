@@ -18,6 +18,12 @@ Admin(Mailinglist) -
 
 	<Tabs type="card" v-model="currenttabs">
 		<Tab-pane label="Mailinglist List">
+			Mailinglist Name&nbsp;&nbsp;
+			<i-input v-model.lazy="queryfilter_name" @on-change="mailinglistlist(page_current, page_last)" placeholder="" size="small" clearable style="width: 200px"></i-input>
+			&nbsp;&nbsp;&nbsp;&nbsp;创建日期范围&nbsp;&nbsp;
+			<Date-picker v-model.lazy="queryfilter_date" @on-change="mailinglistlist(page_current, page_last)" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
+
+			<br><br>
 			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
 			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 		</Tab-pane>
@@ -194,10 +200,8 @@ var vm_app = new Vue({
 		currenttabs: 0,
 		
 		// 查询过滤器
-		queryfilter_name: "{{ $config['FILTERS_USER_NAME'] }}",
-		queryfilter_email: "{{ $config['FILTERS_USER_EMAIL'] }}",
-		queryfilter_datefrom: "{{ $config['FILTERS_USER_LOGINTIME_DATEFROM'] }}" || null,
-		queryfilter_dateto: "{{ $config['FILTERS_USER_LOGINTIME_DATETO'] }}" || null,
+		queryfilter_name: "{{ $config['FILTERS_MAILINGLIST_NAME'] }}",
+		queryfilter_date: "{{ $config['FILTERS_MAILINGLIST_CREATED_AT'] }}" || ['', ''], //['1970-01-01', '9999-12-31'],
 		
 		
 		
@@ -310,10 +314,22 @@ var vm_app = new Vue({
 		mailinglistlist: function(page, last_page){
 			var _this = this;
 			var queryfilter_name = _this.queryfilter_name;
-			var queryfilter_email = _this.queryfilter_email;
-			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
-			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
-
+			var queryfilter_date = [];
+			
+			for (var i in _this.queryfilter_date) {
+				if (typeof(_this.queryfilter_date[i])!='string') {
+					queryfilter_date.push(_this.queryfilter_date[i].Format("yyyy-MM-dd"));
+				} else if (_this.queryfilter_date[i] == '') {
+					queryfilter_date = ['1970-01-01', '9999-12-31'];
+					break;
+				} else {
+					queryfilter_date.push(_this.queryfilter_date[i]);
+				}
+			}
+			
+			// console.log(queryfilter_date);
+			// return false;
+			
 			if (page > last_page) {
 				page = last_page;
 			} else if (page < 1) {
@@ -328,9 +344,7 @@ var vm_app = new Vue({
 					perPage: _this.page_size,
 					page: page,
 					queryfilter_name: queryfilter_name,
-					queryfilter_email: queryfilter_email,
-					queryfilter_datefrom: queryfilter_datefrom,
-					queryfilter_dateto: queryfilter_dateto
+					queryfilter_date: queryfilter_date
 				}
 			})
 			.then(function (response) {

@@ -181,6 +181,26 @@ class ConfigsTableSeeder extends Seeder
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
             ),
+            16 => 
+            array (
+                'cfg_id' => 17,
+                'cfg_name' => 'FILTERS_MAILINGLIST_NAME',
+                'cfg_value' => '',
+				'cfg_description' => '过滤器，MAILINGLIST名称',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
+            17 => 
+            array (
+                'cfg_id' => 18,
+                'cfg_name' => 'FILTERS_MAILINGLIST_CREATED_AT',
+                'cfg_value' => '',
+				'cfg_description' => '过滤器，MAILINGLIST创建日期',
+                'created_at' => $nowtime,
+                'updated_at' => $nowtime,
+                'deleted_at' => NULL,
+            ),
         ));
     }
 }
