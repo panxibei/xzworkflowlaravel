@@ -256,6 +256,9 @@ Route::group(['prefix'=>'slot2user', 'namespace'=>'Admin', 'middleware'=>['jwtau
 	// usersort
 	Route::post('userSort', 'Slot2userController@userSort')->name('admin.slot2user.usersort');
 
+	// slot2userupdate
+	Route::post('slot2userupdate', 'Slot2userController@slot2userUpdate')->name('admin.slot2user.slot2userupdate');
+
 	// slot2fieldadd
 	Route::post('slot2userAdd', 'Slot2userController@slot2userAdd')->name('admin.slot2user.slot2useradd');
 

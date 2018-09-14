@@ -166,16 +166,16 @@ class Slot2userController extends Controller
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$sortinfo = $request->only('slot2user_id', 'index', 'slot_id', 'sort');
+		$sortinfo = $request->only('slot2user_id', 'index', 'userid', 'sort');
 // dd($sortinfo['slot2user_id']);
 
 		// 1.查询现有userid
-		$user_id = Slot2user::select('user_id')
+		$userid = Slot2user::select('user_id')
 			->where('id', $sortinfo['slot2user_id'])
 			->first();
 		
 		// 2.所有查询所有userid变成一维数组
-		$arr_userid = explode(',', $user_id['user_id']);
+		$arr_userid = explode(',', $userid['user_id']);
 // dd($arr_userid);
 
 		// 3.判断是向前还是向后排序
@@ -208,16 +208,21 @@ class Slot2userController extends Controller
 			return 0;
 		}
 		
-		$user_id = implode(',', $arr_temp);
-// dd($user_id);
+		$userid = implode(',', $arr_temp);
+// dd($userid);
 		
 		// 4.排序好后写入数据库
-		$result = Slot2user::where('id', $sortinfo['slot2user_id'])
-			->update([
-				'user_id' => $user_id
-			]);
-// dd($result);
-		
+		try {
+			$result = Slot2user::where('id', $sortinfo['slot2user_id'])
+				->update([
+					'user_id' => $userid
+				]);
+		}
+		catch (Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+			
 		return $result;
     }
 	
@@ -273,13 +278,12 @@ class Slot2userController extends Controller
 	{
 		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 
-		$slot2user_id = $request->only('slot2user_id');
+		$slot2user_id = $request->input('slot2user_id');
 
-		$index = $request->only('index');
-		$index = $index['index'];
+		$index = $request->input('index');
 
 		$userid_before = Slot2user::select('user_id')
-			->where('id', $slot2user_id['slot2user_id'])
+			->where('id', $slot2user_id)
 			->first();
 
 		$userid_before = explode(',', $userid_before['user_id']);
@@ -294,7 +298,7 @@ class Slot2userController extends Controller
 		$userid_after = implode(',', $userid_after);
 
 		try {
-			$result = Slot2user::where('id', $slot2user_id['slot2user_id'])
+			$result = Slot2user::where('id', $slot2user_id)
 				->update([
 					'user_id' => $userid_after
 				]);
@@ -307,7 +311,57 @@ class Slot2userController extends Controller
 		return $result;
 	}
 	
-	
-	
+
+	/**
+     * slot2userUpdate
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+	 public function slot2userUpdate(Request $request)
+	 {
+		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+
+		$slot2user_id = $request->input('slot2user_id');
+		$user_id = $request->input('user_id');
+		$user_id = implode(',', $user_id);
+
+		$userid_exist = Slot2user::select('id')
+			->where('id', $slot2user_id)
+			->first();
+
+		// 如果记录为空，则$fieldid_after直接为要添加的fieldid，并且用create
+		if (empty($userid_exist)) {
+
+			try {
+				$result = Slot2user::create([
+					'id' => $slot2user_id,
+					'user_id' => $user_id
+				]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		
+		} else {
+			// 如果有记录，则根据id更新即可
+			try {
+				$result = Slot2user::where('id', $slot2user_id)
+					->update([
+						'user_id' => $user_id
+					]);
+				$result = 1;
+			}
+			catch (Exception $e) {
+				// echo 'Message: ' .$e->getMessage();
+				$result = 0;
+			}
+		}
+			
+		return $result;
+	}
+		
 	
 }

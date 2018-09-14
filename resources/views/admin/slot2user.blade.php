@@ -337,7 +337,7 @@ var vm_app = new Vue({
 				_this.boo_update = true;
 				return false;
 			}
-			
+			_this.boo_update = false;
 			var url = "{{ route('admin.slot2user.changeslot') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
@@ -381,25 +381,53 @@ var vm_app = new Vue({
 		},
 		
 		
+		// update
+		slotupdate: function () {
+			var _this = this;
+			var slot2user_id = _this.slot_select;
+			var user_id = _this.targetkeystransfer;
+
+			if (slot2user_id == undefined || user_id == undefined || slot2user_id == '' || user_id == '') return false;
+			
+			var url = "{{ route('admin.slot2user.slot2userupdate') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				slot2user_id: slot2user_id,
+				user_id: user_id
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.success(false, 'Success', 'Update OK!');
+					_this.change_slot();
+				} else {
+					_this.warning(false, 'Warning', 'Update failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},
+
+		
 		// sort向前
 		user_up: function (params) {
 			var _this = this;
-			var slotid = params.row.id;
+			var userid = params.row.id;
 			var index = params.index;
 
-			if (slotid==undefined || index==0) return false;
-			var templateid = _this.template_select;
-			var url = "{{ route('admin.template2slot.slotsort') }}";
+			if (userid==undefined || index==0) return false;
+			var slot2user_id = _this.slot_select;
+			var url = "{{ route('admin.slot2user.usersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				slotid: slotid,
+				userid: userid,
 				index: index,
-				templateid: templateid,
+				slot2user_id: slot2user_id,
 				sort: 'up'
 			})
 			.then(function (response) {
 				if (response.data == 1) {
-					_this.change_template();
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
@@ -410,22 +438,22 @@ var vm_app = new Vue({
 		// sort向后
 		user_down: function (params) {
 			var _this = this;
-			var slotid = params.row.id;
+			var userid = params.row.id;
 			var index = params.index;
 
-			if (slotid==undefined || index==_this.tabledata.length-1) return false;
-			var templateid = _this.template_select;
-			var url = "{{ route('admin.template2slot.slotsort') }}";
+			if (userid==undefined || index==_this.tabledata.length-1) return false;
+			var slot2user_id = _this.slot_select;
+			var url = "{{ route('admin.slot2user.usersort') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				slotid: slotid,
+				userid: userid,
 				index: index,
-				templateid: templateid,
+				slot2user_id: slot2user_id,
 				sort: 'down'
 			})
 			.then(function (response) {
 				if (response.data == 1) {
-					_this.change_template();
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
@@ -437,21 +465,21 @@ var vm_app = new Vue({
 		// 删除user
 		user_remove: function (params) {
 			var _this = this;
-			var templateid = _this.template_select;
+			var slot2user_id = _this.slot_select;
 			var index = params.index;
 			
-			if (templateid == undefined || index == undefined) return false;
+			if (slot2user_id == undefined || index == undefined) return false;
 			
-			var url = "{{ route('admin.template2slot.template2slotremove') }}";
+			var url = "{{ route('admin.slot2user.slot2userremove') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				templateid: templateid,
+				slot2user_id: slot2user_id,
 				index: index
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				if (response.data == 1) {
-					_this.change_template();
+					_this.change_slot();
 				}
 			})
 			.catch(function (error) {
@@ -504,127 +532,7 @@ var vm_app = new Vue({
 		
 		
 		
-		json2gets: function (json) {
-			var arr = [];
-			for (var key in json) {
-				arr.push({ id: key, name: json[key] });
-			}
-			return arr;
-		},
 
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
-			})
-		},
-
-
-		// sort向前
-		user_up: function (slot2user_id, index) {
-			// console.log(slot2user_id);return false;
-			var _this = this;
-			if (slot2user_id==undefined || index==0) return false;
-			var slot_id = _this.slot_select[0];
-			var url = "{{ route('admin.slot2user.usersort') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				slot2user_id: slot2user_id,
-				index: index,
-				slot_id: slot_id,
-				sort: 'up'
-			})
-			.then(function (response) {
-				if (response.data != undefined) {
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		// sort向后
-		user_down: function (slot2user_id, index) {
-			// console.log(slot2user_id);return false;
-			var _this = this;
-			if (slot2user_id==undefined || index==_this.gets.length-1) return false;
-			var slot_id = _this.slot_select[0];
-			var url = "{{ route('admin.slot2user.usersort') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				slot2user_id: slot2user_id,
-				index: index,
-				slot_id: slot_id,
-				sort: 'down'
-			})
-			.then(function (response) {
-				if (response.data != undefined) {
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		slot2user_remove: function (slot2user_id, index) {
-			var _this = this;
-			
-			if (slot2user_id == undefined || index == undefined) return false;
-			
-			var url = "{{ route('admin.slot2user.slot2userremove') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				slot2user_id: slot2user_id,
-				index: index
-			})
-			.then(function (response) {
-				// console.log(response.data);
-				if (response.data != undefined) {
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-			
-			
-		},
-		slot2user_add: function () {
-			var _this = this;
-			var slot2userid = _this.slot_select[0];
-			var userid = _this.user_select;
-			// console.log(slot2userid);
-			// console.log(userid);
-			// return false;
-			
-			if (slot2userid == undefined || userid == undefined) return false;
-			
-			var url = "{{ route('admin.slot2user.slot2useradd') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				slot2userid: slot2userid,
-				userid: userid
-			})
-			.then(function (response) {
-				// return false;
-				// console.log(response.data);
-				if (response.data != undefined) {
-					_this.user_select = [];
-					_this.change_slot();
-				}
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		slot2user_review: function () {
-			
-		}
 	},
 	mounted: function(){
 		var _this = this;
