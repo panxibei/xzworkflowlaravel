@@ -430,7 +430,7 @@ var vm_mailinglist = new Vue({
 				return false;
 			}
 
-			var url = "{{ route('admin.mailinglist.edit') }}";
+			var url = "{{ route('admin.mailinglist.update') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
 				id: id,

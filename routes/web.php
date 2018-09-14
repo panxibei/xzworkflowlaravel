@@ -241,6 +241,8 @@ Route::group(['prefix'=>'slot2user', 'namespace'=>'Admin', 'middleware'=>['jwtau
 
 	// slot2userIndex
 	Route::get('slot2userIndex', 'Slot2userController@slot2userIndex')->name('admin.slot2user.index');
+	// delete
+	Route::get('slot2userIndex0', 'Slot2userController@slot2userIndex0')->name('admin.slot2user.index0');
 
 	// slot2user列表
 	Route::get('slot2userGets', 'Slot2userController@slot2userGets')->name('admin.slot2user.slot2usergets');

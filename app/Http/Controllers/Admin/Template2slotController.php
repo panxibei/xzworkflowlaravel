@@ -84,11 +84,11 @@ class Template2slotController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 
-		$templateid = $request->only('templateid');
+		$templateid = $request->input('templateid');
 		
 		// 根据slotid查询相应的field
 		$slotid = Template2slot::select('slot_id')
-			->where('template_id', $templateid['templateid'])
+			->where('template_id', $templateid)
 			->first();
 // dd(empty($slotid));
 		if (empty($slotid)) return null;

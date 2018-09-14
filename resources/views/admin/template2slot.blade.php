@@ -314,7 +314,8 @@ var vm_app = new Vue({
 			})
 			.then(function (response) {
 				// console.log(response.data);
-				// console.log(_this.json2transfer4slot(response.data));return false;
+				// console.log(_this.json2transfer4slot(response.data));
+				// return false;
 				
 				if (response.data) {
 					var json = response.data;

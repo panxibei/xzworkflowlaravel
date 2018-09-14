@@ -12,211 +12,297 @@ Admin(slot2user) -
 
 @section('my_body')
 @parent
-<div id="slot2user_list" v-cloak>
-<div id="page-wrapper">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">Slot2user Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					Slot2user 管理
-				</div>
-				<div class="panel-body">
-					<div class="row">
+<div>
 
-					<div class="panel-body">
-						<tabs v-model="currenttabs">
-							<tab title="Slot2user List">
-								<!--slot2user列表-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
+	<Divider orientation="left">Slot2user Management</Divider>
 
-									<div class="col-lg-12">
-										<div class="panel panel-default">
-											<div class="panel-heading"><label>编辑 Slot2Field</label></div>
-											<div class="panel-body">
+	<Card>
+		<p slot="title">编辑 Slot2user</p>
+		<p>
+			<i-row :gutter="16">
+				<i-col span="9">
+					<i-select v-model="mailinglist_select" @on-change="change_mailinglist" clearable placeholder="select mailinglist" style="width: 280px;">
+						<i-option v-for="item in mailinglist_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</i-col>
+				<i-col span="9">
+					&nbsp;
+				</i-col>
+				<i-col span="6">
+					&nbsp;
+				</i-col>
+			</i-row>
+			<br>
+		</p>
+		<br>
+		<p>
+			<i-row :gutter="16">
+				<i-col span="9">
+					<i-select v-model="slot_select" @on-change="change_slot" clearable placeholder="select slot" style="width: 280px;">
+						<i-option v-for="item in slot_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+					&nbsp;&nbsp;<i-button @click="slot_review()">Review</i-button>
+				</i-col>
+				<i-col span="9">
+					&nbsp;
+				</i-col>
+				<i-col span="6">
+					<i-button type="primary" :disabled="boo_update" @click="slotupdate()">Update</i-button>
+				</i-col>
+			</i-row>
+			<br>
+		</p>
+		<br>
+		<p>
+		<i-row :gutter="16">
+			<i-col span="9">
+				<i-table height="320" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+			</i-col>
+			<i-col span="1">
+			&nbsp;
+			</i-col>
+			<i-col span="14">
+				<Transfer
+					:titles="titlestransfer"
+					:data="datatransfer"
+					filterable
+					:target-keys="targetkeystransfer"
+					:render-format="rendertransfer"
+					@on-change="onChangeTransfer">
+				</Transfer>
+			</i-col>
+		</i-row>
+		&nbsp;
+		</p>
+	</Card>
 
-												<div class="col-lg-4">
-													<div class="form-group">
-														<label>Select Mailing List</label><br>
-														<multi-select @change="change_mailinglist()" v-model="mailinglist_select" :options="mailinglist_options" :limit="1" filterable collapse-selected size="sm" />
-													</div>
-													<div class="form-group">
-														<label>Select slot</label><br>
-														<multi-select @change="change_slot()" v-model="slot_select" :options="slot_options" :limit="1" filterable collapse-selected size="sm" />
-													</div>
-												</div>
-
-												<div class="col-lg-3">
-													<div class="form-group">
-														<label>Select user</label><br>
-														<multi-select v-model="user_select" :options="user_options"  filterable collapse-selected size="sm" />
-													</div>
-													<btn @click="slot2user_add" type="primary" size="sm">Add</btn>&nbsp;
-												</div>
-
-												<div class="col-lg-5">
-
-													<div class="table-responsive">
-														<table class="table table-condensed">
-															<thead>
-																<tr>
-																	<th>sort</th>
-																	<th>name</th>
-																	<th>操作</th>
-																</tr>
-															</thead>
-															<tbody>
-																<tr v-for="(val, index) in gets">
-																	<td><div>@{{ index }}</div></td>
-																	<td><div>@{{ val.name }}</div></td>
-																	<td><div>
-																	<btn @click="user_down(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-down fa-fw"></i></btn>&nbsp;
-																	<btn @click="user_up(val.id,index)" type="primary" size="xs"><i class="fa fa-arrow-up fa-fw"></i></btn>&nbsp;
-																	<btn @click="slot2user_remove(val.id,index)" type="danger" size="xs"><i class="fa fa-times fa-fw"></i></btn></div></td>
-																</tr>
-															</tbody>
-														</table>
-													</div>
-												
-												</div>
-											</div>
-										</div>
-										
-									</div>
-									<div class="col-lg-4">
-
-									
-									
-									
-									</div>									
-									
-									
-								</div>
-							</tab>
-							<tab title="Review Slot2user">
-								<!--操作1-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
-
-
-									
-									
-									
-									
-									
-								</div>
-							</tab>
-							
-						</tabs>
-
-					</div>
-					</div>
-					
-				</div>
-
-			</div>
-		</div>
-	</div>
-</div>
 </div>
 @endsection
 
 @section('my_footer')
 @parent
+
+@endsection
+
+@section('my_js_others')
+@parent
 <script>
-var vm_slot2user = new Vue({
-    el: '#slot2user_list',
+var vm_app = new Vue({
+    el: '#app',
     data: {
-		gets: {},
-		// perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
+		current_nav: '',
+		current_subnav: '',
+		
+		sideractivename: '2-3-2',
+		sideropennames: ['2', '2-3'],
+		
 		mailinglist_select: [],
         mailinglist_options: [],
+
 		slot_select: [],
         slot_options: [],
-		user_select: [],
-        user_options: [],
+		
+		titlestransfer: ['待选', '已选'], // ['源列表', '目的列表']
+		datatransfer: [],
+		targetkeystransfer: [], // ['1', '2'] key
+		
+		boo_update: true,
+		
+		tablecolumns: [
+			{
+				type: 'index',
+				width: 60,
+				align: 'center'
+			},
+			{
+				title: 'id',
+				key: 'id',
+				width: 60
+			},
+			{
+				title: 'name',
+				key: 'name'
+			},
+			{
+				title: 'Action',
+				key: 'action',
+				align: 'center',
+				width: 140,
+				render: (h, params) => {
+					return h('div', [
+						h('Button', {
+							props: {
+								type: 'default',
+								size: 'small',
+								icon: 'md-arrow-round-down'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.user_down(params)
+								}
+							}
+						}),
+						h('Button', {
+							props: {
+								type: 'default',
+								size: 'small',
+								icon: 'md-arrow-round-up'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.user_up(params)
+								}
+							}
+						}),
+						h('Button', {
+							props: {
+								type: 'default',
+								size: 'small',
+								icon: 'md-close'
+							},
+							on: {
+								click: () => {
+									vm_app.user_remove(params)
+								}
+							}
+						})
+					]);
+				}
+			}
+		],
+		tabledata: [],		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		// gets: {},
+		// perpage: {{ $config['PERPAGE_RECORDS_FOR_SLOT'] }},
+		
+		// user_select: [],
+        // user_options: [],
 
 		// tabs索引
-		currenttabs: 0
+		// currenttabs: 0
     },
 	methods: {
+		menuselect: function (name) {
+			navmenuselect(name);
+		},
+		// 1.加载进度条
+		loadingbarstart () {
+			this.$Loading.start();
+		},
+		loadingbarfinish () {
+			this.$Loading.finish();
+		},
+		loadingbarerror () {
+			this.$Loading.error();
+		},
+		// 2.Notice 通知提醒
+		info (nodesc, title, content) {
+			this.$Notice.info({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		success (nodesc, title, content) {
+			this.$Notice.success({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		warning (nodesc, title, content) {
+			this.$Notice.warning({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		error (nodesc, title, content) {
+			this.$Notice.error({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},		
+		
+		alert_exit: function () {
+			this.$Notice.error({
+				title: '会话超时',
+				desc: '会话超时，请重新登录！',
+				duration: 2,
+				onClose: function () {
+					window.location.href = "{{ route('login') }}";
+				}
+			});
+		},		
+		
 		// 把laravel返回的结果转换成select能接受的格式
-		json2selectvalue: function (json) {
+		json2select: function (json) {
 			var arr = [];
 			for (var key in json) {
 				arr.push({ value: key, label: json[key] });
 			}
 			return arr.reverse();
 		},
-		json2gets: function (json) {
+		
+		
+		json2transfer: function (json) {
 			var arr = [];
 			for (var key in json) {
-				arr.push({ id: key, name: json[key] });
+				arr.push({
+					key: key,
+					label: json[key],
+					description: json[key],
+					disabled: false
+				});
+			}
+			return arr.reverse();
+		},
+
+		json2transfer4slot: function (json) {
+			var arr = [];
+			for (var key in json) {
+				arr.push(json[key].id.toString());
 			}
 			return arr;
 		},
-		alert_exit: function () {
-			this.$alert({
-				title: '会话超时',
-				content: '会话超时，请重新登录！'
-			// }, (msg) => {
-			}, function (msg) {
-				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`);
-				// this.$notify('You selected ${msg}.');
-				// window.setTimeout(function(){
-					window.location.href = "{{ route('admin.config.index') }}";
-				// },1000);
-			})
+		
+		// 穿梭框显示文本
+		rendertransfer: function (item) {
+			return item.label + ' (ID:' + item.key + ')';
 		},
-		notification_message: function () {
-			this.$notify({
-				type: this.notification_type,
-				title: this.notification_title,
-				content: this.notification_content
-			})
+		
+		onChangeTransfer: function (newTargetKeys, direction, moveKeys) {
+			// console.log(newTargetKeys);
+			// console.log(direction);
+			// console.log(moveKeys);
+			this.targetkeystransfer = newTargetKeys;
 		},
-		// slot2user列表
-		slot2usergets: function(){
-			var _this = this;
-			var url = "{{ route('admin.slot2user.slot2usergets') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url)
-			.then(function (response) {
-				// console.log(response.data);
-				// return false;
-				var json = response.data;
-				_this.mailinglist_options = _this.json2selectvalue(json);
-				// json = response.data.slot;
-				// _this.slot_options = _this.json2selectvalue(json);
-				
-				// if (typeof(response.data) == "undefined") {
-					// alert(response);
-					// _this.alert_exit();
-				// }
-				// _this.gets = response.data;
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
+		
 		// 通过mailinglist选择slot
 		change_mailinglist: function () {
 			var _this = this;
-			var mailinglist_id = _this.mailinglist_select[0];
-			// console.log(mailinglistid);return false;
-			if (mailinglist_id == undefined) {
+			var mailinglist_id = _this.mailinglist_select;
+			// console.log(mailinglist_id);return false;
+			if (mailinglist_id == undefined || mailinglist_id == '') {
 				_this.slot_select = [];
 				_this.slot_options = [];
-				_this.user_select = [];
-				_this.user_options = [];
-				_this.gets = '';
 				return false;
 			}
 			
@@ -230,7 +316,7 @@ var vm_slot2user = new Vue({
 			.then(function (response) {
 				if (response.data != undefined) {
 					var json = response.data;
-					_this.slot_options = _this.json2selectvalue(json);
+					_this.slot_options = _this.json2select(json);
 				}
 			})
 			.catch(function (error) {
@@ -239,15 +325,16 @@ var vm_slot2user = new Vue({
 			})
 			
 		},
+		
 		// 通过slot选择user
 		change_slot: function () {
 			var _this = this;
-			var slot2user_id = _this.slot_select[0];
+			var slot2user_id = _this.slot_select;
 			// console.log(slot2user_id);return false;
-			if (slot2user_id == undefined) {
-				_this.user_select = [];
-				_this.user_options = [];
-				_this.gets = '';
+			if (slot2user_id == undefined || slot2user_id == '') {
+				_this.targetkeystransfer = [];
+				_this.tabledata = [];
+				_this.boo_update = true;
 				return false;
 			}
 			
@@ -259,17 +346,20 @@ var vm_slot2user = new Vue({
 				}
 			})
 			.then(function (response) {
-				if (response.data != undefined) {
-					var json = response.data.user_unselected;
-					_this.user_options = _this.json2selectvalue(json);
-
-					var json = response.data.user_selected;
-					if (json != undefined) {
-						_this.gets = JSON.parse(json);
-					} else {
-						_this.gets = '';
-					}
+				// console.log(response.data);
+				// return false;
+				
+				if (response.data) {
+					var json = response.data;
+					_this.targetkeystransfer = _this.json2transfer4slot(json);
+					_this.tabledata = json;
+					
+					// _this.slot_review();
+				} else {
+					_this.targetkeystransfer = [];
+					_this.tabledata = [];
 				}
+				
 			})
 			.catch(function (error) {
 				console.log(error);
@@ -277,6 +367,160 @@ var vm_slot2user = new Vue({
 			})
 			
 		},
+
+		// 预览slot
+		slot_review: function () {
+			var _this = this;
+			var slotid = _this.slot_select;
+			if (slotid == undefined || slotid == '') {
+				_this.warning(false, 'Warning', 'Slot is not selected!');
+				return false;
+			}
+				
+			alert('功能未完成！');
+		},
+		
+		
+		// sort向前
+		user_up: function (params) {
+			var _this = this;
+			var slotid = params.row.id;
+			var index = params.index;
+
+			if (slotid==undefined || index==0) return false;
+			var templateid = _this.template_select;
+			var url = "{{ route('admin.template2slot.slotsort') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				slotid: slotid,
+				index: index,
+				templateid: templateid,
+				sort: 'up'
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.change_template();
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},
+
+		// sort向后
+		user_down: function (params) {
+			var _this = this;
+			var slotid = params.row.id;
+			var index = params.index;
+
+			if (slotid==undefined || index==_this.tabledata.length-1) return false;
+			var templateid = _this.template_select;
+			var url = "{{ route('admin.template2slot.slotsort') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				slotid: slotid,
+				index: index,
+				templateid: templateid,
+				sort: 'down'
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.change_template();
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},		
+		
+		
+		// 删除user
+		user_remove: function (params) {
+			var _this = this;
+			var templateid = _this.template_select;
+			var index = params.index;
+			
+			if (templateid == undefined || index == undefined) return false;
+			
+			var url = "{{ route('admin.template2slot.template2slotremove') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				templateid: templateid,
+				index: index
+			})
+			.then(function (response) {
+				// console.log(response.data);
+				if (response.data == 1) {
+					_this.change_template();
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},
+		
+		// slot2user列表
+		slot2usergets: function() {
+			var _this = this;
+			var url = "{{ route('admin.slot2user.slot2usergets') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					limit: 1000
+				}
+			})
+			.then(function (response) {
+				if (response.data.length == 0 || response.data == undefined) {
+					_this.alert_exit();
+				}
+				
+				var json = response.data.mailinglist;
+				_this.mailinglist_options = _this.json2select(json);
+				
+				json = response.data.user;
+				_this.datatransfer = _this.json2transfer(json);
+				
+				_this.loadingbarfinish();
+				
+			})
+			.catch(function (error) {
+				_this.loadingbarerror();
+				_this.error(false, 'Error', error);
+			})
+		},		
+		
+		
+		
+		
+		
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		json2gets: function (json) {
+			var arr = [];
+			for (var key in json) {
+				arr.push({ id: key, name: json[key] });
+			}
+			return arr;
+		},
+
+		notification_message: function () {
+			this.$notify({
+				type: this.notification_type,
+				title: this.notification_title,
+				content: this.notification_content
+			})
+		},
+
+
 		// sort向前
 		user_up: function (slot2user_id, index) {
 			// console.log(slot2user_id);return false;
@@ -383,8 +627,11 @@ var vm_slot2user = new Vue({
 		}
 	},
 	mounted: function(){
+		var _this = this;
+		_this.current_nav = '元素管理';
+		_this.current_subnav = '用户关联 - Slot2User';
 		// 显示所有slot2user
-		this.slot2usergets();
+		_this.slot2usergets();
 	}
 });
 </script>

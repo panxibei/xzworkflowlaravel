@@ -38,6 +38,16 @@ class Slot2userController extends Controller
 
         return view('admin.slot2user', $share);
     }
+	
+	// delete
+    public function slot2userIndex0()
+    {
+		$me = response()->json(auth()->user());
+		$user = json_decode($me->getContent(), true);
+		$config = Config::pluck('cfg_value', 'cfg_name')->toArray();
+		$share = compact('config', 'user');
+        return view('admin.slot2user0', $share);
+    }
 
     /**
      * slot2field列表 ajax
@@ -49,13 +59,19 @@ class Slot2userController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 		
-		$limit = $request->only('limit');
-		$limit = empty($limit) ? 10 : $limit;
+		$limit = $request->input('limit');
+		$limit = empty($limit) ? 1000 : $limit;
 // dd($limit);
 		// 所有的slot
 		// $slot = array_reverse(Slot::limit($limit)->pluck('name', 'id')->toArray());
-		$mailinglist = Mailinglist::limit($limit)->pluck('name', 'id');//->toArray();
-		return $mailinglist;
+		$mailinglist = Mailinglist::limit($limit)->pluck('name', 'id')->toArray();
+		
+		// 所有的user
+		$user = User::orderBy('id', 'desc')->limit($limit)->pluck('name', 'id')->toArray();
+
+		$slot2user = compact('mailinglist', 'user');
+		
+		return $slot2user;
     }
 
     /**
@@ -68,11 +84,11 @@ class Slot2userController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 
-		$mailinglist_id = $request->only('mailinglist_id');
+		$mailinglist_id = $request->input('mailinglist_id');
 
 		// 1.查询slot2user_id
 		$slot2user_id = Mailinglist::select('slot2user_id')
-			->where('id', $mailinglist_id['mailinglist_id'])
+			->where('id', $mailinglist_id)
 			->first();
 
 		if (trim($slot2user_id['slot2user_id'])=='') return null;
@@ -108,51 +124,35 @@ class Slot2userController extends Controller
     {
 		if (! $request->ajax()) { return null; }
 
-		$slot2user_id = $request->only('slot2user_id');
+		$slot2user_id = $request->input('slot2user_id');
 		
 		// 1.所有user
-		$all_user = User::pluck('name', 'id')->toArray();
+		// $all_user = User::pluck('name', 'id')->toArray();
 
 		// 2.根据slotid查询相应的user
 		$user_id = Slot2user::select('user_id')
-			->where('id', $slot2user_id['slot2user_id'])
+			->where('id', $slot2user_id)
 			->first();
-
+// dd($user_id['user_id']);
 		// 如果没有被选择的用户，则返回所有用户
-		if (trim($user_id['user_id'])=='') {
-			$user['user_unselected'] = $all_user;
-			return $user;
-		}
+		// if (trim($user_id['user_id'])=='') {
+			// $user['user_unselected'] = $all_user;
+			// return $user;
+		// }
+		
+		if (empty($user_id)) return null;
+		if (trim($user_id['user_id'])=='') return null;
 		
 		// 3.查找已分配userid
 		$arr_userid = explode(',', $user_id['user_id']);
 		foreach ($arr_userid as $value) {
-			$user_selected_tmp1[] = User::select('id', 'name')
+			$user[] = User::select('id', 'name')
 				->where('id', $value)
 				->first();
 		}
-		
-		// 4.根据userid查找已选择用户
-		foreach ($user_selected_tmp1 as $key => $value) {
-			$user_selected_tmp2[$value['id']] = $value['name'];
-		}
-
-		// json化，防止返回后乱序
-		$user_selected = [];
-		foreach ($user_selected_tmp2 as $k => $v) {
-			// array_push($user_selected, array("id" => $k, "name" => $v));
-			array_push($user_selected, array("id" => $slot2user_id['slot2user_id'], "name" => $v));
-		}
-		$user_selected_json = json_encode($user_selected);	
-// dd($user_selected_json);
-		// 5.未被选择的用户（步3和步4差集）
-		$user_unselected = array_diff($all_user, $user_selected_tmp2);
-
-		// 6.整理到$user
-		$user['user_selected'] = $user_selected_json;
-		$user['user_unselected'] = $user_unselected;
 
 		return $user;
+
     }	
 
 
