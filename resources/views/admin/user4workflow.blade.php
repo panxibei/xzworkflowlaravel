@@ -503,7 +503,7 @@ var vm_app = new Vue({
 			var userid = _this.user_select;
 			var substitute_time = _this.substitute_time;
 
-			if (userid == undefined || isNaN(parseInt(substitute_time))) {
+			if (userid == undefined || userid == '' || isNaN(parseInt(substitute_time))) {
 				_this.warning(false, 'Warning', `No user selected or substitute time is incorrect!`);
 				return false;
 			}
