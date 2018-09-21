@@ -272,6 +272,8 @@ Route::group(['prefix'=>'user4workflow', 'namespace'=>'Admin', 'middleware'=>['j
 
 	// slot2fieldremove
 	Route::get('user4workflowIndex', 'User4workflowController@user4workflowIndex')->name('admin.user4workflow.index');
+	// delete
+	Route::get('user4workflowIndex0', 'User4workflowController@user4workflowIndex0')->name('admin.user4workflow.index0');
 
 	// user4workflow列表
 	Route::get('user4workflowGets', 'User4workflowController@user4workflowGets')->name('admin.user4workflow.user4workflowgets');
@@ -282,6 +284,9 @@ Route::group(['prefix'=>'user4workflow', 'namespace'=>'Admin', 'middleware'=>['j
 	// substituteusersort
 	Route::post('substituteuserSort', 'User4workflowController@substituteuserSort')->name('admin.user4workflow.substituteusersort');
 
+	// userupdate
+	Route::post('userupdate', 'User4workflowController@userUpdate')->name('admin.user4workflow.userupdate');
+	
 	// user4workflowadd
 	Route::post('user4workflowAdd', 'User4workflowController@user4workflowAdd')->name('admin.user4workflow.user4workflowadd');
 
@@ -290,6 +295,9 @@ Route::group(['prefix'=>'user4workflow', 'namespace'=>'Admin', 'middleware'=>['j
 
 	// savesubstitutetime
 	Route::post('saveSubstitutetime', 'User4workflowController@saveSubstitutetime')->name('admin.user4workflow.savesubstitutetime');
+
+	// saveuserright
+	Route::post('saveuserright', 'User4workflowController@saveUserright')->name('admin.user4workflow.saveuserright');
 
 });
 
