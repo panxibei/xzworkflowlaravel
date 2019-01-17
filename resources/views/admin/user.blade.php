@@ -77,13 +77,13 @@ var vm_app = new Vue({
 		current_subnav: '',
 		
 		sideractivename: '3-1',
-		sideropennames: ['1'],
+		sideropennames: ['3', '1'],
 
 		tablecolumns: [
 			{
 				type: 'index',
+				align: 'center',
 				width: 60,
-				align: 'center'
 			},
 			{
 				title: 'id',
@@ -93,34 +93,42 @@ var vm_app = new Vue({
 			},
 			{
 				title: 'name',
-				key: 'name'
+				key: 'name',
+				width: 120
 			},
 			{
 				title: 'login IP',
-				key: 'login_ip'
+				key: 'login_ip',
+				width: 100
 			},
 			{
-				title: 'login counts',
+				title: 'counts',
 				key: 'login_counts',
-				align: 'center'
+				align: 'center',
+				sortable: true,
+				width: 100
 			},
 			{
 				title: 'login time',
-				key: 'login_time'
+				key: 'login_time',
+				width: 160
 			},
 			{
 				title: 'status',
 				key: 'deleted_at',
-				align: 'center'
+				align: 'center',
+				width: 80
 			},
 			{
 				title: 'created_at',
 				key: 'created_at',
+				width: 160
 			},
 			{
 				title: 'Action',
 				key: 'action',
 				align: 'center',
+				width: 160,
 				render: (h, params) => {
 					return h('div', [
 						h('Button', {
@@ -168,7 +176,11 @@ var vm_app = new Vue({
 		// tabs索引
 		currenttabs: 0,
 		
-		
+		// 查询过滤器
+		queryfilter_name: "{{ $config['FILTERS_USER_NAME'] }}",
+		queryfilter_email: "{{ $config['FILTERS_USER_EMAIL'] }}",
+		queryfilter_logintime: "{{ $config['FILTERS_USER_LOGINTIME'] }}" || [],
+		queryfilter_loginip: "{{ $config['FILTERS_USER_LOGINIP'] }}",
 		
 		
 		
@@ -208,11 +220,6 @@ var vm_app = new Vue({
 		edituser_email: '',
 		// 查询
 		open_queryuser: false,
-		// 查询过滤器
-		queryfilter_name: "{{ $config['FILTERS_USER_NAME'] }}",
-		queryfilter_email: "{{ $config['FILTERS_USER_EMAIL'] }}",
-		queryfilter_datefrom: "{{ $config['FILTERS_USER_LOGINTIME_DATEFROM'] }}" || null,
-		queryfilter_dateto: "{{ $config['FILTERS_USER_LOGINTIME_DATETO'] }}" || null
     },
 	methods: {
 		menuselect: function (name) {
@@ -267,7 +274,7 @@ var vm_app = new Vue({
 		
 		// 切换当前页
 		oncurrentpagechange: function (currentpage) {
-			this.templategets(currentpage, this.page_last);
+			this.usergets(currentpage, this.page_last);
 		},
 		// 切换页记录数
 		onpagesizechange: function (pagesize) {
@@ -283,7 +290,7 @@ var vm_app = new Vue({
 			.then(function (response) {
 				if (response.data) {
 					_this.page_size = pagesize;
-					_this.templategets(1, _this.page_last);
+					_this.usergets(1, _this.page_last);
 				} else {
 					_this.warning(false, 'Warning', 'failed!');
 				}
@@ -301,13 +308,24 @@ var vm_app = new Vue({
 			} else if (page < 1) {
 				page = 1;
 			}
+			
+			var queryfilter_logintime = [];
+
+			for (var i in _this.queryfilter_logintime) {
+				if (typeof(_this.queryfilter_logintime[i])!='string') {
+					queryfilter_logintime.push(_this.queryfilter_logintime[i].Format("yyyy-MM-dd"));
+				} else if (_this.queryfilter_logintime[i] == '') {
+					// queryfilter_logintime.push(new Date().Format("yyyy-MM-dd"));
+					_this.tabledata = [];
+					return false;
+				} else {
+					queryfilter_logintime.push(_this.queryfilter_logintime[i]);
+				}
+			}
 
 			var queryfilter_name = _this.queryfilter_name;
 			var queryfilter_email = _this.queryfilter_email;
-			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
-			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
-
-			_this.gets.current_page = page;
+			var queryfilter_loginip = _this.queryfilter_loginip;
 
 			_this.loadingbarstart();
 			var url = "{{ route('admin.user.list') }}";
@@ -317,9 +335,9 @@ var vm_app = new Vue({
 					perPage: _this.page_size,
 					page: page,
 					queryfilter_name: queryfilter_name,
+					queryfilter_logintime: queryfilter_logintime,
 					queryfilter_email: queryfilter_email,
-					queryfilter_datefrom: queryfilter_datefrom,
-					queryfilter_dateto: queryfilter_dateto
+					queryfilter_loginip: queryfilter_loginip,
 				}
 			})
 			.then(function (response) {
@@ -339,11 +357,10 @@ var vm_app = new Vue({
 				
 				_this.loadingbarfinish();
 				
-				
 			})
 			.catch(function (error) {
-				console.log(error);
-				alert(error);
+				_this.loadingbarerror();
+				_this.error(false, 'Error', error);
 			})
 		},		
 		
@@ -545,8 +562,8 @@ var vm_app = new Vue({
 			var cfg_data = {};
 			cfg_data['FILTERS_USER_NAME'] = _this.queryfilter_name;
 			cfg_data['FILTERS_USER_EMAIL'] = _this.queryfilter_email;
-			cfg_data['FILTERS_USER_LOGINTIME_DATEFROM'] = _this.queryfilter_datefrom;
-			cfg_data['FILTERS_USER_LOGINTIME_DATETO'] = _this.queryfilter_dateto;
+			// cfg_data['FILTERS_USER_LOGINTIME_DATEFROM'] = _this.queryfilter_datefrom;
+			// cfg_data['FILTERS_USER_LOGINTIME_DATETO'] = _this.queryfilter_dateto;
 
 			_this.changeconfig(cfg_data);
 			
@@ -602,10 +619,10 @@ var vm_app = new Vue({
 	},
 	mounted: function(){
 		var _this = this;
-		_this.current_nav = '元素管理';
-		_this.current_subnav = '基本元素 - Template';
-		// 显示所有template
-		_this.userlist(1, 1);
+		_this.current_nav = '权限管理';
+		_this.current_subnav = 'User';
+		// 显示所有user
+		_this.usergets(1, 1); // page: 1, last_page: 1
 	}
 });
 </script>

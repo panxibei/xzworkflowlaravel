@@ -114,9 +114,9 @@ class ConfigsTableSeeder extends Seeder
             9 => 
             array (
                 'cfg_id' => 10,
-                'cfg_name' => 'FILTERS_USER_LOGINTIME_DATEFROM',
+                'cfg_name' => 'FILTERS_USER_LOGINTIME',
                 'cfg_value' => '',
-				'cfg_description' => '过滤器，登录开始时间',
+				'cfg_description' => '过滤器，用户登录时间区间',
                 'created_at' => $nowtime,
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,
@@ -124,9 +124,9 @@ class ConfigsTableSeeder extends Seeder
             10 => 
             array (
                 'cfg_id' => 11,
-                'cfg_name' => 'FILTERS_USER_LOGINTIME_DATETO',
+                'cfg_name' => 'FILTERS_USER_LOGINIP',
                 'cfg_value' => '',
-				'cfg_description' => '过滤器，登录结束时间',
+				'cfg_description' => '过滤器，用户登录IP',
                 'created_at' => $nowtime,
                 'updated_at' => $nowtime,
                 'deleted_at' => NULL,

@@ -131,31 +131,49 @@ class UserController extends Controller
      */
     public function userList(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
+		
+		$url = request()->url();
+		$queryParams = request()->query();
+		
+		if (isset($queryParams['perPage'])) {
+			$perPage = $queryParams['perPage'] ?: 10000;
+		} else {
+			$perPage = 10000;
+		}
+		
+		if (isset($queryParams['page'])) {
+			$page = $queryParams['page'] ?: 1;
+		} else {
+			$page = 1;
+		}
+		
+		
 
         // 获取用户信息
-		$perPage = $request->input('perPage');
-		$page = $request->input('page');
+		// $perPage = $request->input('perPage');
+		// $page = $request->input('page');
 		
 		$queryfilter_name = $request->input('queryfilter_name');
+		$queryfilter_logintime = $request->input('queryfilter_logintime');
 		$queryfilter_email = $request->input('queryfilter_email');
-		$queryfilter_datefrom = $request->input('queryfilter_datefrom');
-		$queryfilter_dateto = $request->input('queryfilter_dateto');
-
-		$queryfilter_datefrom = strtotime($queryfilter_datefrom) ? $queryfilter_datefrom : '1970-01-01';
-		$queryfilter_dateto = strtotime($queryfilter_dateto) ? $queryfilter_dateto : '9999-12-31';
-
-
-		if (null == $page) $page = 1;
+		$queryfilter_loginip = $request->input('queryfilter_loginip');
 
 		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
-			->where('name', 'like', '%'.$queryfilter_name.'%')
-			->where('email', 'like', '%'.$queryfilter_email.'%')
-			// ->orWhere(function ($query) {
-				// $query->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto]);
-				// $query->whereBetween('login_time', ['2018-01-01', '2018-05-26']);
-            // })
-			->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto])
+			->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
+				return $query->whereBetween('login_time', $queryfilter_logintime);
+			})
+			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->when($queryfilter_email, function ($query) use ($queryfilter_email) {
+				return $query->where('name', 'like', '%'.$queryfilter_email.'%');
+			})
+			->when($queryfilter_loginip, function ($query) use ($queryfilter_loginip) {
+				return $query->where('name', 'like', '%'.$queryfilter_loginip.'%');
+			})
+			->limit(5000)
+			->orderBy('created_at', 'desc')
 			->withTrashed()
 			->paginate($perPage, ['*'], 'page', $page);
 
