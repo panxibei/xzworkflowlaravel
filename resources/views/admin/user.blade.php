@@ -12,243 +12,179 @@ Admin(User) -
 
 @section('my_body')
 @parent
-<div id="user_list">
-<div id="page-wrapper">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">User Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					用户管理
-				</div>
-				<div class="panel-body">
-					<div class="row">
-						<div class="col-lg-12">
-							<div class="form-group">
-								<btn type="default" @click="open_queryuser=!open_queryuser" size="sm">Query Filter</btn>&nbsp;
-								<btn type="default" @click="userexport()" size="sm"><i class="fa fa-external-link fa-fw"></i> 导出</btn>&nbsp;
-								<btn type="default" @click="open_createuser=true" size="sm">Create User</btn>
-								
-								
-							</div>
-						</div>
-						<div class="col-lg-12">
-							<collapse v-model="open_queryuser">
-								<div class="well" style="margin-bottom: 0">
-									<div class="row">
-										<div class="col-lg-3">
-											<div class="form-group">
-												<label class="control-label">账号</label>
-												<input v-model.lazy="queryfilter_name" class="form-control input-sm" type="text" placeholder="账号">
-								<br><btn type="default" size="sm"  @click="queryfilter()">Query</btn>
-								&nbsp;<btn type="default" size="sm"  @click="queryfilter_name=queryfilter_email='';queryfilter_datefrom=queryfilter_dateto=null;queryfilter()">Clear</btn>
-											</div>
-										</div>
-										<div class="col-lg-3">
-											<div class="form-group">
-												<label class="control-label">Email</label>
-												<input v-model.lazy="queryfilter_email" class="form-control input-sm" type="text" placeholder="邮箱">
-											</div>
-										</div>
-										<div class="col-lg-3">
-											<div class="form-group">
-												<label class="control-label">最近登录时间（始）</label>
-												<dropdown class="form-group">
-													<div class="input-group">
-														<input class="form-control" type="text" v-model.lazy="queryfilter_datefrom" placeholder="开始时间">
-														<div class="input-group-btn">
-															<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
-														</div>
-													</div>
-													<template slot="dropdown">
-														<li>
-															<date-picker v-model="queryfilter_datefrom"/>
-														</li>
-													</template>
-												</dropdown>
-											</div>
-										</div>
-										<div class="col-lg-3">
-											<label class="control-label">最近登录时间（终）</label>
-											<dropdown class="form-group">
-												<div class="input-group">
-													<input class="form-control" type="text" v-model.lazy="queryfilter_dateto" placeholder="结束时间">
-													<div class="input-group-btn">
-														<btn class="dropdown-toggle"><i class="fa fa-calendar fa-fw"></i></btn>
-													</div>
-												</div>
-												<template slot="dropdown">
-													<li>
-														<date-picker v-model="queryfilter_dateto"/>
-													</li>
-												</template>
-											</dropdown>
-										</div>
-										<div class="col-lg-3">
-										</div>
-									</div>
-								</div>
-							</collapse>						
-						</div>
+<div>
 
+	<Divider orientation="left">User Management</Divider>
 
-						<div class="col-lg-12">
-							<br><div style="background-color:#c9e2b3;height:1px"></div>
-							<div class="table-responsive" v-cloak>
-								<table class="table table-condensed">
-									<thead>
-										<tr>
-											<th>ID</th>
-											<th>用户名</th>
-											<th>Email</th>
-											<th>最近登录IP</th>
-											<th>登录次数</th>
-											<th>最近登录时间</th>
-											<th>状态</th>
-											<th>创建/更新时间</th>
-											<th>操作</th>
-										</tr>
-									</thead>
-									<tbody id="tbody_user_query">
-				
-										<tr v-for="val in gets.data">
-											<td><div>@{{ val.id }}</div></td>
-											<td><div>@{{ val.name }}</div></td>
-											<td><div>@{{ val.email }}</div></td>
-											<td><div>@{{ val.login_ip }}</div></td>
-											<td><div>@{{ val.login_counts }}</div></td>
-											<td><div>@{{ val.login_time }}</div></td>
-											<td><div>@{{ val.deleted_at ? "禁用" : "启用" }}</div></td>
-											<td><div>@{{ val.created_at }}<br>@{{ val.updated_at }}</div></td>
-											<td><div>
-											&nbsp;<btn type="primary" size="xs" @click="open_edituser=true;currentuser=val;" :id="'btnedituser'+val.id"><i class="fa fa-edit fa-fw"></i></btn>
-											<tooltip text="编辑" :target="'#btnedituser'+val.id"/>
-											&nbsp;<btn type="warning" size="xs" @click="trashuser(val.id)" :id="'btntrashuser'+val.id"><i class="fa fa-trash-o fa-fw"></i></btn>
-											<tooltip text="禁用/启用" :target="'#btntrashuser'+val.id"/>
-											&nbsp;<btn type="danger" size="xs" @click="deleteuser(val.id, val.name)" :id="'btndeleteuser'+val.id"><i class="fa fa-times fa-fw"></i></btn>
-											<tooltip text="删除" :target="'#btndeleteuser'+val.id"/>
-											</div></td>
-										</tr>
+	<Tabs type="card" v-model="currenttabs">
+		<Tab-pane label="User List">
+			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+		</Tab-pane>
 
-									</tbody>
-								</table>
-								<div id="div_user_query" class="dropup">
-								
-									<tr><td colspan="9"><div><nav>
+		<Tab-pane label="Create/Edit Template">
+		
+			<i-row>
+				<i-col span="8">
+					<Card>
+						<p slot="title">新建/编辑 TEMPLATE</p>
+						<p>
+							<input v-model="template_add_id" type="hidden">
+							* 名称<br>
+							<i-input v-model="template_add_name" size="small" clearable style="width: 200px"></i-input>
+						</p>
+						<br>
+						<i-button type="primary" @click="templatecreateorupdate('create')">Create</i-button>&nbsp;&nbsp;
+						<i-button type="primary" @click="templatecreateorupdate('update')">Update</i-button>&nbsp;&nbsp;
+						<i-button @click="onreset()">Reset</i-button>
+					</Card>
+				</i-col>
+				<i-col span="16">
+				&nbsp;
+				</i-col>
+			</i-row>
 
-										<ul class="pagination pagination-sm">
-											<li><a aria-label="Previous" @click="userlist(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
+		</Tab-pane>
 
-											<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-												<a v-if="n==1" @click="userlist(1, gets.last_page)" href="javascript:;">1</a>
-												<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="userlist(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
-												<a v-else-if="n==2||n==gets.last_page">...</a>
-											</li>&nbsp;
-
-											<li><a aria-label="Next" @click="userlist(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-											<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
-
-												<div class="col-xs-2">
-												<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="userlist($event.target.value, gets.last_page)">
-												</div>
-
-											<div class="btn-group">
-											<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
-											<ul class="dropdown-menu">
-											<li><a @click="configperpageforuser(2)" href="javascript:;"><small>2条记录</small></a></li>
-											<li><a @click="configperpageforuser(5)" href="javascript:;"><small>5条记录</small></a></li>
-											<li><a @click="configperpageforuser(10)" href="javascript:;"><small>10条记录</small></a></li>
-											<li><a @click="configperpageforuser(20)" href="javascript:;"><small>20条记录</small></a></li>
-											</ul>
-											</div>
-										</ul>
-
-									</nav></div></td></tr>
-
-								</div>
-							</div>
-						</div>
-
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Modal user edit -->
-<modal v-model="open_edituser" @hide="callback_edituser" size="sm">
-	<span slot="title"><i class="fa fa-user fa-fw"></i> Edit User</span>
-
-	<div class="container">
-		<div class="row">
-			<div  class="col-lg-3">
-				<!--<input v-model="currentuser.id" type="hidden" class="form-control input-sm">-->
-				<input :value="up2dateuser.id=currentuser.id" type="hidden" class="form-control input-sm">
-				<div class="form-group">
-					<label>账号</label>
-					<!--<input v-model="currentuser.name" type="text" class="form-control input-sm">-->
-					<input :value="currentuser.name" @change="forchange('name', $event.target.value)" type="text" class="form-control input-sm">
-				</div>
-				<div class="form-group">
-					<label>Email</label>
-					<input :value="currentuser.email" @change="forchange('email', $event.target.value)" type="text" class="form-control input-sm">
-				</div>
-				<div class="form-group">
-					<label>Password</label>
-					<input :value="currentuser.password" @change="forchange('password', $event.target.value)" type="text" class="form-control input-sm">
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div slot="footer">
-		<btn @click="open_edituser=false">Cancel</btn>
-		<btn @click="edituser" type="primary">Update</btn>
-	</div>	
-</modal>
-
-<!-- Modal create user-->
-<modal v-model="open_createuser" @hide="callback_createuser" size="sm">
-	<span slot="title"><i class="fa fa-user fa-fw"></i> Create User</span>
-
-	<div class="container">
-		<div class="row">
-			<div  class="col-lg-3">
-				<div class="form-group">
-					<label>账号</label>
-					<input v-model="createuser_name" type="text" class="form-control input-sm">
-				</div>
-				<div class="form-group">
-					<label>Email</label>
-					<input v-model="createuser_email" type="email" class="form-control input-sm">
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div slot="footer">
-		<btn @click="open_createuser=false">Cancel</btn>
-		<btn @click="createuser" type="primary">Create User</btn>
-	</div>	
-</modal>
+	</Tabs>
 
 </div>
+
+
+
+
+
+
+
+
+
+
 @endsection
 
 @section('my_footer')
 @parent
+
+@endsection
+
+@section('my_js_others')
+@parent
 <script>
 // ajax 获取数据
-var vm_user = new Vue({
-    el: '#user_list',
+var vm_app = new Vue({
+    el: '#app',
     data: {
-		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_USER'] }},
+		current_nav: '',
+		current_subnav: '',
+		
+		sideractivename: '3-1',
+		sideropennames: ['1'],
+
+		tablecolumns: [
+			{
+				type: 'index',
+				width: 60,
+				align: 'center'
+			},
+			{
+				title: 'id',
+				key: 'id',
+				sortable: true,
+				width: 80
+			},
+			{
+				title: 'name',
+				key: 'name'
+			},
+			{
+				title: 'login IP',
+				key: 'login_ip'
+			},
+			{
+				title: 'login counts',
+				key: 'login_counts',
+				align: 'center'
+			},
+			{
+				title: 'login time',
+				key: 'login_time'
+			},
+			{
+				title: 'status',
+				key: 'deleted_at',
+				align: 'center'
+			},
+			{
+				title: 'created_at',
+				key: 'created_at',
+			},
+			{
+				title: 'Action',
+				key: 'action',
+				align: 'center',
+				render: (h, params) => {
+					return h('div', [
+						h('Button', {
+							props: {
+								type: 'primary',
+								size: 'small'
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								click: () => {
+									vm_app.template_detail(params.row)
+								}
+							}
+						}, 'View'),
+						h('Button', {
+							props: {
+								type: 'error',
+								size: 'small'
+							},
+							on: {
+								click: () => {
+									vm_app.template_delete(params.row.id)
+								}
+							}
+						}, 'Delete')
+					]);
+				}
+			}
+		],
+		tabledata: [],
+		
+		//分页
+		page_current: 1,
+		page_total: 1, // 记录总数，非总页数
+		page_size: {{ $config['PERPAGE_RECORDS_FOR_USER'] }},
+		page_last: 1,		
+		
+		// 创建ID
+		template_add_id: '',
+		// 创建名称
+		template_add_name: '',
+
+		// tabs索引
+		currenttabs: 0,
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		currentuser: {
 			id: '',
 			name: '',
@@ -279,6 +215,153 @@ var vm_user = new Vue({
 		queryfilter_dateto: "{{ $config['FILTERS_USER_LOGINTIME_DATETO'] }}" || null
     },
 	methods: {
+		menuselect: function (name) {
+			navmenuselect(name);
+		},
+		// 1.加载进度条
+		loadingbarstart () {
+			this.$Loading.start();
+		},
+		loadingbarfinish () {
+			this.$Loading.finish();
+		},
+		loadingbarerror () {
+			this.$Loading.error();
+		},
+		// 2.Notice 通知提醒
+		info (nodesc, title, content) {
+			this.$Notice.info({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		success (nodesc, title, content) {
+			this.$Notice.success({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		warning (nodesc, title, content) {
+			this.$Notice.warning({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		error (nodesc, title, content) {
+			this.$Notice.error({
+				title: title,
+				desc: nodesc ? '' : content
+			});
+		},
+		
+		alert_exit: function () {
+			this.$Notice.error({
+				title: '会话超时',
+				desc: '会话超时，请重新登录！',
+				duration: 2,
+				onClose: function () {
+					window.location.href = "{{ route('login') }}";
+				}
+			});
+		},
+		
+		// 切换当前页
+		oncurrentpagechange: function (currentpage) {
+			this.templategets(currentpage, this.page_last);
+		},
+		// 切换页记录数
+		onpagesizechange: function (pagesize) {
+			
+			var _this = this;
+			var cfg_data = {};
+			cfg_data['PERPAGE_RECORDS_FOR_USER'] = pagesize;
+			var url = "{{ route('admin.config.change') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				cfg_data: cfg_data
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.page_size = pagesize;
+					_this.templategets(1, _this.page_last);
+				} else {
+					_this.warning(false, 'Warning', 'failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', 'failed!');
+			})
+		},
+		
+		usergets: function(page, last_page){
+			var _this = this;
+			
+			if (page > last_page) {
+				page = last_page;
+			} else if (page < 1) {
+				page = 1;
+			}
+
+			var queryfilter_name = _this.queryfilter_name;
+			var queryfilter_email = _this.queryfilter_email;
+			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
+			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
+
+			_this.gets.current_page = page;
+
+			_this.loadingbarstart();
+			var url = "{{ route('admin.user.list') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					perPage: _this.page_size,
+					page: page,
+					queryfilter_name: queryfilter_name,
+					queryfilter_email: queryfilter_email,
+					queryfilter_datefrom: queryfilter_datefrom,
+					queryfilter_dateto: queryfilter_dateto
+				}
+			})
+			.then(function (response) {
+				// console.log(response.data);
+				// return false;
+
+				if (response.data.length == 0 || response.data.data == undefined) {
+					_this.alert_exit();
+				}
+				// _this.gets = response.data;
+				// alert(_this.gets);
+				
+				_this.page_current = response.data.current_page;
+				_this.page_total = response.data.total;
+				_this.page_last = response.data.last_page;
+				_this.tabledata = response.data.data;
+				
+				_this.loadingbarfinish();
+				
+				
+			})
+			.catch(function (error) {
+				console.log(error);
+				alert(error);
+			})
+		},		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		// 表单变化后的值
 		forchange: function (key, value) {
 			// alert(value);
@@ -292,62 +375,7 @@ var vm_user = new Vue({
 			}
 			// alert(_this.up2dateuser.id);
 		},
-		userlist: function(page, last_page){
-			var _this = this;
-			var queryfilter_name = _this.queryfilter_name;
-			var queryfilter_email = _this.queryfilter_email;
-			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
-			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
 
-			if (page > last_page) {
-				page = last_page;
-			} else if (page < 1) {
-				page = 1;
-			}
-			_this.gets.current_page = page;
-
-			var url = "{{ route('admin.user.list') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url,{
-				params: {
-					perPage: _this.perpage,
-					page: page,
-					queryfilter_name: queryfilter_name,
-					queryfilter_email: queryfilter_email,
-					queryfilter_datefrom: queryfilter_datefrom,
-					queryfilter_dateto: queryfilter_dateto
-				}
-			})
-			.then(function (response) {
-				// console.log(response);
-				// alert(response.data);
-				if (typeof(response.data.data) == "undefined") {
-					// alert('toekn失效，跳转至登录页面');
-					// _this.alert_exit();
-				}
-				// return false;
-				_this.gets = response.data;
-				// alert(_this.gets);
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
-		alert_exit: function () {
-			this.$alert({
-				title: '会话超时',
-				content: '会话超时，请重新登录！'
-			// }, (msg) => {
-			}, function (msg) {
-				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`);
-				// this.$notify('You selected ${msg}.');
-				// window.setTimeout(function(){
-					window.location.href = "{{ route('admin.config.index') }}";
-				// },1000);
-			})
-		},
 		configperpageforuser: function (value) {
 			var _this = this;
 			
@@ -574,6 +602,9 @@ var vm_user = new Vue({
 	},
 	mounted: function(){
 		var _this = this;
+		_this.current_nav = '元素管理';
+		_this.current_subnav = '基本元素 - Template';
+		// 显示所有template
 		_this.userlist(1, 1);
 	}
 });
