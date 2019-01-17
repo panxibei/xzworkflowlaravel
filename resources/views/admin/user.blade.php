@@ -18,6 +18,41 @@ Admin(User) -
 
 	<Tabs type="card" v-model="currenttabs">
 		<Tab-pane label="User List">
+		
+			<Collapse v-model="collapse_query">
+				<Panel name="1">
+					User Query Filter
+					<p slot="content">
+					
+						<i-row :gutter="16">
+							<i-col span="4">
+								name&nbsp;&nbsp;
+								<i-input v-model.lazy="queryfilter_name" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
+							</i-col>
+							<i-col span="4">
+								email&nbsp;&nbsp;
+								<i-input v-model.lazy="queryfilter_email" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
+							</i-col>
+							<i-col span="4">
+								login ip&nbsp;&nbsp;
+								<i-input v-model.lazy="queryfilter_loginip" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
+							</i-col>
+							<i-col span="8">
+								login time&nbsp;&nbsp;
+								<Date-picker v-model.lazy="queryfilter_logintime" @on-change="usergets(page_current, page_last);onselectchange();" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
+							</i-col>
+							<i-col span="4">
+								&nbsp;
+							</i-col>
+						</i-row>
+					
+					
+					&nbsp;
+					</p>
+				</Panel>
+			</Collapse>
+			<br>
+		
 			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
 			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 		</Tab-pane>
@@ -77,9 +112,15 @@ var vm_app = new Vue({
 		current_subnav: '',
 		
 		sideractivename: '3-1',
-		sideropennames: ['3', '1'],
+		sideropennames: ['3'],
 
 		tablecolumns: [
+			{
+				type: 'selection',
+				width: 50,
+				align: 'center',
+				fixed: 'left'
+			},
 			{
 				type: 'index',
 				align: 'center',
@@ -95,6 +136,11 @@ var vm_app = new Vue({
 				title: 'name',
 				key: 'name',
 				width: 120
+			},
+			{
+				title: 'email',
+				key: 'email',
+				width: 160
 			},
 			{
 				title: 'login IP',
@@ -128,7 +174,7 @@ var vm_app = new Vue({
 				title: 'Action',
 				key: 'action',
 				align: 'center',
-				width: 160,
+				width: 80,
 				render: (h, params) => {
 					return h('div', [
 						h('Button', {
@@ -141,26 +187,17 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.template_detail(params.row)
+									vm_app.user_edit(params.row)
 								}
 							}
-						}, 'View'),
-						h('Button', {
-							props: {
-								type: 'error',
-								size: 'small'
-							},
-							on: {
-								click: () => {
-									vm_app.template_delete(params.row.id)
-								}
-							}
-						}, 'Delete')
+						}, 'View')
 					]);
-				}
+				},
+				fixed: 'right'
 			}
 		],
 		tabledata: [],
+		tableselect: [],
 		
 		//分页
 		page_current: 1,
@@ -182,7 +219,8 @@ var vm_app = new Vue({
 		queryfilter_logintime: "{{ $config['FILTERS_USER_LOGINTIME'] }}" || [],
 		queryfilter_loginip: "{{ $config['FILTERS_USER_LOGINIP'] }}",
 		
-		
+		//
+		collapse_query: '',
 		
 		
 		
@@ -364,7 +402,17 @@ var vm_app = new Vue({
 			})
 		},		
 		
-		
+		// 表relation选择
+		onselectchange: function (selection) {
+			var _this = this;
+			_this.tableselect = [];
+
+			for (var i in selection) {
+				_this.tableselect.push(selection[i].id);
+			}
+			
+			_this.boo_delete = _this.tableselect[0] == undefined ? true : false;
+		},
 		
 		
 		

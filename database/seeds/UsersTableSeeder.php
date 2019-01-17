@@ -14,6 +14,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
 		$nowtime = date("Y-m-d H:i:s",time());
+		$logintime = date("Y-m-d H:i:s", 86400);
 		
         //
 		User::truncate();
@@ -26,7 +27,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'admin',
                 'email' => 'admin@xz.com',
                 'password' => '$2y$10$LZyZUTTyHugBeHGiSCumi.KKb4doF5eQYoKqIBYR03J84LLcEVVZW',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -40,7 +41,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user1',
                 'email' => 'user1@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -54,7 +55,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user2',
                 'email' => 'user2@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -68,7 +69,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user3',
                 'email' => 'user3@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -82,7 +83,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user4',
                 'email' => 'user4@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -96,7 +97,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user5',
                 'email' => 'user5@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -110,7 +111,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user6',
                 'email' => 'user6@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -124,7 +125,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user7',
                 'email' => 'user7@xz.com',
                 'password' => '123',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
@@ -138,7 +139,7 @@ class UsersTableSeeder extends Seeder
                 'name' => 'user8',
                 'email' => 'user8@xz.com',
                 'password' => '$2y$10$LZyZUTTyHugBeHGiSCumi.KKb4doF5eQYoKqIBYR03J84LLcEVVZW',
-                'login_time' => $nowtime,
+                'login_time' => $logintime,
                 'login_ip' => '127.0.0.1',
                 'login_counts' => 0,
                 'remember_token' => '',
