@@ -52,32 +52,55 @@ Admin(User) -
 				</Panel>
 			</Collapse>
 			<br>
+			
+			<i-row :gutter="16">
+				<br>
+				<i-col span="2">
+					<i-button @click="ondelete_user()" :disabled="boo_delete_user" type="warning" size="small">Delete</i-button>&nbsp;<br>&nbsp;
+				</i-col>
+				<i-col span="4">
+					导出：&nbsp;&nbsp;&nbsp;&nbsp;
+					<i-button type="default" size="small" @click=""><Icon type="ios-download-outline"></Icon> 导出</i-button>
+				</i-col>
+				<i-col span="18">
+					&nbsp;
+				</i-col>
+			</i-row>
+			
+			<i-row :gutter="16">
+				<i-col span="24">
 		
-			<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
-			<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+					<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+					<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+				
+					<Modal v-model="modal_user_edit" @on-ok="user_edit_ok" ok-text="保存" title="Edit - User" width="420">
+						<div style="text-align:left">
+							
+							<p>
+								name&nbsp;&nbsp;
+								<i-input v-model.lazy="user_edit_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
+
+								&nbsp;&nbsp;&nbsp;&nbsp;
+
+								email&nbsp;&nbsp;
+								<i-input v-model.lazy="user_edit_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
+
+							</p>
+							
+							&nbsp;
+						
+						</div>	
+					</Modal>
+			
+				</i-col>
+			</i-row>
+
+		
 		</Tab-pane>
 
 		<Tab-pane label="Create/Edit Template">
 		
-			<i-row>
-				<i-col span="8">
-					<Card>
-						<p slot="title">新建/编辑 TEMPLATE</p>
-						<p>
-							<input v-model="template_add_id" type="hidden">
-							* 名称<br>
-							<i-input v-model="template_add_name" size="small" clearable style="width: 200px"></i-input>
-						</p>
-						<br>
-						<i-button type="primary" @click="templatecreateorupdate('create')">Create</i-button>&nbsp;&nbsp;
-						<i-button type="primary" @click="templatecreateorupdate('update')">Update</i-button>&nbsp;&nbsp;
-						<i-button @click="onreset()">Reset</i-button>
-					</Card>
-				</i-col>
-				<i-col span="16">
-				&nbsp;
-				</i-col>
-			</i-row>
+
 
 		</Tab-pane>
 
@@ -196,7 +219,7 @@ var vm_app = new Vue({
 									vm_app.user_edit(params.row)
 								}
 							}
-						}, 'View')
+						}, 'Edit')
 					]);
 				},
 				fixed: 'right'
@@ -211,10 +234,18 @@ var vm_app = new Vue({
 		page_size: {{ $config['PERPAGE_RECORDS_FOR_USER'] }},
 		page_last: 1,		
 		
-		// 创建ID
-		template_add_id: '',
-		// 创建名称
-		template_add_name: '',
+		// 创建
+		user_add_id: '',
+		user_add_name: '',
+		
+		// 编辑
+		modal_user_edit: false,
+		user_edit_id: '',
+		user_edit_name: '',
+		user_edit_email: '',
+		
+		// 删除
+		boo_delete_user: false,
 
 		// tabs索引
 		currenttabs: 0,
@@ -420,9 +451,85 @@ var vm_app = new Vue({
 			_this.boo_delete = _this.tableselect[0] == undefined ? true : false;
 		},
 		
+		// user编辑前查看
+		user_edit: function (row) {
+			var _this = this;
+			
+			_this.user_edit_id = row.id;
+			_this.user_edit_name = row.name;
+			_this.user_edit_email = row.email;
+			// _this.relation_xuqiushuliang_edit[0] = row.xuqiushuliang;
+			// _this.relation_xuqiushuliang_edit[1] = row.xuqiushuliang;
+			// _this.user_created_at_edit = row.created_at;
+			// _this.user_updated_at_edit = row.updated_at;
+
+			_this.modal_user_edit = true;
+		},		
 		
+
+		// user编辑后保存
+		user_edit_ok: function () {
+			var _this = this;
+			
+			var id = _this.user_edit_id;
+			var name = _this.user_edit_name;
+			var email = _this.user_edit_email;
+			// var created_at = _this.relation_created_at_edit;
+			// var updated_at = _this.relation_updated_at_edit;
+			
+			if (name == '' || name == null || name == undefined
+				|| email == '' || email == null || email == undefined) {
+				_this.warning(false, '警告', '内容不能为空！');
+				return false;
+			}
+			
+			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+			if (! regexp.test(email)) {
+				_this.$notify('Email is incorrect!');
+				return false;
+			}
+			
+			var url = "{{ route('admin.user.edit') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				id: id,
+				name: name,
+				email: email,
+				// xuqiushuliang: xuqiushuliang[1],
+				// created_at: created_at,
+				// updated_at: updated_at
+			})
+			.then(function (response) {
+				console.log(response.data);
+				return false;
+				
+				_this.relationgets(_this.pagecurrent_relation, _this.pagelast_relation);
+				
+				if (response.data) {
+					_this.success(false, '成功', '更新成功！');
+					
+					_this.relation_id_edit = '';
+					_this.relation_jizhongming_edit = '';
+					_this.relation_pinfan_edit = '';
+					_this.relation_pinming_edit = '';
+					_this.relation_xuqiushuliang_edit = [0, 0];
+					_this.relation_leibie_edit = '';
+					_this.relation_created_at_edit = '';
+					_this.relation_updated_at_edit = '';
+				} else {
+					_this.error(false, '失败', '更新失败！请刷新查询条件后再试！');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, '错误', '更新失败！');
+			})			
+		},		
 		
-		
+		// ondelete_user
+		ondelete_user: function () {
+			var _this = this;
+			
+		},				
 		
 		
 		
@@ -500,43 +607,6 @@ var vm_app = new Vue({
 		},
 		callback_edituser: function (msg) {
 			// this.$notify(`Modal dismissed with msg '${msg}'.`)
-		},
-		edituser: function () {
-			var _this = this;
-			var user = _this.up2dateuser;
-			
-			if (user.length == 0) {return false;}
-			// user['password'] = _this.currentuserpassword;
-			if (user.name.trim().length == 0 || user.email.trim().length == 0) {
-				_this.$notify('Please input username and email!');
-				return false;
-			}
-
-			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
-			if (! regexp.test(user.email)) {
-				_this.$notify('Email is incorrect!');
-				return false;
-			}
-
-			var url = "{{ route('admin.user.edit') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				user: user
-			})
-			.then(function (response) {
-				if (response.data) {
-					_this.open_edituser = false;
-					_this.$notify('User updated successfully!');
-					// _this.currentuser.password = '';
-					_this.userlist(_this.gets.current_page, _this.gets.last_page);
-				} else {
-					_this.$notify('User updated failed!');
-				}
-			})
-			.catch(function (error) {
-				_this.$notify('Error! User updated failed!');
-				// console.log(error);
-			})
 		},
 		callback_deleteuser: function (msg) {
 			// this.$notify(`Modal dismissed with msg '${msg}'.`)
