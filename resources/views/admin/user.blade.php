@@ -163,7 +163,13 @@ var vm_app = new Vue({
 				title: 'status',
 				key: 'deleted_at',
 				align: 'center',
-				width: 80
+				width: 80,
+				render: (h, params) => {
+					return h('div', [
+						// params.row.deleted_at.toLocaleString()
+						params.row.deleted_at ? '禁用' : '启用'
+					]);
+				}
 			},
 			{
 				title: 'created_at',

@@ -167,10 +167,10 @@ class UserController extends Controller
 				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
 			})
 			->when($queryfilter_email, function ($query) use ($queryfilter_email) {
-				return $query->where('name', 'like', '%'.$queryfilter_email.'%');
+				return $query->where('email', 'like', '%'.$queryfilter_email.'%');
 			})
 			->when($queryfilter_loginip, function ($query) use ($queryfilter_loginip) {
-				return $query->where('name', 'like', '%'.$queryfilter_loginip.'%');
+				return $query->where('login_ip', 'like', '%'.$queryfilter_loginip.'%');
 			})
 			->limit(5000)
 			->orderBy('created_at', 'desc')
