@@ -249,32 +249,39 @@ class UserController extends Controller
     public function userDelete(Request $request)
     {
         //
-		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
-
-		$userid = $request->only('userid');
-		// dd($userid);
-
-
+		if (! $request->isMethod('post') || ! $request->ajax()) return false;
+		
+		$userid = $request->input('tableselect');
+		
 		// 判断两个表（model_has_permissions和model_has_roles）中，
 		// 是否已有用户被分配了角色或权限
 		// 如果已经分配了，则不允许删除
 		$model_has_permissions = DB::table('model_has_permissions')
-			->where('model_id', $userid)
+			->whereIn('model_id', $userid)
 			->first();
 		// dd($model_has_permissions);
 
 		$model_has_roles = DB::table('model_has_roles')
-			->where('model_id', $userid)
+			->whereIn('model_id', $userid)
 			->first();
 		// dd($model_has_roles);
 		
 		if ($model_has_permissions != null || $model_has_roles != null) {
 			return 0;
 		}
-		
-		$result = User::where('id', $userid)->forceDelete();
 
+		try	{
+			$result = User::whereIn('id', $userid)->forceDelete();
+		}
+		catch (\Exception $e) {
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+		DB::commit();
+		
+		Cache::flush();
 		return $result;
+		
     }
 
     /**

@@ -25,6 +25,10 @@ Admin(User) -
 					<p slot="content">
 					
 						<i-row :gutter="16">
+							<i-col span="8">
+								* login time&nbsp;&nbsp;
+								<Date-picker v-model.lazy="queryfilter_logintime" @on-change="usergets(page_current, page_last);onselectchange();" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
+							</i-col>
 							<i-col span="4">
 								name&nbsp;&nbsp;
 								<i-input v-model.lazy="queryfilter_name" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
@@ -36,10 +40,6 @@ Admin(User) -
 							<i-col span="4">
 								login ip&nbsp;&nbsp;
 								<i-input v-model.lazy="queryfilter_loginip" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
-							</i-col>
-							<i-col span="8">
-								login time&nbsp;&nbsp;
-								<Date-picker v-model.lazy="queryfilter_logintime" @on-change="usergets(page_current, page_last);onselectchange();" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
 							</i-col>
 							<i-col span="4">
 								&nbsp;
@@ -56,7 +56,7 @@ Admin(User) -
 			<i-row :gutter="16">
 				<br>
 				<i-col span="2">
-					<i-button @click="ondelete_user()" :disabled="boo_delete_user" type="warning" size="small">Delete</i-button>&nbsp;<br>&nbsp;
+					<i-button @click="ondelete_user()" :disabled="delete_disabled_user" type="warning" size="small">Delete</i-button>&nbsp;<br>&nbsp;
 				</i-col>
 				<i-col span="4">
 					导出：&nbsp;&nbsp;&nbsp;&nbsp;
@@ -70,7 +70,7 @@ Admin(User) -
 			<i-row :gutter="16">
 				<i-col span="24">
 		
-					<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata"></i-table>
+					<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata" @on-selection-change="selection => onselectchange(selection)"></i-table>
 					<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 				
 					<Modal v-model="modal_user_edit" @on-ok="user_edit_ok" ok-text="保存" title="Edit - User" width="420">
@@ -245,7 +245,7 @@ var vm_app = new Vue({
 		user_edit_email: '',
 		
 		// 删除
-		boo_delete_user: false,
+		delete_disabled_user: true,
 
 		// tabs索引
 		currenttabs: 0,
@@ -439,7 +439,7 @@ var vm_app = new Vue({
 			})
 		},		
 		
-		// 表relation选择
+		// 表user选择
 		onselectchange: function (selection) {
 			var _this = this;
 			_this.tableselect = [];
@@ -448,7 +448,7 @@ var vm_app = new Vue({
 				_this.tableselect.push(selection[i].id);
 			}
 			
-			_this.boo_delete = _this.tableselect[0] == undefined ? true : false;
+			_this.delete_disabled_user = _this.tableselect[0] == undefined ? true : false;
 		},
 		
 		// user编辑前查看
@@ -529,7 +529,30 @@ var vm_app = new Vue({
 		ondelete_user: function () {
 			var _this = this;
 			
-		},				
+			var tableselect = _this.tableselect;
+			
+			if (tableselect[0] == undefined) return false;
+			
+			var url = "{{ route('admin.user.delete') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				tableselect: tableselect
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.success(false, '成功', '删除成功！');
+					_this.delete_disabled_user = true;
+					_this.tableselect = [];
+					_this.usergets(_this.page_current, _this.page_last);
+				} else {
+					_this.error(false, '失败', '删除失败！');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, '错误', '删除失败！');
+			})
+				
+		},
 		
 		
 		
