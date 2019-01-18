@@ -55,14 +55,16 @@ Admin(User) -
 			
 			<i-row :gutter="16">
 				<br>
-				<i-col span="2">
+				<i-col span="3">
 					<i-button @click="ondelete_user()" :disabled="delete_disabled_user" type="warning" size="small">Delete</i-button>&nbsp;<br>&nbsp;
 				</i-col>
-				<i-col span="4">
-					导出：&nbsp;&nbsp;&nbsp;&nbsp;
-					<i-button type="default" size="small" @click=""><Icon type="ios-download-outline"></Icon> 导出</i-button>
+				<i-col span="2">
+					<i-button type="default" size="small" @click="oncreate_user()"><Icon type="ios-color-wand-outline"></Icon> 新建用户</i-button>
 				</i-col>
-				<i-col span="18">
+				<i-col span="2">
+					<i-button type="default" size="small" @click="onexport_user()"><Icon type="ios-download-outline"></Icon> 导出用户</i-button>
+				</i-col>
+				<i-col span="17">
 					&nbsp;
 				</i-col>
 			</i-row>
@@ -73,6 +75,31 @@ Admin(User) -
 					<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata" @on-selection-change="selection => onselectchange(selection)"></i-table>
 					<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 				
+					<Modal v-model="modal_user_add" @on-ok="oncreate_user_ok" ok-text="新建" title="Create - User" width="420">
+						<div style="text-align:left">
+							
+							<p>
+								name&nbsp;&nbsp;
+								<i-input v-model.lazy="user_add_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
+
+								&nbsp;&nbsp;&nbsp;&nbsp;
+
+								email&nbsp;&nbsp;
+								<i-input v-model.lazy="user_add_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
+								
+								<br><br>
+
+								password&nbsp;&nbsp;
+								<i-input v-model.lazy="user_add_password" placeholder="" size="small" clearable style="width: 120px" type="password"></i-input>
+								&nbsp;*默认密码为12345678
+
+							</p>
+							
+							&nbsp;
+						
+						</div>	
+					</Modal>
+					
 					<Modal v-model="modal_user_edit" @on-ok="user_edit_ok" ok-text="保存" title="Edit - User" width="420">
 						<div style="text-align:left">
 							
@@ -84,6 +111,11 @@ Admin(User) -
 
 								email&nbsp;&nbsp;
 								<i-input v-model.lazy="user_edit_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
+								
+								<br><br>
+
+								password&nbsp;&nbsp;
+								<i-input v-model.lazy="user_edit_password" placeholder="不修改密码请留空" size="small" clearable style="width: 120px" type="password"></i-input>
 
 							</p>
 							
@@ -190,7 +222,25 @@ var vm_app = new Vue({
 				render: (h, params) => {
 					return h('div', [
 						// params.row.deleted_at.toLocaleString()
-						params.row.deleted_at ? '禁用' : '启用'
+						// params.row.deleted_at ? '禁用' : '启用'
+						
+						h('i-switch', {
+							props: {
+								type: 'primary',
+								size: 'small',
+								value: ! params.row.deleted_at
+							},
+							style: {
+								marginRight: '5px'
+							},
+							on: {
+								'on-change': (value) => {//触发事件是on-change,用双引号括起来，
+									//参数value是回调值，并没有使用到
+									vm_app.trash_user(params.row.id) //params.index是拿到table的行序列，可以取到对应的表格值
+								}
+							}
+						}, 'Edit')
+						
 					]);
 				}
 			},
@@ -235,14 +285,18 @@ var vm_app = new Vue({
 		page_last: 1,		
 		
 		// 创建
+		modal_user_add: false,
 		user_add_id: '',
 		user_add_name: '',
+		user_add_email: '',
+		user_add_password: '',
 		
 		// 编辑
 		modal_user_edit: false,
 		user_edit_id: '',
 		user_edit_name: '',
 		user_edit_email: '',
+		user_edit_password: '',
 		
 		// 删除
 		delete_disabled_user: true,
@@ -391,12 +445,15 @@ var vm_app = new Vue({
 					queryfilter_logintime.push(_this.queryfilter_logintime[i].Format("yyyy-MM-dd"));
 				} else if (_this.queryfilter_logintime[i] == '') {
 					// queryfilter_logintime.push(new Date().Format("yyyy-MM-dd"));
-					_this.tabledata = [];
-					return false;
+					// _this.tabledata = [];
+					// return false;
+					queryfilter_logintime = ['1970-01-01', '9999-12-31'];
+					break;
 				} else {
 					queryfilter_logintime.push(_this.queryfilter_logintime[i]);
 				}
 			}
+			console.log(queryfilter_logintime);
 
 			var queryfilter_name = _this.queryfilter_name;
 			var queryfilter_email = _this.queryfilter_email;
@@ -458,6 +515,7 @@ var vm_app = new Vue({
 			_this.user_edit_id = row.id;
 			_this.user_edit_name = row.name;
 			_this.user_edit_email = row.email;
+			// _this.user_edit_password = row.password;
 			// _this.relation_xuqiushuliang_edit[0] = row.xuqiushuliang;
 			// _this.relation_xuqiushuliang_edit[1] = row.xuqiushuliang;
 			// _this.user_created_at_edit = row.created_at;
@@ -474,6 +532,7 @@ var vm_app = new Vue({
 			var id = _this.user_edit_id;
 			var name = _this.user_edit_name;
 			var email = _this.user_edit_email;
+			var password = _this.user_edit_password;
 			// var created_at = _this.relation_created_at_edit;
 			// var updated_at = _this.relation_updated_at_edit;
 			
@@ -485,7 +544,7 @@ var vm_app = new Vue({
 			
 			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
 			if (! regexp.test(email)) {
-				_this.$notify('Email is incorrect!');
+				_this.warning(false, 'Warning', 'Email is incorrect!');
 				return false;
 			}
 			
@@ -495,6 +554,7 @@ var vm_app = new Vue({
 				id: id,
 				name: name,
 				email: email,
+				password: password,
 				// xuqiushuliang: xuqiushuliang[1],
 				// created_at: created_at,
 				// updated_at: updated_at
@@ -511,6 +571,7 @@ var vm_app = new Vue({
 					_this.user_edit_id = '';
 					_this.user_edit_name = '';
 					_this.user_edit_email = '';
+					_this.user_edit_password = '';
 					
 					// _this.relation_xuqiushuliang_edit = [0, 0];
 					// _this.relation_created_at_edit = '';
@@ -553,6 +614,81 @@ var vm_app = new Vue({
 				
 		},
 		
+		trash_user: function (userid) {
+			var _this = this;
+			
+			if (userid == undefined || userid.length == 0) return false;
+			var url = "{{ route('admin.user.trash') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				userid: userid
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.success(false, '成功', 'User 禁用/启用 successfully!');
+					_this.usergets(_this.current_page, _this.last_page);
+				} else {
+					_this.error(false, '失败', '禁用/启用失败！');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, '错误', '禁用/启用失败！');
+			})			
+		},
+		
+		// 显示新建用户
+		oncreate_user: function () {
+			// 默认密码为12345678
+			this.user_add_password = '12345678';
+			this.modal_user_add = true;
+		},
+		
+		// 新建用户
+		oncreate_user_ok: function () {
+			var _this = this;
+			var name = _this.user_add_name;
+			var email = _this.user_add_email;
+			var password = _this.user_add_password;
+			
+			if (name == '' || name == null || name == undefined
+				|| email == '' || email == null || email == undefined
+				|| password == '' || password == null || password == undefined) {
+				_this.warning(false, '警告', '内容不能为空！');
+				return false;
+			}
+			
+			// var re = new RegExp(“a”);  //RegExp对象。参数就是我们想要制定的规则。有一种情况必须用这种方式，下面会提到。
+			// var re = /a/;   // 简写方法 推荐使用 性能更好  不能为空 不然以为是注释 ，
+			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
+			if (! regexp.test(email)) {
+				_this.warning(false, 'Warning', 'Email is incorrect!');
+				return false;
+			}
+
+			var url = "{{ route('admin.user.create') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url, {
+				name: name,
+				email: email,
+				password: password
+			})
+			.then(function (response) {
+				if (response.data) {
+					_this.success(false, 'Success', 'User created successfully!');
+					_this.user_add_name = '';
+					_this.user_add_email = '';
+					_this.user_add_password = '';
+					_this.usergets(_this.current_page, _this.last_page);
+				} else {
+					_this.$notify('User created failed!');
+					_this.error(false, 'Warning', 'User created failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', 'User created failed!');
+			})
+		},		
+		
 		
 		
 		
@@ -591,42 +727,7 @@ var vm_app = new Vue({
 			// _this.$notify(`Modal dismissed with msg '${msg}'.`)
 			_this.createuser_name = _this.createuser_email = '';
 		},
-		createuser: function () {
-			var _this = this;
-			var name = _this.createuser_name;
-			var email = _this.createuser_email;
 
-			if ( name.length == 0 || email.length == 0) {return false;}
-			
-			// var re = new RegExp(“a”);  //RegExp对象。参数就是我们想要制定的规则。有一种情况必须用这种方式，下面会提到。
-			// var re = /a/;   // 简写方法 推荐使用 性能更好  不能为空 不然以为是注释 ，
-			var regexp = /^[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z0-9]{2,6}$/;
-			if (! regexp.test(email)) {
-				_this.$notify('Email is incorrect!');
-				return false;
-			}
-
-			var url = "{{ route('admin.user.create') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				name: name,
-				email: email
-			})
-			.then(function (response) {
-				if (response.data) {
-					_this.$notify('User created successfully!');
-					_this.createuser_name = '';
-					_this.createuser_email = '';
-					_this.userlist(_this.gets.current_page, _this.gets.last_page);
-				} else {
-					_this.$notify('User created failed!');
-				}
-			})
-			.catch(function (error) {
-				_this.$notify('Error! User created failed!');
-				// console.log(error);
-			})
-		},
 		callback_edituser: function (msg) {
 			// this.$notify(`Modal dismissed with msg '${msg}'.`)
 		},
@@ -766,7 +867,7 @@ var vm_app = new Vue({
 	mounted: function(){
 		var _this = this;
 		_this.current_nav = '权限管理';
-		_this.current_subnav = 'User';
+		_this.current_subnav = '用户';
 		// 显示所有user
 		_this.usergets(1, 1); // page: 1, last_page: 1
 	}

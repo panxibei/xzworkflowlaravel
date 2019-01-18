@@ -148,7 +148,6 @@ class UserController extends Controller
 			$page = 1;
 		}
 		
-		
 
         // 获取用户信息
 		// $perPage = $request->input('perPage');
@@ -172,7 +171,7 @@ class UserController extends Controller
 			->when($queryfilter_loginip, function ($query) use ($queryfilter_loginip) {
 				return $query->where('login_ip', 'like', '%'.$queryfilter_loginip.'%');
 			})
-			->limit(5000)
+			->limit(1000)
 			->orderBy('created_at', 'desc')
 			->withTrashed()
 			->paginate($perPage, ['*'], 'page', $page);
@@ -189,22 +188,27 @@ class UserController extends Controller
     public function userCreate(Request $request)
     {
         //
-		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+		if (! $request->isMethod('post') || ! $request->ajax()) return false;
 
-		$newuser = $request->only('name', 'email');
-		$nowtime = date("Y-m-d H:i:s",time());
+		// $newuser = $request->only('name', 'email');
+		// $nowtime = date("Y-m-d H:i:s",time());
+		$name = $request->input('name');
+		$email = $request->input('email');
+		$password = $request->input('password');
+		
+		$logintime = date("Y-m-d H:i:s", 86400);
 		
 		$result = User::create([
-			'name'     => $newuser['name'],
-			'email'    => $newuser['email'],
-			'password' => bcrypt('12345678'),
-			'login_time' => $nowtime,
+			'name'     => $name,
+			'email'    => $email,
+			'password' => bcrypt($password),
+			'login_time' => $logintime,
 			'login_ip' => '127.0.0.1',
 			'login_counts' => 0,
 			'remember_token' => '',
-			'created_at' => $nowtime,
-			'updated_at' => $nowtime,
-			'deleted_at' => NULL
+			// 'created_at' => $nowtime,
+			// 'updated_at' => $nowtime,
+			// 'deleted_at' => NULL
 		]);
 
 		return $result;
@@ -219,12 +223,12 @@ class UserController extends Controller
     public function userTrash(Request $request)
     {
         //
-		if (! $request->isMethod('post') || ! $request->ajax()) { return 0; }
+		if (! $request->isMethod('post') || ! $request->ajax())  return false;
 
-		$userid = $request->only('userid');
+		$userid = $request->input('userid');
 
 		// 如果是管理员id为1，则不能删除
-		if ($userid['userid'] == 1) {return 0;}
+		if ($userid == 1) return false;
 		
 		$usertrashed = User::select('deleted_at')
 			->where('id', $userid)
@@ -303,28 +307,26 @@ class UserController extends Controller
 
 		try	{
 			// 如果password为空，则不更新密码
-			if (isset($password) {
+			if (isset($password)) {
 				$result = User::where('id', $id)
 					->update([
-						'name'=>$name,
-						'email'=>$email,
-						'password'=>bcrypt($password)
+						'name'		=>	$name,
+						'email'		=>	$email,
+						'password'	=>	bcrypt($password)
 					]);
 			} else {
 				$result = User::where('id', $id)
 					->update([
-						'name'=>$name,
-						'email'=>$email
+						'name'	=>	$name,
+						'email'	=>	$email
 					]);
 			}
-			
 		}
 		catch (Exception $e) {//捕获异常
 			// echo 'Message: ' .$e->getMessage();
 			$result = 0;
 		}
 		
-// dd($result);
 		return $result;
     }
 
