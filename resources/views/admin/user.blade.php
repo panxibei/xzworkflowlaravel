@@ -500,22 +500,21 @@ var vm_app = new Vue({
 				// updated_at: updated_at
 			})
 			.then(function (response) {
-				console.log(response.data);
-				return false;
+				// console.log(response.data);
+				// return false;
 				
-				_this.relationgets(_this.pagecurrent_relation, _this.pagelast_relation);
+				_this.usergets(_this.page_current, _this.page_last);
 				
 				if (response.data) {
 					_this.success(false, '成功', '更新成功！');
 					
-					_this.relation_id_edit = '';
-					_this.relation_jizhongming_edit = '';
-					_this.relation_pinfan_edit = '';
-					_this.relation_pinming_edit = '';
-					_this.relation_xuqiushuliang_edit = [0, 0];
-					_this.relation_leibie_edit = '';
-					_this.relation_created_at_edit = '';
-					_this.relation_updated_at_edit = '';
+					_this.user_edit_id = '';
+					_this.user_edit_name = '';
+					_this.user_edit_email = '';
+					
+					// _this.relation_xuqiushuliang_edit = [0, 0];
+					// _this.relation_created_at_edit = '';
+					// _this.relation_updated_at_edit = '';
 				} else {
 					_this.error(false, '失败', '更新失败！请刷新查询条件后再试！');
 				}

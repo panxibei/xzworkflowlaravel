@@ -272,14 +272,14 @@ class UserController extends Controller
 
 		try	{
 			$result = User::whereIn('id', $userid)->forceDelete();
+			$result = 1;
 		}
 		catch (\Exception $e) {
 			// echo 'Message: ' .$e->getMessage();
 			$result = 0;
 		}
-		DB::commit();
 		
-		Cache::flush();
+		// Cache::flush();
 		return $result;
 		
     }
@@ -292,30 +292,32 @@ class UserController extends Controller
      */
     public function userEdit(Request $request)
     {
-        //
-		if (! $request->isMethod('post') || ! $request->ajax()) { return false; }
+		if (! $request->isMethod('post') || ! $request->ajax()) return false;
 
-		$tmp = $request->only('user.id', 'user.name', 'user.email', 'user.password');
-		$updateuser = $tmp['user'];
-// dump(isset($updateuser['password']));
-// dd($updateuser);
+		$id = $request->input('id');
+		$name = $request->input('name');
+		$email = $request->input('email');
+		$password = $request->input('password');
+		// $created_at = $request->input('created_at');
+		// $updated_at = $request->input('updated_at');
 
 		try	{
 			// 如果password为空，则不更新密码
-			if (isset($updateuser['password'])) {
-				$result = User::where('id', $updateuser['id'])
+			if (isset($password) {
+				$result = User::where('id', $id)
 					->update([
-						'name'=>$updateuser['name'],
-						'email'=>$updateuser['email'],
-						'password'=>bcrypt($updateuser['password'])
+						'name'=>$name,
+						'email'=>$email,
+						'password'=>bcrypt($password)
 					]);
 			} else {
-				$result = User::where('id', $updateuser['id'])
+				$result = User::where('id', $id)
 					->update([
-						'name'=>$updateuser['name'],
-						'email'=>$updateuser['email']
+						'name'=>$name,
+						'email'=>$email
 					]);
 			}
+			
 		}
 		catch (Exception $e) {//捕获异常
 			// echo 'Message: ' .$e->getMessage();
