@@ -320,7 +320,7 @@ Route::group(['prefix'=>'user', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 	Route::post('userDelete', 'UserController@userDelete')->name('admin.user.delete');
 
 	// 编辑user
-	Route::post('userEdit', 'UserController@userEdit')->name('admin.user.edit');
+	Route::post('userUpdate', 'UserController@userUpdate')->name('admin.user.update');
 
 	// 测试excelExport
 	Route::get('excelExport', 'UserController@excelExport')->name('admin.user.excelexport');
@@ -348,6 +348,9 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 	// 创建role
 	Route::post('roleCreate', 'RoleController@roleCreate')->name('admin.role.create');
 
+	// 编辑role
+	Route::post('roleUpdate', 'RoleController@roleUpdate')->name('admin.role.update');
+	
 	// 删除角色
 	Route::post('roleDelete', 'RoleController@roleDelete')->name('admin.role.roledelete');
 
@@ -368,8 +371,11 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 	// 权限同步到指定角色
 	Route::post('syncPermissionToRole', 'RoleController@syncPermissionToRole')->name('admin.role.syncpermissiontorole');
 
-	// 角色列表
+	// 查询角色列表
 	Route::get('roleGets', 'RoleController@roleGets')->name('admin.role.rolegets');
+	
+	// 测试excelExport
+	Route::get('excelExport', 'RoleController@excelExport')->name('admin.role.excelexport');
 });
 
 // PermissionController路由

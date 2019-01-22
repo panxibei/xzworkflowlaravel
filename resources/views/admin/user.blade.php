@@ -450,17 +450,23 @@ var vm_app = new Vue({
 				// console.log(response.data);
 				// return false;
 
-				if (response.data.length == 0 || response.data.data == undefined) {
+				// if (response.data.length == 0 || response.data.data == undefined) {
+					// _this.alert_exit();
+				// }
+				
+				if (response.data) {
+					_this.delete_disabled_user = true;
+					_this.tableselect = [];
+
+					_this.page_current = response.data.current_page;
+					_this.page_total = response.data.total;
+					_this.page_last = response.data.last_page;
+					_this.tabledata = response.data.data;
+				} else {
 					_this.alert_exit();
 				}
 				
-				_this.page_current = response.data.current_page;
-				_this.page_total = response.data.total;
-				_this.page_last = response.data.last_page;
-				_this.tabledata = response.data.data;
-				
 				_this.loadingbarfinish();
-				
 			})
 			.catch(function (error) {
 				_this.loadingbarerror();
@@ -520,7 +526,7 @@ var vm_app = new Vue({
 				return false;
 			}
 			
-			var url = "{{ route('admin.user.edit') }}";
+			var url = "{{ route('admin.user.update') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
 				id: id,
@@ -572,10 +578,8 @@ var vm_app = new Vue({
 			})
 			.then(function (response) {
 				if (response.data) {
-					_this.success(false, '成功', '删除成功！');
-					_this.delete_disabled_user = true;
-					_this.tableselect = [];
 					_this.usergets(_this.page_current, _this.page_last);
+					_this.success(false, '成功', '删除成功！');
 				} else {
 					_this.error(false, '失败', '删除失败！');
 				}

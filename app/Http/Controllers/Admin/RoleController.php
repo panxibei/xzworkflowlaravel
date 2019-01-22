@@ -10,6 +10,8 @@ use App\Models\User;
 use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\roleExport;
 
 class RoleController extends Controller
 {
@@ -217,11 +219,11 @@ class RoleController extends Controller
      */
     public function roleCreate(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-        $rolename = $request->input('params.rolename');
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
+        $name = $request->input('name');
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
-		$role = Role::create(['name' => $rolename]);
+		$role = Role::create(['name' => $name]);
         return $role;
     }
 
@@ -233,9 +235,9 @@ class RoleController extends Controller
      */
     public function roleDelete(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) return false;
 
-		$roleid = $request->input('params.rolename');
+		$roleid = $request->input('tableselect');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
@@ -256,16 +258,17 @@ class RoleController extends Controller
 		$role_used_tmp = array_unique($role_used);
 
 		// 4.判断是否在列
-		$flag = false;
-		foreach ($roleid as $value) {
-			if (in_array($value, $role_used_tmp)) {
-				$flag = true;
-				break;
-			}
-		}
-		// dd($flag);
+		// $flag = false;
+		// foreach ($roleid as $value) {
+			// if (in_array($value, $role_used_tmp)) {
+				// $flag = true;
+				// break;
+			// }
+		// }
+		$flag = array_intersect($roleid, $role_used_tmp);
+
 		// 如果在使用之列，则不允许删除
-		if ($flag) { return false; }
+		if ($flag) return false;
 		
         // 如没被使用，则可以删除
 		$result = Role::whereIn('id', $roleid)->delete();
@@ -332,6 +335,7 @@ class RoleController extends Controller
     public function roleList(Request $request)
     {
 		if (! $request->ajax()) return null;
+		dd('未完成');
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 		
@@ -439,20 +443,105 @@ class RoleController extends Controller
      */
     public function roleGets(Request $request)
     {
-		if (! $request->ajax()) { return null; }
-
-        // 获取角色信息
-		$perPage = $request->input('perPage');
-		$page = $request->input('page');
-		if (null == $page) $page = 1;
-
+		if (! $request->ajax()) return null;
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
+		
+		$url = request()->url();
+		$queryParams = request()->query();
+		
+		if (isset($queryParams['perPage'])) {
+			$perPage = $queryParams['perPage'] ?: 10000;
+		} else {
+			$perPage = 10000;
+		}
+		
+		if (isset($queryParams['page'])) {
+			$page = $queryParams['page'] ?: 1;
+		} else {
+			$page = 1;
+		}
+		
+		$queryfilter_name = $request->input('queryfilter_name');
+		// $queryfilter_logintime = $request->input('queryfilter_logintime');
+		// $queryfilter_email = $request->input('queryfilter_email');
+		// $queryfilter_loginip = $request->input('queryfilter_loginip');
 
 		$role = Role::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+			// ->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
+				// return $query->whereBetween('login_time', $queryfilter_logintime);
+			// })
+			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(1000)
+			->orderBy('created_at', 'desc')
 			->paginate($perPage, ['*'], 'page', $page);
 
 		return $role;
+	}
+	
+	
+	
+    /**
+     * 编辑角色 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleUpdate(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
+
+		$id = $request->input('id');
+		$name = $request->input('name');
+		// $email = $request->input('email');
+		// $password = $request->input('password');
+		// $created_at = $request->input('created_at');
+		// $updated_at = $request->input('updated_at');
+
+		try	{
+			$result = Role::where('id', $id)
+				->update([
+					'name'	=>	$name,
+				]);
+		}
+		catch (Exception $e) {//捕获异常
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+		
+		return $result;
     }
+	
+	
+	
+	// 角色列表Excel文件导出
+    public function excelExport()
+    {
+		// if (! $request->ajax()) { return null; }
+		
+		// 获取扩展名配置值
+		$config = Config::select('cfg_name', 'cfg_value')
+			->pluck('cfg_value', 'cfg_name')->toArray();
+
+		$EXPORTS_EXTENSION_TYPE = $config['EXPORTS_EXTENSION_TYPE'];
+
+        // 获取用户信息
+		// Excel数据，最好转换成数组，以便传递过去
+		
+		$role = Role::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+			->limit(5000)
+			->orderBy('created_at', 'asc')
+			->get()->toArray();		
+
+		// Excel标题第一行，可修改为任意名字，包括中文
+		$title[] = ['id', 'name', 'guard_name', 'created_at', 'updated_at'];
+
+		// 合并Excel的标题和数据为一个整体
+		$data = array_merge($title, $role);
+
+		return Excel::download(new roleExport($data), 'roles'.date('YmdHis',time()).'.'.$EXPORTS_EXTENSION_TYPE);
+    }	
 
 }

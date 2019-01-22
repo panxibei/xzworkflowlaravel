@@ -24,23 +24,11 @@ Admin(Role) -
 				<p slot="content">
 				
 					<i-row :gutter="16">
-						<i-col span="8">
-							* login time&nbsp;&nbsp;
-							<Date-picker v-model.lazy="queryfilter_logintime" @on-change="rolegets(page_current, page_last);onselectchange();" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
-						</i-col>
 						<i-col span="4">
 							name&nbsp;&nbsp;
 							<i-input v-model.lazy="queryfilter_name" @on-change="rolegets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
 						</i-col>
-						<i-col span="4">
-							email&nbsp;&nbsp;
-							<i-input v-model.lazy="queryfilter_email" @on-change="rolegets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
-						</i-col>
-						<i-col span="4">
-							login ip&nbsp;&nbsp;
-							<i-input v-model.lazy="queryfilter_loginip" @on-change="rolegets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
-						</i-col>
-						<i-col span="4">
+						<i-col span="20">
 							&nbsp;
 						</i-col>
 					</i-row>
@@ -79,7 +67,7 @@ Admin(Role) -
 						
 						<p>
 							name&nbsp;&nbsp;
-							<i-input v-model.lazy="user_role_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
+							<i-input v-model.lazy="role_add_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
 
 						</p>
 						
@@ -127,208 +115,7 @@ Admin(Role) -
 
 
 
-<div id="role_list" v-cloak>
-<div id="page-wrapper">
-	<div class="row">
-		<div class="col-lg-12">
-			<h1 class="page-header">Role Management</h1>
-		</div>
-	</div>
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					角色管理
-				</div>
-				<div class="panel-body">
-					<div class="row">
 
-					<div class="panel-body">
-						<tabs>
-							<tab title="UserList">
-								<!--角色列表-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div>-->
-									<div class="table-responsive">
-										<table class="table table-condensed">
-											<thead>
-												<tr>
-													<th>id</th>
-													<th>name</th>
-													<th>guard_name</th>
-													<th>created_at</th>
-													<th>updated_at</th>
-													<th>操作（保留）</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr v-for="val in gets.data">
-													<td><div>@{{ val.id }}</div></td>
-													<td><div>@{{ val.name }}</div></td>
-													<td><div>@{{ val.guard_name }}</div></td>
-													<td><div>@{{ val.created_at }}</div></td>
-													<td><div>@{{ val.updated_at }}</div></td>
-													<td><div><button type="button" class="btn btn-primary btn-xs"><i class="fa fa-edit fa-fw"></i></button>
-													&nbsp;<button class="btn btn-danger btn-xs"><i class="fa fa-times fa-fw"></i></button></div></td>
-												</tr>
-											</tbody>
-										</table>
-
-										<div class="dropup">
-											<tr>
-												<td colspan="9">
-													<div>
-														<nav>
-															<ul class="pagination pagination-sm">
-																<li><a aria-label="Previous" @click="rolegets(--gets.current_page, gets.last_page)" href="javascript:;"><i class="fa fa-chevron-left fa-fw"></i>上一页</a></li>&nbsp;
-
-																<li v-for="n in gets.last_page" v-bind:class={"active":n==gets.current_page}>
-																	<a v-if="n==1" @click="rolegets(1, gets.last_page)" href="javascript:;">1</a>
-																	<a v-else-if="n>(gets.current_page-3)&&n<(gets.current_page+3)" @click="rolegets(n, gets.last_page)" href="javascript:;">@{{ n }}</a>
-																	<a v-else-if="n==2||n==gets.last_page">...</a>
-																</li>&nbsp;
-
-																<li><a aria-label="Next" @click="rolegets(++gets.current_page, gets.last_page)" href="javascript:;">下一页<i class="fa fa-chevron-right fa-fw"></i></a></li>&nbsp;&nbsp;
-																<li><span aria-label=""> 共 @{{ gets.total }} 条记录 @{{ gets.current_page }}/@{{ gets.last_page }} 页 </span></li>
-
-																	<div class="col-xs-2">
-																	<input class="form-control input-sm" type="text" placeholder="到第几页" v-on:keyup.enter="rolegets($event.target.value, gets.last_page)">
-																	</div>
-
-																<div class="btn-group">
-																<button class="btn btn-sm btn-default dropdown-toggle" aria-expanded="false" aria-haspopup="true" type="button" data-toggle="dropdown">每页@{{ perpage }}条<span class="caret"></span></button>
-																<ul class="dropdown-menu">
-																<li><a @click="configperpageforrole(2)" href="javascript:;"><small>2条记录</small></a></li>
-																<li><a @click="configperpageforrole(5)" href="javascript:;"><small>5条记录</small></a></li>
-																<li><a @click="configperpageforrole(10)" href="javascript:;"><small>10条记录</small></a></li>
-																<li><a @click="configperpageforrole(20)" href="javascript:;"><small>20条记录</small></a></li>
-																</ul>
-																</div>
-															</ul>
-														</nav>
-													</div>
-												</td>
-											</tr>
-										</div>
-
-									</div>
-								</div>
-							</tab>
-							<tab title="General">
-								<!--角色操作1-->
-								<div class="col-lg-12">
-									<br><!--<br><div style="background-color:#c9e2b3;height:1px"></div><br>-->
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Create role</label><br>
-											<input class="form-control input-sm" type="text" ref="rolecreateinput" placeholder="角色名称" />
-										</div>
-										<div class="form-group">
-											<button @click="rolecreate" type="button" class="btn btn-primary btn-sm">新建角色</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select role(s) to delete</label><br>
-											<multi-select v-model="selected_selectroletodelete" :options="options_selectroletodelete" filterable collapse-selected size="sm" placeholder="请选择要删除的角色名称..." />
-										</div>
-										<div class="form-group">
-											<button @click="roledelete" type="button" class="btn btn-danger btn-sm" >删除角色</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Sync perimssion(s) to a role</label><br>
-											角色： <multi-select v-model="selected_syncrole" :options="options_syncrole" :limit="1" filterable collapse-selected size="sm" placeholder="请选择角色..." />
-										</div>
-										<div class="form-group">
-											权限： <multi-select v-model="selected_syncpermission" :options="options_syncpermission" filterable collapse-selected size="sm" placeholder="请选择权限..." />
-										</div>
-										<div class="form-group">
-											<button @click="syncpermissiontorole" type="button" class="btn btn-primary btn-sm" >同步权限到角色</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
-
-		@hasallroles('role_role_page|role_permission_page')
-			我拥有访问role页面权限!
-		@else
-			我没有访问role页面权限...
-		@endrole
-		<br>
-		@can('permission_config_page')
-		  我有permission_role_page权限
-		@endcan
-
-									</div>
-								</div>
-
-							</tab>
-							<tab title="Advance">
-
-								<!--角色操作2-->
-								<div class="col-lg-12">
-									<br><!--<div style="background-color:#c9e2b3;height:1px"></div><br>-->
-									
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select User</label><br>
-											<multi-select v-model="selected_selecteduser" :options="options_selecteduser" :limit="1" @change="changeuser" filterable collapse-selected size="sm" placeholder="请选择用户名称..."/>
-										</div>
-										<div class="form-group">
-											<label>Select role(s) to add</label><br>
-											<multi-select v-model="selected_currentusernothasroles" :options="options_currentusernothasroles" filterable collapse-selected size="sm" placeholder="请选择要添加的角色名称..." />
-										</div>
-										<div class="form-group">
-											<button @click="rolegive" type="button" class="btn btn-primary btn-sm" >添加角色到当前用户</button>
-										</div>
-										<div class="form-group">
-											<label>Select role(s) to remove</label><br>
-											<multi-select v-model="selected_currentuserroles" :options="options_currentuserroles" filterable collapse-selected size="sm" placeholder="请选择要移除的角色名称..." />
-										</div>
-										<div class="form-group">
-											<button @click="roleremove" type="button" class="btn btn-primary btn-sm" >移除角色从当前用户</button>
-										</div>
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Current user's role(s)</label><br>
-											<select v-model="selected_currentuserroles" class="form-control" size="16">
-												<option v-for="option in options_currentuserroles" v-bind:value="option.value">
-													@{{ option.label }}
-												</option>
-											</select>
-										</div>
-									</div>
-									<div class="col-lg-1">
-									</div>
-									<div class="col-lg-3">
-										<div class="form-group">
-											<label>Select role to view users</label><br>
-											<multi-select v-model="selected_roletoviewuser" :options="options_roletoviewuser" :limit="1" @change="changeroletoviewuser" ref="roletoviewuserselect" filterable collapse-selected size="sm" placeholder="请选择角色名称..."/>
-										</div>
-										<div class="form-group">
-											<label>User(s) using current role</label><br>
-											<select v-model="selected_roletoviewuserresult" class="form-control" size="11">
-												<option v-for="option in options_roletoviewuserresult" v-bind:value="option.value">
-													@{{ option.label }}
-												</option>
-											</select>
-										</div>
-									</div>
-								</div>
-
-							</tab>
-						</tabs>
-					</div>
-
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-</div>
 
 
 
@@ -378,63 +165,21 @@ var vm_app = new Vue({
 			{
 				title: 'name',
 				key: 'name',
+				width: 240
+			},
+			{
+				title: 'guard_name',
+				key: 'guard_name',
 				width: 120
-			},
-			{
-				title: 'email',
-				key: 'email',
-				width: 160
-			},
-			{
-				title: 'login IP',
-				key: 'login_ip',
-				width: 100
-			},
-			{
-				title: 'counts',
-				key: 'login_counts',
-				align: 'center',
-				sortable: true,
-				width: 100
-			},
-			{
-				title: 'login time',
-				key: 'login_time',
-				width: 160
-			},
-			{
-				title: 'status',
-				key: 'deleted_at',
-				align: 'center',
-				width: 80,
-				render: (h, params) => {
-					return h('div', [
-						// params.row.deleted_at.toLocaleString()
-						// params.row.deleted_at ? '禁用' : '启用'
-						
-						h('i-switch', {
-							props: {
-								type: 'primary',
-								size: 'small',
-								value: ! params.row.deleted_at
-							},
-							style: {
-								marginRight: '5px'
-							},
-							on: {
-								'on-change': (value) => {//触发事件是on-change,用双引号括起来，
-									//参数value是回调值，并没有使用到
-									vm_app.trash_user(params.row.id) //params.index是拿到table的行序列，可以取到对应的表格值
-								}
-							}
-						}, 'Edit')
-						
-					]);
-				}
 			},
 			{
 				title: 'created_at',
 				key: 'created_at',
+				width: 160
+			},
+			{
+				title: 'updated_at',
+				key: 'updated_at',
 				width: 160
 			},
 			{
@@ -454,7 +199,7 @@ var vm_app = new Vue({
 							},
 							on: {
 								click: () => {
-									vm_app.user_edit(params.row)
+									vm_app.role_edit(params.row)
 								}
 							}
 						}, 'Edit')
@@ -493,10 +238,7 @@ var vm_app = new Vue({
 		currenttabs: 0,
 		
 		// 查询过滤器
-		queryfilter_name: "{{ $config['FILTERS_USER_NAME'] }}",
-		queryfilter_email: "{{ $config['FILTERS_USER_EMAIL'] }}",
-		queryfilter_logintime: "{{ $config['FILTERS_USER_LOGINTIME'] }}" || [],
-		queryfilter_loginip: "{{ $config['FILTERS_USER_LOGINIP'] }}",
+		queryfilter_name: '',
 		
 		// 查询过滤器下拉
 		collapse_query: '',		
@@ -607,7 +349,7 @@ var vm_app = new Vue({
 		
 		// 切换当前页
 		oncurrentpagechange: function (currentpage) {
-			this.usergets(currentpage, this.page_last);
+			this.rolegets(currentpage, this.page_last);
 		},
 		// 切换页记录数
 		onpagesizechange: function (pagesize) {
@@ -659,7 +401,7 @@ var vm_app = new Vue({
 			var queryfilter_name = _this.queryfilter_name;
 
 			_this.loadingbarstart();
-			var url = "{{ route('admin.role.list') }}";
+			var url = "{{ route('admin.role.rolegets') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
@@ -672,17 +414,19 @@ var vm_app = new Vue({
 				// console.log(response.data);
 				// return false;
 
-				if (response.data.length == 0 || response.data.data == undefined) {
+				if (response.data) {
+					_this.delete_disabled_role = true;
+					_this.tableselect = [];
+					
+					_this.page_current = response.data.current_page;
+					_this.page_total = response.data.total;
+					_this.page_last = response.data.last_page;
+					_this.tabledata = response.data.data;
+				} else {
 					_this.alert_exit();
 				}
 				
-				_this.page_current = response.data.current_page;
-				_this.page_total = response.data.total;
-				_this.page_last = response.data.last_page;
-				_this.tabledata = response.data.data;
-				
 				_this.loadingbarfinish();
-				
 			})
 			.catch(function (error) {
 				_this.loadingbarerror();
@@ -741,7 +485,7 @@ var vm_app = new Vue({
 				// return false;
 			// }
 			
-			var url = "{{ route('admin.role.edit') }}";
+			var url = "{{ route('admin.role.update') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
 				id: id,
@@ -786,17 +530,15 @@ var vm_app = new Vue({
 			
 			if (tableselect[0] == undefined) return false;
 			
-			var url = "{{ route('admin.role.delete') }}";
+			var url = "{{ route('admin.role.roledelete') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url, {
 				tableselect: tableselect
 			})
 			.then(function (response) {
 				if (response.data) {
-					_this.success(false, '成功', '删除成功！');
-					_this.delete_disabled_role = true;
-					_this.tableselect = [];
 					_this.rolegets(_this.page_current, _this.page_last);
+					_this.success(false, '成功', '删除成功！');
 				} else {
 					_this.error(false, '失败', '删除失败！');
 				}
@@ -1241,37 +983,7 @@ var vm_app = new Vue({
 			_this.rolelist();
 			_this.permissionlist();
 		},
-		// 12.角色列表
-		rolegets: function(page, last_page){
-			var _this = this;
-			var url = "{{ route('admin.role.rolegets') }}";
-			// var perPage = 1; // 有待修改，将来使用配置项
-			
-			if (page > last_page) {
-				page = last_page;
-			} else if (page < 1) {
-				page = 1;
-			}
-			_this.gets.current_page = page;
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url,{
-				params: {
-					perPage: _this.perpage,
-					page: page
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data.data) == "undefined") {
-					// alert(response);
-					_this.alert_exit();
-				}
-				_this.gets = response.data;
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
+
 		configperpageforrole: function (value) {
 			var _this = this;
 			var cfg_data = {};
@@ -1314,9 +1026,9 @@ var vm_app = new Vue({
 		// })
 		// 显示所有角色
 		_this.rolegets(1, 1); // page: 1, last_page: 1
-		_this.rolelistdelete();
-		_this.rolelist();
-		_this.permissionlist();
+		// _this.rolelistdelete();
+		// _this.rolelist();
+		// _this.permissionlist();
 	}
 });
 </script>

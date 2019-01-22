@@ -294,9 +294,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function userEdit(Request $request)
+    public function userUpdate(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) return false;
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 
 		$id = $request->input('id');
 		$name = $request->input('name');
