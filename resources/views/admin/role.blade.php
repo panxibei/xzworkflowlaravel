@@ -97,8 +97,55 @@ Admin(Role) -
 	</Tab-pane>
 
 	<Tab-pane label="Advance">
-	
+	<!--
+		<Card>
+			<p slot="title">编辑 角色</p>
+			<p>
+				<i-row :gutter="16">
+					<i-col span="9">
+						<i-select v-model="" @on-change="" clearable placeholder="select slot" style="width: 280px;">
+							<i-option v-for="item in slot_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+						</i-select>
+						&nbsp;&nbsp;
+						<i-button type="primary" :disabled="boo_update" @click="">Update</i-button>
+					</i-col>
+					<i-col span="15">
+						&nbsp;
+					</i-col>
+				</i-row>
+				<br>
+			</p>
+			<br>
+			<p>
+			<i-row :gutter="16">
+				<i-col span="14">
+					<Transfer
+						:titles="titlestransfer"
+						:data="datatransfer"
+						filterable
+						:target-keys="targetkeystransfer"
+						:render-format="rendertransfer"
+						@on-change="onChangeTransfer">
+					</Transfer>
+				</i-col>
+				<i-col span="10">
+				&nbsp;
+				</i-col>
+			</i-row>
+			&nbsp;
+			</p>
+		</Card>
 
+	-->
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	</Tab-pane>
 
