@@ -331,10 +331,41 @@ class RoleController extends Controller
      */
     public function roleList(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
-		$role = Role::pluck('name', 'id')->toArray();
+		
+		$url = request()->url();
+		$queryParams = request()->query();
+		
+		if (isset($queryParams['perPage'])) {
+			$perPage = $queryParams['perPage'] ?: 10000;
+		} else {
+			$perPage = 10000;
+		}
+		
+		if (isset($queryParams['page'])) {
+			$page = $queryParams['page'] ?: 1;
+		} else {
+			$page = 1;
+		}
+		
+		$queryfilter_name = $request->input('queryfilter_name');
+		// $queryfilter_logintime = $request->input('queryfilter_logintime');
+		// $queryfilter_email = $request->input('queryfilter_email');
+		// $queryfilter_loginip = $request->input('queryfilter_loginip');
+
+		$role = User::select('id', 'name', 'created_at', 'updated_at')
+			// ->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
+				// return $query->whereBetween('login_time', $queryfilter_logintime);
+			// })
+			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(1000)
+			->orderBy('created_at', 'desc')
+			->paginate($perPage, ['*'], 'page', $page);
+
 		return $role;
     }
 

@@ -12,133 +12,131 @@ Admin(User) -
 
 @section('my_body')
 @parent
-<div>
 
-	<Divider orientation="left">User Management</Divider>
+<Divider orientation="left">User Management</Divider>
 
-	<Tabs type="card" v-model="currenttabs">
-		<Tab-pane label="User List">
-		
-			<Collapse v-model="collapse_query">
-				<Panel name="1">
-					User Query Filter
-					<p slot="content">
-					
-						<i-row :gutter="16">
-							<i-col span="8">
-								* login time&nbsp;&nbsp;
-								<Date-picker v-model.lazy="queryfilter_logintime" @on-change="usergets(page_current, page_last);onselectchange();" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
-							</i-col>
-							<i-col span="4">
-								name&nbsp;&nbsp;
-								<i-input v-model.lazy="queryfilter_name" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
-							</i-col>
-							<i-col span="4">
-								email&nbsp;&nbsp;
-								<i-input v-model.lazy="queryfilter_email" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
-							</i-col>
-							<i-col span="4">
-								login ip&nbsp;&nbsp;
-								<i-input v-model.lazy="queryfilter_loginip" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
-							</i-col>
-							<i-col span="4">
-								&nbsp;
-							</i-col>
-						</i-row>
-					
-					
-					&nbsp;
-					</p>
-				</Panel>
-			</Collapse>
-			<br>
-			
-			<i-row :gutter="16">
-				<br>
-				<i-col span="3">
-					<i-button @click="ondelete_user()" :disabled="delete_disabled_user" type="warning" size="small">Delete</i-button>&nbsp;<br>&nbsp;
-				</i-col>
-				<i-col span="2">
-					<i-button type="default" size="small" @click="oncreate_user()"><Icon type="ios-color-wand-outline"></Icon> 新建用户</i-button>
-				</i-col>
-				<i-col span="2">
-					<i-button type="default" size="small" @click="onexport_user()"><Icon type="ios-download-outline"></Icon> 导出用户</i-button>
-				</i-col>
-				<i-col span="17">
-					&nbsp;
-				</i-col>
-			</i-row>
-			
-			<i-row :gutter="16">
-				<i-col span="24">
-		
-					<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata" @on-selection-change="selection => onselectchange(selection)"></i-table>
-					<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
+<Tabs type="card" v-model="currenttabs">
+	<Tab-pane label="User List">
+	
+		<Collapse v-model="collapse_query">
+			<Panel name="1">
+				User Query Filter
+				<p slot="content">
 				
-					<Modal v-model="modal_user_add" @on-ok="oncreate_user_ok" ok-text="新建" title="Create - User" width="420">
-						<div style="text-align:left">
-							
-							<p>
-								name&nbsp;&nbsp;
-								<i-input v-model.lazy="user_add_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
-
-								&nbsp;&nbsp;&nbsp;&nbsp;
-
-								email&nbsp;&nbsp;
-								<i-input v-model.lazy="user_add_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
-								
-								<br><br>
-
-								password&nbsp;&nbsp;
-								<i-input v-model.lazy="user_add_password" placeholder="" size="small" clearable style="width: 120px" type="password"></i-input>
-								&nbsp;*默认密码为12345678
-
-							</p>
-							
+					<i-row :gutter="16">
+						<i-col span="8">
+							* login time&nbsp;&nbsp;
+							<Date-picker v-model.lazy="queryfilter_logintime" @on-change="usergets(page_current, page_last);onselectchange();" type="daterange" size="small" placement="top" style="width:200px"></Date-picker>
+						</i-col>
+						<i-col span="4">
+							name&nbsp;&nbsp;
+							<i-input v-model.lazy="queryfilter_name" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
+						</i-col>
+						<i-col span="4">
+							email&nbsp;&nbsp;
+							<i-input v-model.lazy="queryfilter_email" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
+						</i-col>
+						<i-col span="4">
+							login ip&nbsp;&nbsp;
+							<i-input v-model.lazy="queryfilter_loginip" @on-change="usergets(page_current, page_last)" size="small" clearable style="width: 100px"></i-input>
+						</i-col>
+						<i-col span="4">
 							&nbsp;
-						
-						</div>	
-					</Modal>
-					
-					<Modal v-model="modal_user_edit" @on-ok="user_edit_ok" ok-text="保存" title="Edit - User" width="420">
-						<div style="text-align:left">
-							
-							<p>
-								name&nbsp;&nbsp;
-								<i-input v-model.lazy="user_edit_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
-
-								&nbsp;&nbsp;&nbsp;&nbsp;
-
-								email&nbsp;&nbsp;
-								<i-input v-model.lazy="user_edit_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
-								
-								<br><br>
-
-								password&nbsp;&nbsp;
-								<i-input v-model.lazy="user_edit_password" placeholder="不修改密码请留空" size="small" clearable style="width: 120px" type="password"></i-input>
-
-							</p>
-							
-							&nbsp;
-						
-						</div>	
-					</Modal>
+						</i-col>
+					</i-row>
+				
+				
+				&nbsp;
+				</p>
+			</Panel>
+		</Collapse>
+		<br>
+		
+		<i-row :gutter="16">
+			<br>
+			<i-col span="3">
+				<i-button @click="ondelete_user()" :disabled="delete_disabled_user" type="warning" size="small">Delete</i-button>&nbsp;<br>&nbsp;
+			</i-col>
+			<i-col span="2">
+				<i-button type="default" size="small" @click="oncreate_user()"><Icon type="ios-color-wand-outline"></Icon> 新建用户</i-button>
+			</i-col>
+			<i-col span="2">
+				<i-button type="default" size="small" @click="onexport_user()"><Icon type="ios-download-outline"></Icon> 导出用户</i-button>
+			</i-col>
+			<i-col span="17">
+				&nbsp;
+			</i-col>
+		</i-row>
+		
+		<i-row :gutter="16">
+			<i-col span="24">
+	
+				<i-table height="300" size="small" border :columns="tablecolumns" :data="tabledata" @on-selection-change="selection => onselectchange(selection)"></i-table>
+				<br><Page :current="page_current" :total="page_total" :page-size="page_size" @on-change="currentpage => oncurrentpagechange(currentpage)" @on-page-size-change="pagesize => onpagesizechange(pagesize)" :page-size-opts="[5, 10, 20, 50]" show-total show-elevator show-sizer></Page>
 			
-				</i-col>
-			</i-row>
+				<Modal v-model="modal_user_add" @on-ok="oncreate_user_ok" ok-text="新建" title="Create - User" width="420">
+					<div style="text-align:left">
+						
+						<p>
+							name&nbsp;&nbsp;
+							<i-input v-model.lazy="user_add_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
 
+							&nbsp;&nbsp;&nbsp;&nbsp;
+
+							email&nbsp;&nbsp;
+							<i-input v-model.lazy="user_add_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
+							
+							<br><br>
+
+							password&nbsp;&nbsp;
+							<i-input v-model.lazy="user_add_password" placeholder="" size="small" clearable style="width: 120px" type="password"></i-input>
+							&nbsp;*默认密码为12345678
+
+						</p>
+						
+						&nbsp;
+					
+					</div>	
+				</Modal>
+				
+				<Modal v-model="modal_user_edit" @on-ok="user_edit_ok" ok-text="保存" title="Edit - User" width="420">
+					<div style="text-align:left">
+						
+						<p>
+							name&nbsp;&nbsp;
+							<i-input v-model.lazy="user_edit_name" placeholder="" size="small" clearable style="width: 120px"></i-input>
+
+							&nbsp;&nbsp;&nbsp;&nbsp;
+
+							email&nbsp;&nbsp;
+							<i-input v-model.lazy="user_edit_email" placeholder="" size="small" clearable style="width: 120px" type="email"></i-input>
+							
+							<br><br>
+
+							password&nbsp;&nbsp;
+							<i-input v-model.lazy="user_edit_password" placeholder="不修改密码请留空" size="small" clearable style="width: 120px" type="password"></i-input>
+
+						</p>
+						
+						&nbsp;
+					
+					</div>	
+				</Modal>
 		
-		</Tab-pane>
+			</i-col>
+		</i-row>
 
-		<Tab-pane label="Create/Edit Template">
-		
+	
+	</Tab-pane>
+
+	<Tab-pane label="Create/Edit Template">
+	
 
 
-		</Tab-pane>
+	</Tab-pane>
 
-	</Tabs>
+</Tabs>
 
-</div>
 
 
 
@@ -159,7 +157,6 @@ Admin(User) -
 @section('my_js_others')
 @parent
 <script>
-// ajax 获取数据
 var vm_app = new Vue({
     el: '#app',
     data: {
@@ -456,8 +453,6 @@ var vm_app = new Vue({
 				if (response.data.length == 0 || response.data.data == undefined) {
 					_this.alert_exit();
 				}
-				// _this.gets = response.data;
-				// alert(_this.gets);
 				
 				_this.page_current = response.data.current_page;
 				_this.page_total = response.data.total;
@@ -588,7 +583,6 @@ var vm_app = new Vue({
 			.catch(function (error) {
 				_this.error(false, '错误', '删除失败！');
 			})
-				
 		},
 		
 		trash_user: function (userid) {
@@ -657,7 +651,6 @@ var vm_app = new Vue({
 					_this.user_add_password = '';
 					_this.usergets(_this.page_current, _this.page_last);
 				} else {
-					_this.$notify('User created failed!');
 					_this.error(false, 'Warning', 'User created failed!');
 				}
 			})
