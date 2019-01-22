@@ -346,26 +346,33 @@ class UserController extends Controller
 		$EXPORTS_EXTENSION_TYPE = $config['EXPORTS_EXTENSION_TYPE'];
 		$FILTERS_USER_NAME = $config['FILTERS_USER_NAME'];
 		$FILTERS_USER_EMAIL = $config['FILTERS_USER_EMAIL'];
-		$FILTERS_USER_LOGINTIME_DATEFROM = $config['FILTERS_USER_LOGINTIME_DATEFROM'];
-		$FILTERS_USER_LOGINTIME_DATETO = $config['FILTERS_USER_LOGINTIME_DATETO'];
+		$FILTERS_USER_LOGINTIME = $config['FILTERS_USER_LOGINTIME'];
+		$FILTERS_USER_LOGINIP = $config['FILTERS_USER_LOGINIP'];
 
         // 获取用户信息
 		// Excel数据，最好转换成数组，以便传递过去
-		$queryfilter_name = $FILTERS_USER_NAME || '';
-		$queryfilter_email = $FILTERS_USER_EMAIL || '';
-
-		$queryfilter_datefrom = strtotime($FILTERS_USER_LOGINTIME_DATEFROM) ? $FILTERS_USER_LOGINTIME_DATEFROM : '1970-01-01';
-		$queryfilter_dateto = strtotime($FILTERS_USER_LOGINTIME_DATETO) ? $FILTERS_USER_LOGINTIME_DATETO : '9999-12-31';
-
-
+		$queryfilter_name = $FILTERS_USER_NAME ?: '';
+		$queryfilter_email = $FILTERS_USER_EMAIL ?: '';
+		$queryfilter_logintime = $FILTERS_USER_LOGINTIME ?: ['1970-01-01', '9999-12-31'];
+		$queryfilter_loginip = $FILTERS_USER_LOGINIP ?: '';
+		
 		$user = User::select('id', 'name', 'email', 'login_time', 'login_ip', 'login_counts', 'created_at', 'updated_at', 'deleted_at')
-			->where('name', 'like', '%'.$queryfilter_name.'%')
-			->where('email', 'like', '%'.$queryfilter_email.'%')
-			->whereBetween('login_time', [$queryfilter_datefrom, $queryfilter_dateto])
+			->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
+				return $query->whereBetween('login_time', $queryfilter_logintime);
+			})
+			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->when($queryfilter_email, function ($query) use ($queryfilter_email) {
+				return $query->where('email', 'like', '%'.$queryfilter_email.'%');
+			})
+			->when($queryfilter_loginip, function ($query) use ($queryfilter_loginip) {
+				return $query->where('login_ip', 'like', '%'.$queryfilter_loginip.'%');
+			})
+			->limit(5000)
+			->orderBy('created_at', 'asc')
 			->withTrashed()
 			->get()->toArray();		
-		
-
 
         // 示例数据，不能直接使用，只能把数组变成Exports类导出后才有数据
 		// $cellData = [

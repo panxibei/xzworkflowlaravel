@@ -310,7 +310,7 @@ var vm_app = new Vue({
 		queryfilter_logintime: "{{ $config['FILTERS_USER_LOGINTIME'] }}" || [],
 		queryfilter_loginip: "{{ $config['FILTERS_USER_LOGINIP'] }}",
 		
-		//
+		// 查询过滤器下拉
 		collapse_query: '',
 		
 		
@@ -326,29 +326,6 @@ var vm_app = new Vue({
 		
 		
 		
-		currentuser: {
-			id: '',
-			name: '',
-			email: '',
-			password: ''
-		},
-		up2dateuser: {
-			id: '',
-			name: '',
-			email: '',
-			password: ''
-		},
-		// currentuserpassword: '',
-		// 创建
-		open_createuser: false,
-		createuser_name: '',
-		createuser_email: '',
-		// 编辑
-		open_edituser: false,
-		edituser_name: '',
-		edituser_email: '',
-		// 查询
-		open_queryuser: false,
     },
 	methods: {
 		menuselect: function (name) {
@@ -453,7 +430,7 @@ var vm_app = new Vue({
 					queryfilter_logintime.push(_this.queryfilter_logintime[i]);
 				}
 			}
-			console.log(queryfilter_logintime);
+			// console.log(queryfilter_logintime);
 
 			var queryfilter_name = _this.queryfilter_name;
 			var queryfilter_email = _this.queryfilter_email;
@@ -626,7 +603,7 @@ var vm_app = new Vue({
 			.then(function (response) {
 				if (response.data) {
 					_this.success(false, '成功', 'User 禁用/启用 successfully!');
-					_this.usergets(_this.current_page, _this.last_page);
+					_this.usergets(_this.page_current, _this.page_last);
 				} else {
 					_this.error(false, '失败', '禁用/启用失败！');
 				}
@@ -678,7 +655,7 @@ var vm_app = new Vue({
 					_this.user_add_name = '';
 					_this.user_add_email = '';
 					_this.user_add_password = '';
-					_this.usergets(_this.current_page, _this.last_page);
+					_this.usergets(_this.page_current, _this.page_last);
 				} else {
 					_this.$notify('User created failed!');
 					_this.error(false, 'Warning', 'User created failed!');
@@ -689,180 +666,24 @@ var vm_app = new Vue({
 			})
 		},		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// 表单变化后的值
-		forchange: function (key, value) {
-			// alert(value);
-			var _this = this;
-			if (key == "name") {
-				_this.up2dateuser.name = value
-			} else if ((key == "email")) {
-				_this.up2dateuser.email = value
-			} else if ((key == "password")) {
-				_this.up2dateuser.password = value
-			}
-			// alert(_this.up2dateuser.id);
-		},
-
-		configperpageforuser: function (value) {
-			var _this = this;
-			
-			var cfg_data = {};
-			cfg_data['PERPAGE_RECORDS_FOR_USER'] = _this.perpage = value;
-
-			_this.changeconfig(cfg_data);			
-
-			_this.userlist(1, 1);
-		},
-		callback_createuser: function (msg) {
-			var _this = this;
-			// _this.$notify(`Modal dismissed with msg '${msg}'.`)
-			_this.createuser_name = _this.createuser_email = '';
-		},
-
-		callback_edituser: function (msg) {
-			// this.$notify(`Modal dismissed with msg '${msg}'.`)
-		},
-		callback_deleteuser: function (msg) {
-			// this.$notify(`Modal dismissed with msg '${msg}'.`)
-		},
-		trashuser: function (userid) {
-			var _this = this;
-			if (userid == undefined || userid.length == 0) {return false;}
-			var url = "{{ route('admin.user.trash') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				userid: userid
-			})
-			.then(function (response) {
-				if (response.data) {
-					_this.$notify('User 禁用/启用 successfully!');
-					_this.userlist(_this.gets.current_page, _this.gets.last_page);
-				} else {
-					_this.$notify('User 禁用/启用 failed!');
-				}
-			})
-			.catch(function (error) {
-				_this.$notify('Error! User deleted failed!');
-				// console.log(error);
-			})			
-		},
-		deleteuser: function (userid, username) {
-			var _this = this;
-			if (userid == undefined || userid.length == 0) {return false;}
-			
-			_this.$confirm({
-				okText: '删除',
-				okType: 'danger',
-				cancelText: '取消',
-				title: '危险',
-				content: '即将完全删除用户 [' + username + ']，确认吗？'
-			})
-			.then(function () {
-				// this.$notify({
-					// type: 'success',
-					// content: 'Delete completed.'
-				// })
-				
-				var url = "{{ route('admin.user.delete') }}";
-				axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-				axios.post(url, {
-					userid: userid
-				})
-				.then(function (response) {
-					if (response.data) {
-						_this.$notify('User deleted successfully!');
-						_this.userlist(_this.gets.current_page, _this.gets.last_page);
-					} else {
-						_this.$notify('User deleted failed!');
-					}
-				})
-				.catch(function (error) {
-					_this.$notify('Error! User deleted failed!');
-					// console.log(error);
-				})
-			})
-			.catch(function () {
-				// this.$notify('Delete canceled.')
-				return false;
-			})
-		},
-		queryfilter: function () {
-			var _this = this;
-			// var queryfilter_name = _this.queryfilter_name;
-			// var queryfilter_email = _this.queryfilter_email;
-			var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
-			var queryfilter_dateto = new Date(_this.queryfilter_dateto);
-			if (queryfilter_datefrom > queryfilter_dateto) {
-				_this.$notify('Date is incorrect!');
-				return false;
-			}
-
-			var cfg_data = {};
-			cfg_data['FILTERS_USER_NAME'] = _this.queryfilter_name;
-			cfg_data['FILTERS_USER_EMAIL'] = _this.queryfilter_email;
-			// cfg_data['FILTERS_USER_LOGINTIME_DATEFROM'] = _this.queryfilter_datefrom;
-			// cfg_data['FILTERS_USER_LOGINTIME_DATETO'] = _this.queryfilter_dateto;
-
-			_this.changeconfig(cfg_data);
-			
-			_this.userlist(1, 1);
-		},
-		userexport: function(){
-			// var _this = this;
-			// var queryfilter_name = _this.queryfilter_name;
-			// var queryfilter_email = _this.queryfilter_email;
-			// var queryfilter_datefrom = new Date(_this.queryfilter_datefrom);
-			// var queryfilter_dateto = new Date(_this.queryfilter_dateto);
-			
-			// if (queryfilter_datefrom > queryfilter_dateto) {
-				// _this.$notify('Date is incorrect!');
-				// return false;
-			// }
-
+		// 导出用户
+		onexport_user: function(){
 			var url = "{{ route('admin.user.excelexport') }}";
-			
 			window.setTimeout(function(){
 				window.location.href = url;
-			},1000);
+			}, 1000);
 			return false;
-
 		},
-		changeconfig: function (cfg_data) {
-			var _this = this;
+		
+		
+		
+		
+		
+		
+		
+		
 
-			// var cfg_data = {};
-			// cfg_data[key] = value;
 
-			var url = "{{ route('admin.config.change') }}";
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url, {
-				cfg_data: cfg_data
-			})
-			.then(function (response) {
-				if (response.data) {
-					// alert('success');
-				} else {
-					// _this.notification_type = 'danger';
-					// _this.notification_title = 'Error';
-					// _this.notification_content = cfg_name + 'failed to be modified!';
-					// _this.notification_message();
-					// event.target.value = cfg_value;
-				}
-			})
-			.catch(function (error) {
-				// alert('failed');
-				// console.log(error);
-			})			
-		}
 	},
 	mounted: function(){
 		var _this = this;
