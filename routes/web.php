@@ -394,6 +394,9 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>['jwta
 	// 创建permission
 	Route::post('permissionCreate', 'PermissionController@permissionCreate')->name('admin.permission.create');
 
+	// 编辑permission
+	Route::post('permissionUpdate', 'PermissionController@permissionUpdate')->name('admin.permission.update');
+	
 	// 删除permission
 	Route::post('permissionDelete', 'PermissionController@permissionDelete')->name('admin.permission.permissiondelete');
 
@@ -416,7 +419,13 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>['jwta
 
 	// 角色同步到指定权限
 	Route::post('syncRoleToPermission', 'PermissionController@syncRoleToPermission')->name('admin.permission.syncroletopermission');
+	
+	// 测试excelExport
+	Route::get('excelExport', 'PermissionController@excelExport')->name('admin.permission.excelexport');
 
+	// 列出所有角色
+	Route::get('roleList', 'PermissionController@roleList')->name('admin.permission.rolelist');
+	
 });
 
 // 测试用

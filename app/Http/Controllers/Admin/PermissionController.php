@@ -10,6 +10,8 @@ use App\Models\User;
 use DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\permissionExport;
 
 class PermissionController extends Controller
 {
@@ -121,19 +123,36 @@ class PermissionController extends Controller
      */
     public function permissionGets(Request $request)
     {
-		if (! $request->ajax()) { return null; }
-
-        // 获取权限信息
-		$perPage = $request->input('perPage');
-		$page = $request->input('page');
-		if (null == $page) $page = 1;
+		if (! $request->ajax()) return null;
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 
-		$permission = Permission::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
-			->paginate($perPage, ['*'], 'page', $page);
+		$url = request()->url();
+		$queryParams = request()->query();
+		
+		if (isset($queryParams['perPage'])) {
+			$perPage = $queryParams['perPage'] ?: 10000;
+		} else {
+			$perPage = 10000;
+		}
+		
+		if (isset($queryParams['page'])) {
+			$page = $queryParams['page'] ?: 1;
+		} else {
+			$page = 1;
+		}
+		
+		$queryfilter_name = $request->input('queryfilter_name');
 
+		$permission = Permission::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(1000)
+			->orderBy('created_at', 'desc')
+			->paginate($perPage, ['*'], 'page', $page);
+		
 		return $permission;
     }
 	
@@ -145,8 +164,8 @@ class PermissionController extends Controller
      */
     public function permissionCreate(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
-        $permissionname = $request->input('params.permissionname');
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
+        $permissionname = $request->input('name');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
@@ -209,26 +228,25 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function permissionGive(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+    // public function permissionGive(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 		
-        $roleid = $request->input('params.roleid');
-        $permissionid = $request->input('params.permissionid');
+        // $roleid = $request->input('params.roleid');
+        // $permissionid = $request->input('params.permissionid');
 
 		// 重置角色和权限的缓存
-		app()['cache']->forget('spatie.permission.cache');
+		// app()['cache']->forget('spatie.permission.cache');
 
-		$role = Role::where('id', $roleid)->first();
-		$permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
+		// $role = Role::where('id', $roleid)->first();
+		// $permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
 		
-		// $role->givePermissionTo('edit articles');
-		foreach ($permission as $permissionname) {
-			$result = $role->givePermissionTo($permissionname);
-		}
+		// foreach ($permission as $permissionname) {
+			// $result = $role->givePermissionTo($permissionname);
+		// }
 		
-        return $result;
-    }
+        // return $result;
+    // }
 
     /**
      * 角色移除permission
@@ -236,27 +254,26 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function permissionRemove(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+    // public function permissionRemove(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
 		
-        $roleid = $request->input('params.roleid');
-        $permissionid = $request->input('params.permissionid');
+        // $roleid = $request->input('params.roleid');
+        // $permissionid = $request->input('params.permissionid');
 
 		// 重置角色和权限的缓存
-		app()['cache']->forget('spatie.permission.cache');
+		// app()['cache']->forget('spatie.permission.cache');
 
-		$role = Role::where('id', $roleid)->first();
-		$permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
+		// $role = Role::where('id', $roleid)->first();
+		// $permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
 
 		// 注意：revokePermissionTo似乎不接受数组
-		foreach ($permission as $permissionname) {
-			// $role->revokePermissionTo('edit articles');
-			$result = $role->revokePermissionTo($permissionname);
-		}
+		// foreach ($permission as $permissionname) {
+			// $result = $role->revokePermissionTo($permissionname);
+		// }
 
-        return $result;
-    }
+        // return $result;
+    // }
 
     /**
      * 列出角色拥有permissions ajax
@@ -399,4 +416,91 @@ class PermissionController extends Controller
 		return $result;
     }
 
+	
+    /**
+     * 编辑权限 ajax
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function permissionUpdate(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
+
+		$id = $request->input('id');
+		$name = $request->input('name');
+
+		try	{
+			$result = Permission::where('id', $id)
+				->update([
+					'name'	=>	$name,
+				]);
+		}
+		catch (Exception $e) {//捕获异常
+			// echo 'Message: ' .$e->getMessage();
+			$result = 0;
+		}
+		
+		return $result;
+    }
+	
+	
+	
+	// 角色列表Excel文件导出
+    public function excelExport()
+    {
+		// if (! $request->ajax()) { return null; }
+		
+		// 获取扩展名配置值
+		$config = Config::select('cfg_name', 'cfg_value')
+			->pluck('cfg_value', 'cfg_name')->toArray();
+
+		$EXPORTS_EXTENSION_TYPE = $config['EXPORTS_EXTENSION_TYPE'];
+
+        // 获取用户信息
+		// Excel数据，最好转换成数组，以便传递过去
+		
+		$permission = Permission::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+			->limit(5000)
+			->orderBy('created_at', 'asc')
+			->get()->toArray();		
+
+		// Excel标题第一行，可修改为任意名字，包括中文
+		$title[] = ['id', 'name', 'guard_name', 'created_at', 'updated_at'];
+
+		// 合并Excel的标题和数据为一个整体
+		$data = array_merge($title, $permission);
+
+		return Excel::download(new permissionExport($data), 'permissions'.date('YmdHis',time()).'.'.$EXPORTS_EXTENSION_TYPE);
+    }
+	
+    /**
+     * 列出所有角色，用于查看哪些用户正在使用
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleList(Request $request)
+    {
+		if (! $request->ajax()) return null;
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+		
+		$queryfilter_name = $request->input('queryfilter_name');
+		// $queryfilter_logintime = $request->input('queryfilter_logintime');
+		// $queryfilter_email = $request->input('queryfilter_email');
+		// $queryfilter_loginip = $request->input('queryfilter_loginip');
+
+		$role = Role::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(10)
+			->orderBy('created_at', 'desc')
+			->pluck('name', 'id')->toArray();
+
+
+		return $role;
+    }	
+	
 }

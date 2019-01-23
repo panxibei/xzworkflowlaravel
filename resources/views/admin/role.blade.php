@@ -143,39 +143,9 @@ Admin(Role) -
 			</i-col>
 		</i-row>
 
-	
-
-	
-	
-	
-	
-	
-
 	</Tab-pane>
 
 </Tabs>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @endsection
 
 @section('my_footer')
@@ -303,7 +273,7 @@ var vm_app = new Vue({
 		datatransfer: [],
 		targetkeystransfer: [], // ['1', '2'] key
 		
-		//
+		// 选择角色查看哪些用户使用
 		role2user_select: '',
 		role2user_options: [],
 		role2user_loading: false,
@@ -319,42 +289,11 @@ var vm_app = new Vue({
 		
 		
 		
-		notification_type: '',
-		notification_title: '',
-		notification_content: '',
-		gets: {},
-		perpage: {{ $config['PERPAGE_RECORDS_FOR_ROLE'] }},
-		// 选择用户
-		selected_selecteduser: [],
-        options_selecteduser: [],
-		// 选择要删除的角色
-		selected_selectroletodelete: [],
-        options_selectroletodelete: [],
-		// 选择用户后显示当前用户拥有的角色
-		selected_currentuserroles: [],
-        options_currentuserroles: [],
-		// 当前用户没有拥有的角色
-		selected_currentusernothasroles: [],
-        options_currentusernothasroles: [],
-		// 选择角色查看哪些用户使用
-		selected_roletoviewuser: [],
-        options_roletoviewuser: [],
-		selected_roletoviewuserresult: [],
-        options_roletoviewuserresult: [],
 		// 同步哪些权限到指定角色
 		selected_syncrole: [],
         options_syncrole: [],
 		selected_syncpermission: [],
         options_syncpermission: [],
-		// select样例
-		selected: [],
-        options: [
-			{value: 1, label:'Option1'},
-			{value: 2, label:'Option2'},
-			{value: 3, label:'Option3333333333'},
-			{value: 4, label:'Option4'},
-			{value: 5, label:'Option5'}
-        ]
     },
 	methods: {
 		menuselect: function (name) {
@@ -450,7 +389,6 @@ var vm_app = new Vue({
 		},
 		// 切换页记录数
 		onpagesizechange: function (pagesize) {
-			
 			var _this = this;
 			var cfg_data = {};
 			cfg_data['PERPAGE_RECORDS_FOR_ROLE'] = pagesize;
@@ -967,6 +905,8 @@ var vm_app = new Vue({
 	},
 	mounted: function(){
 		var _this = this;
+		_this.current_nav = '权限管理';
+		_this.current_subnav = '角色';
 		_this.rolegets(1, 1); // page: 1, last_page: 1
 	}
 });
