@@ -183,6 +183,7 @@ class RoleController extends Controller
 		return $result;
     }
 
+	
     /**
      * 列出用户拥有roles ajax
      *
@@ -200,20 +201,27 @@ class RoleController extends Controller
 			->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
 			->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
 			->where('users.id', $userid)
-			->pluck('roles.name', 'roles.id')->toArray();
+			// ->pluck('roles.name', 'roles.id')->toArray();
+			->select('roles.id')
+			->get()->toArray();
+		$userhasrole = array_column($userhasrole, 'id'); //变成一维数组
 
 		// $tmp_array = DB::table('roles')
 			// ->select('id', 'name')
 			// ->whereNotIn('id', array_keys($userhasrole))
 			// ->get()->toArray();
 			// $usernothasrole = array_column($tmp_array, 'name', 'id'); //变成一维数组
-		$usernothasrole = DB::table('roles')
+		// $usernothasrole = DB::table('roles')
+			// ->select('id', 'name')
+			// ->whereNotIn('id', array_keys($userhasrole))
+			// ->pluck('name', 'id')->toArray();
+		$allroles = DB::table('roles')
 			->select('id', 'name')
-			->whereNotIn('id', array_keys($userhasrole))
 			->pluck('name', 'id')->toArray();
 
-		$result['userhasrole'] = $userhasrole;
-		$result['usernothasrole'] = $usernothasrole;
+		// $result['userhasrole'] = $userhasrole;
+		// $result['allroles'] = $allroles;
+		$result = compact('userhasrole', 'allroles');
 
 		return $result;
     }
@@ -284,17 +292,18 @@ class RoleController extends Controller
     }
 
     /**
-     * 用户赋予role
+     * 更新当前用户的角色
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleGive(Request $request)
+    public function userUpdateRole(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 		
-        $userid = $request->input('params.userid');
-        $roleid = $request->input('params.roleid');
+        $userid = $request->input('userid');
+        $roleid = $request->input('roleid');
+		// dd($roleid);
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
@@ -302,9 +311,37 @@ class RoleController extends Controller
 		$user = User::where('id', $userid)->first();
 		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 		
+		// 注意：removeRole似乎不接受数组
+		foreach ($role as $rolename) {
+			$result = $user->removeRole($rolename);
+		}
+		
 		$result = $user->assignRole($role);
         return $result;
     }
+
+    /**
+     * 用户赋予role
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    // public function roleGive(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) return null;
+		
+        // $userid = $request->input('params.userid');
+        // $roleid = $request->input('params.roleid');
+
+		// 重置角色和权限的缓存
+		// app()['cache']->forget('spatie.permission.cache');
+
+		// $user = User::where('id', $userid)->first();
+		// $role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
+		
+		// $result = $user->assignRole($role);
+        // return $result;
+    // }
 
     /**
      * 用户移除role
@@ -312,26 +349,26 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleRemove(Request $request)
-    {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+    // public function roleRemove(Request $request)
+    // {
+		// if (! $request->isMethod('post') || ! $request->ajax()) return null;
 		
-        $userid = $request->input('params.userid');
-        $roleid = $request->input('params.roleid');
+        // $userid = $request->input('params.userid');
+        // $roleid = $request->input('params.roleid');
 
 		// 重置角色和权限的缓存
-		app()['cache']->forget('spatie.permission.cache');
+		// app()['cache']->forget('spatie.permission.cache');
 
-		$user = User::where('id', $userid)->first();
-		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
+		// $user = User::where('id', $userid)->first();
+		// $role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
 
 		// 注意：removeRole似乎不接受数组
-		foreach ($role as $rolename) {
-			$result = $user->removeRole($rolename);
-		}
+		// foreach ($role as $rolename) {
+			// $result = $user->removeRole($rolename);
+		// }
 
-        return $result;
-    }
+        // return $result;
+    // }
 
     /**
      * 列出所有角色 ajax

@@ -357,13 +357,16 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 	// 列出当前用户拥有的角色
 	Route::get('userHasRole', 'RoleController@userHasRole')->name('admin.role.userhasrole');
 
+	// 更新当前用户的角色
+	Route::post('userUpdateRole', 'RoleController@userUpdateRole')->name('admin.role.userupdaterole');
+
 	// 列出当前用户可追加的角色
-	Route::get('userGiveRole', 'RoleController@userGiveRole')->name('admin.role.usergiverole');
+	// Route::get('userGiveRole', 'RoleController@userGiveRole')->name('admin.role.usergiverole');
 
 	// 赋予role
-	Route::post('roleGive', 'RoleController@roleGive')->name('admin.role.give');
+	// Route::post('roleGive', 'RoleController@roleGive')->name('admin.role.give');
 	// 移除role
-	Route::post('roleRemove', 'RoleController@roleRemove')->name('admin.role.remove');
+	// Route::post('roleRemove', 'RoleController@roleRemove')->name('admin.role.remove');
 
 	// 根据角色查看哪些用户
 	Route::get('roleToViewUser', 'RoleController@roleToViewUser')->name('admin.role.roletoviewuser');
@@ -376,6 +379,7 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 	
 	// 测试excelExport
 	Route::get('excelExport', 'RoleController@excelExport')->name('admin.role.excelexport');
+	
 });
 
 // PermissionController路由

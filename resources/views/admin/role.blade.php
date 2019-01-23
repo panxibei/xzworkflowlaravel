@@ -100,11 +100,11 @@ Admin(Role) -
 
 		<i-row :gutter="16">
 			<i-col span="9">
-				<i-select v-model.lazy="user_select" filterable remote :remote-method="remoteMethod_user" :loading="user_loading" @on-change="onchange_user" clearable placeholder="select slot" style="width: 280px;">
+				<i-select v-model.lazy="user_select" filterable remote :remote-method="remoteMethod_user" :loading="user_loading" @on-change="onchange_user" clearable placeholder="输入用户名后选择" style="width: 280px;">
 					<i-option v-for="item in user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 				</i-select>
 				&nbsp;&nbsp;
-				<i-button type="primary" :disabled="boo_update" @click="">Update</i-button>
+				<i-button type="primary" :disabled="boo_update" @click="userupdaterole">Update</i-button>
 			</i-col>
 			<i-col span="15">
 				&nbsp;
@@ -418,6 +418,16 @@ var vm_app = new Vue({
 			return arr.reverse();
 		},
 		
+		// 穿梭框目标文本转换（数字转字符串）
+		arr2target: function (arr) {
+			var res = [];
+			arr.map ( function ( value, index ) {
+				// console.log('map遍历:'+index+'--'+value);
+				res.push(value.toString());
+			});
+			return res;
+		},
+		
 		// 切换当前页
 		oncurrentpagechange: function (currentpage) {
 			this.rolegets(currentpage, this.page_last);
@@ -625,7 +635,7 @@ var vm_app = new Vue({
 			this.modal_role_add = true;
 		},
 		
-		// 新建用户
+		// 新建角色
 		oncreate_role_ok: function () {
 			var _this = this;
 			var name = _this.role_add_name;
@@ -692,13 +702,12 @@ var vm_app = new Vue({
 			
 			if (userid == undefined || userid == '') {
 				_this.targetkeystransfer = [];
-				// _this.tabledata = [];
+				_this.datatransfer = [];
 				_this.boo_update = true;
-				// _this.gets_review_fields = {};
 				return false;
 			}
 			_this.boo_update = false;
-			var url = "{{ route('admin.role.changeuser') }}";
+			var url = "{{ route('admin.role.userhasrole') }}";
 			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 			axios.get(url,{
 				params: {
@@ -706,19 +715,19 @@ var vm_app = new Vue({
 				}
 			})
 			.then(function (response) {
-				console.log(response.data);
-				return false;
-				// console.log(_this.json2transfer4slot(response.data));return false;
+				// console.log(response.data);
+				// return false;
 				
 				if (response.data) {
-					var json = response.data;
-					_this.targetkeystransfer = _this.json2transfer4slot(json);
-					_this.tabledata = json;
+					var json = response.data.allroles;
+					_this.datatransfer = _this.json2transfer(json);
 					
-					// _this.slot_review();
+					var arr = response.data.userhasrole;
+					_this.targetkeystransfer = _this.arr2target(arr);
+
 				} else {
 					_this.targetkeystransfer = [];
-					_this.tabledata = [];
+					_this.datatransfer = [];
 				}
 			})
 			.catch(function (error) {
@@ -727,24 +736,23 @@ var vm_app = new Vue({
 			
 		},
 		
-		// update
-		slotupdate: function () {
+		// userupdaterole
+		userupdaterole: function () {
 			var _this = this;
-			var slotid = _this.slot_select;
-			var fieldid = _this.targetkeystransfer;
+			var userid = _this.user_select;
+			var roleid = _this.targetkeystransfer;
+
+			if (userid == undefined || roleid == undefined || userid == '' || roleid == '') return false;
 			
-			if (slotid == undefined || fieldid == undefined || slotid == '' || fieldid == '') return false;
-			
-			var url = "{{ route('admin.slot2field.slot2fieldupdate') }}";
+			var url = "{{ route('admin.role.userupdaterole') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				slotid: slotid,
-				fieldid: fieldid
+				userid: userid,
+				roleid: roleid
 			})
 			.then(function (response) {
-				if (response.data == 1) {
+				if (response.data) {
 					_this.success(false, 'Success', 'Update OK!');
-					_this.change_slot();
 				} else {
 					_this.warning(false, 'Warning', 'Update failed!');
 				}
@@ -946,84 +954,7 @@ var vm_app = new Vue({
 				_this.notification_message();
 			})
 		},
-		// 4.给用户赋予角色
-		rolegive: function () {
-			var _this = this;
-			var userid = _this.selected_selecteduser;
-			var roleid = _this.selected_currentusernothasroles;
-			
-			if (userid.length == 0 || roleid.length == 0) { return false; }
-			var url = "{{ route('admin.role.give') }}";
 
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					userid: userid,
-					roleid: roleid
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to give!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) gave successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},
-		// 5.从用户移除角色
-		roleremove: function () {
-			var _this = this;
-			var userid = _this.selected_selecteduser;
-			var roleid = _this.selected_currentuserroles;
-
-			if (userid.length == 0 || roleid.length == 0) { return false; }
-			var url = "{{ route('admin.role.remove') }}";
-
-			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
-			axios.post(url,{
-				params: {
-					userid: userid,
-					roleid: roleid
-				}
-			})
-			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Role(s) failed to remove!';
-					_this.notification_message();
-					
-				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Role(s) removed successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
-				}
-			})
-			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
-			})
-		},		
 		// 6.显示所有待删除的角色
 		rolelistdelete: function () {
 			var _this = this;
