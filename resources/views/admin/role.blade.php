@@ -106,7 +106,15 @@ Admin(Role) -
 				&nbsp;&nbsp;
 				<i-button type="primary" :disabled="boo_update" @click="userupdaterole">Update</i-button>
 			</i-col>
-			<i-col span="15">
+			<i-col span="6">
+				&nbsp;
+			</i-col>
+			<i-col span="6">
+				<i-select v-model.lazy="role2user_select" filterable remote :remote-method="remoteMethod_user" :loading="user_loading" @on-change="onchange_user" clearable placeholder="输入角色名称查看哪些用户正在使用">
+					<i-option v-for="item in user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				</i-select>
+			</i-col>
+			<i-col span="3">
 				&nbsp;
 			</i-col>
 		</i-row>
@@ -124,15 +132,19 @@ Admin(Role) -
 					@on-change="onChangeTransfer">
 				</Transfer>
 			</i-col>
-			<i-col span="10">
+			<i-col span="1">
+			&nbsp;
+			</i-col>
+			<i-col span="6">
+				<i-input v-model.lazy="role2user_input" type="textarea" :rows="14" placeholder=""></i-input>
+			</i-col>
+			<i-col span="3">
 			&nbsp;
 			</i-col>
 		</i-row>
 
 	
-	
-	
-	
+
 	
 	
 	
@@ -291,7 +303,9 @@ var vm_app = new Vue({
 		datatransfer: [],
 		targetkeystransfer: [], // ['1', '2'] key
 		
-		
+		//
+		role2user_select: '',
+		role2user_input: '',
 		
 		
 		
