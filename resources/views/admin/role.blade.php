@@ -110,8 +110,8 @@ Admin(Role) -
 				&nbsp;
 			</i-col>
 			<i-col span="6">
-				<i-select v-model.lazy="role2user_select" filterable remote :remote-method="remoteMethod_user" :loading="user_loading" @on-change="onchange_user" clearable placeholder="输入角色名称查看哪些用户正在使用">
-					<i-option v-for="item in user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				<i-select v-model.lazy="role2user_select" filterable remote :remote-method="remoteMethod_role2user" :loading="role2user_loading" @on-change="onchange_role2user" clearable placeholder="输入角色名称查看哪些用户正在使用">
+					<i-option v-for="item in role2user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 				</i-select>
 			</i-col>
 			<i-col span="3">
@@ -136,7 +136,7 @@ Admin(Role) -
 			&nbsp;
 			</i-col>
 			<i-col span="6">
-				<i-input v-model.lazy="role2user_input" type="textarea" :rows="14" placeholder=""></i-input>
+				<i-input v-model.lazy="role2user_input" type="textarea" :rows="14" placeholder="" :readonly="true"></i-input>
 			</i-col>
 			<i-col span="3">
 			&nbsp;
@@ -305,6 +305,8 @@ var vm_app = new Vue({
 		
 		//
 		role2user_select: '',
+		role2user_options: [],
+		role2user_loading: false,
 		role2user_input: '',
 		
 		
@@ -435,7 +437,7 @@ var vm_app = new Vue({
 		// 穿梭框目标文本转换（数字转字符串）
 		arr2target: function (arr) {
 			var res = [];
-			arr.map ( function ( value, index ) {
+			arr.map(function( value, index) {
 				// console.log('map遍历:'+index+'--'+value);
 				res.push(value.toString());
 			});
@@ -814,6 +816,71 @@ var vm_app = new Vue({
 				}, 200);
 			} else {
 				_this.user_options = [];
+			}
+		},
+		
+		
+		// 选择role查看user
+		onchange_role2user: function () {
+			var _this = this;
+			var roleid = _this.role2user_select;
+			// console.log(roleid);return false;
+			
+			if (roleid == undefined || roleid == '') {
+				return false;
+			}
+
+			var url = "{{ route('admin.role.roletoviewuser') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					roleid: roleid
+				}
+			})
+			.then(function (response) {
+				if (response.data) {
+					var json = response.data;
+					for (var key in json) {
+						// console.log('map遍历:'+index+'--'+value);
+						_this.role2user_input += json[key] + '\n';
+					}
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+		},		
+
+		// 远程查询角色
+		remoteMethod_role2user (query) {
+			var _this = this;
+
+			if (query !== '') {
+				_this.role2user_loading = true;
+				
+				var queryfilter_name = query;
+				
+				var url = "{{ route('admin.role.rolelist') }}";
+				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+				axios.get(url,{
+					params: {
+						queryfilter_name: queryfilter_name
+					}
+				})
+				.then(function (response) {
+					if (response.data) {
+						var json = response.data;
+						_this.role2user_options = _this.json2selectvalue(json);
+					}
+				})
+				.catch(function (error) {
+				})				
+				
+				setTimeout(() => {
+					_this.role2user_loading = false;
+				}, 200);
+			} else {
+				_this.role2user_options = [];
 			}
 		},
 

@@ -216,7 +216,6 @@ class RoleController extends Controller
 			// ->whereNotIn('id', array_keys($userhasrole))
 			// ->pluck('name', 'id')->toArray();
 		$allroles = DB::table('roles')
-			->select('id', 'name')
 			->pluck('name', 'id')->toArray();
 
 		// $result['userhasrole'] = $userhasrole;
@@ -371,7 +370,7 @@ class RoleController extends Controller
     // }
 
     /**
-     * 列出所有角色 ajax
+     * 列出所有角色，用于查看哪些用户正在使用
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -379,40 +378,22 @@ class RoleController extends Controller
     public function roleList(Request $request)
     {
 		if (! $request->ajax()) return null;
-		dd('未完成');
+
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
-		
-		$url = request()->url();
-		$queryParams = request()->query();
-		
-		if (isset($queryParams['perPage'])) {
-			$perPage = $queryParams['perPage'] ?: 10000;
-		} else {
-			$perPage = 10000;
-		}
-		
-		if (isset($queryParams['page'])) {
-			$page = $queryParams['page'] ?: 1;
-		} else {
-			$page = 1;
-		}
 		
 		$queryfilter_name = $request->input('queryfilter_name');
 		// $queryfilter_logintime = $request->input('queryfilter_logintime');
 		// $queryfilter_email = $request->input('queryfilter_email');
 		// $queryfilter_loginip = $request->input('queryfilter_loginip');
 
-		$role = User::select('id', 'name', 'created_at', 'updated_at')
-			// ->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
-				// return $query->whereBetween('login_time', $queryfilter_logintime);
-			// })
-			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+		$role = Role::when($queryfilter_name, function ($query) use ($queryfilter_name) {
 				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
 			})
-			->limit(1000)
+			->limit(10)
 			->orderBy('created_at', 'desc')
-			->paginate($perPage, ['*'], 'page', $page);
+			->pluck('name', 'id')->toArray();
+
 
 		return $role;
     }
@@ -438,11 +419,10 @@ class RoleController extends Controller
      */
     public function roleToViewUser(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
 		
 		$roleid = $request->input('roleid');
 
-		//
 		$user = DB::table('model_has_roles')
 			->join('users', 'model_has_roles.model_id', '=', 'users.id')
 			->where('role_id', $roleid)
