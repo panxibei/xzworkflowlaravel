@@ -126,11 +126,18 @@ class RoleController extends Controller
      */
     public function userList(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
+		
+		$queryfilter_name = $request->input('queryfilter_name');
 
         // 获取用户信息
-		$user = User::pluck('name', 'id')->toArray();
-		// dd($user);
+		$user = User::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(10)
+			->orderBy('created_at', 'desc')
+			->pluck('name', 'id')->toArray();
+		
 		return $user;
     }
 
@@ -184,7 +191,7 @@ class RoleController extends Controller
      */
     public function userHasRole(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
 
 		$userid = $request->input('userid');
 		

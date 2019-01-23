@@ -97,46 +97,38 @@ Admin(Role) -
 	</Tab-pane>
 
 	<Tab-pane label="Advance">
-	<!--
-		<Card>
-			<p slot="title">编辑 角色</p>
-			<p>
-				<i-row :gutter="16">
-					<i-col span="9">
-						<i-select v-model="" @on-change="" clearable placeholder="select slot" style="width: 280px;">
-							<i-option v-for="item in slot_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-						</i-select>
-						&nbsp;&nbsp;
-						<i-button type="primary" :disabled="boo_update" @click="">Update</i-button>
-					</i-col>
-					<i-col span="15">
-						&nbsp;
-					</i-col>
-				</i-row>
-				<br>
-			</p>
-			<br>
-			<p>
-			<i-row :gutter="16">
-				<i-col span="14">
-					<Transfer
-						:titles="titlestransfer"
-						:data="datatransfer"
-						filterable
-						:target-keys="targetkeystransfer"
-						:render-format="rendertransfer"
-						@on-change="onChangeTransfer">
-					</Transfer>
-				</i-col>
-				<i-col span="10">
-				&nbsp;
-				</i-col>
-			</i-row>
-			&nbsp;
-			</p>
-		</Card>
 
-	-->
+		<i-row :gutter="16">
+			<i-col span="9">
+				<i-select v-model.lazy="user_select" filterable remote :remote-method="remoteMethod_user" :loading="user_loading" @on-change="onchange_user" clearable placeholder="select slot" style="width: 280px;">
+					<i-option v-for="item in user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				</i-select>
+				&nbsp;&nbsp;
+				<i-button type="primary" :disabled="boo_update" @click="">Update</i-button>
+			</i-col>
+			<i-col span="15">
+				&nbsp;
+			</i-col>
+		</i-row>
+		
+		<br><br><br>
+			
+		<i-row :gutter="16">
+			<i-col span="14">
+				<Transfer
+					:titles="titlestransfer"
+					:data="datatransfer"
+					filterable
+					:target-keys="targetkeystransfer"
+					:render-format="rendertransfer"
+					@on-change="onChangeTransfer">
+				</Transfer>
+			</i-col>
+			<i-col span="10">
+			&nbsp;
+			</i-col>
+		</i-row>
+
 	
 	
 	
@@ -282,7 +274,7 @@ var vm_app = new Vue({
 		delete_disabled_role: true,
 
 		// tabs索引
-		currenttabs: 0,
+		currenttabs: 1,
 		
 		// 查询过滤器
 		queryfilter_name: '',
@@ -290,9 +282,14 @@ var vm_app = new Vue({
 		// 查询过滤器下拉
 		collapse_query: '',		
 		
-		
-		
-		
+		// 选择用户查看编辑相应角色
+		user_select: '',
+		user_options: [],
+		user_loading: false,
+		boo_update: false,
+		titlestransfer: ['待选', '已选'], // ['源列表', '目的列表']
+		datatransfer: [],
+		targetkeystransfer: [], // ['1', '2'] key
 		
 		
 		
@@ -394,6 +391,33 @@ var vm_app = new Vue({
 			});
 		},
 		
+		// 把laravel返回的结果转换成select能接受的格式
+		json2selectvalue: function (json) {
+			var arr = [];
+			for (var key in json) {
+				// alert(key);
+				// alert(json[key]);
+				// arr.push({ obj.['value'] = key, obj.['label'] = json[key] });
+				arr.push({ value: key, label: json[key] });
+			}
+			return arr;
+			// return arr.reverse();
+		},
+		
+		// 穿梭框显示文本转换
+		json2transfer: function (json) {
+			var arr = [];
+			for (var key in json) {
+				arr.push({
+					key: key,
+					label: json[key],
+					description: json[key],
+					disabled: false
+				});
+			}
+			return arr.reverse();
+		},
+		
 		// 切换当前页
 		oncurrentpagechange: function (currentpage) {
 			this.rolegets(currentpage, this.page_last);
@@ -469,6 +493,7 @@ var vm_app = new Vue({
 					_this.page_total = response.data.total;
 					_this.page_last = response.data.last_page;
 					_this.tabledata = response.data.data;
+					
 				} else {
 					_this.alert_exit();
 				}
@@ -646,50 +671,146 @@ var vm_app = new Vue({
 			return false;
 		},		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// 把laravel返回的结果转换成select能接受的格式
-		json2selectvalue: function (json) {
-			var arr = [];
-			for (var key in json) {
-				// alert(key);
-				// alert(json[key]);
-				// arr.push({ obj.['value'] = key, obj.['label'] = json[key] });
-				arr.push({ value: key, label: json[key] });
-			}
-			return arr;
+		// 穿梭框显示文本
+		rendertransfer: function (item) {
+			return item.label + ' (ID:' + item.key + ')';
 		},
-		alert_exit: function () {
-			this.$alert({
-				title: '会话超时',
-				content: '会话超时，请重新登录！'
-			// }, (msg) => {
-			}, function (msg) {
-				// callback after modal dismissed
-				// this.$notify(`You selected ${msg}.`);
-				// this.$notify('You selected ${msg}.');
-				// window.setTimeout(function(){
-					window.location.href = "{{ route('admin.config.index') }}";
-				// },1000);
+		
+		onChangeTransfer: function (newTargetKeys, direction, moveKeys) {
+			// console.log(newTargetKeys);
+			// console.log(direction);
+			// console.log(moveKeys);
+			this.targetkeystransfer = newTargetKeys;
+		},		
+		
+		
+		// 选择user查看role
+		onchange_user: function () {
+			var _this = this;
+			var userid = _this.user_select;
+			// console.log(userid);return false;
+			
+			if (userid == undefined || userid == '') {
+				_this.targetkeystransfer = [];
+				// _this.tabledata = [];
+				_this.boo_update = true;
+				// _this.gets_review_fields = {};
+				return false;
+			}
+			_this.boo_update = false;
+			var url = "{{ route('admin.role.changeuser') }}";
+			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+			axios.get(url,{
+				params: {
+					userid: userid
+				}
+			})
+			.then(function (response) {
+				console.log(response.data);
+				return false;
+				// console.log(_this.json2transfer4slot(response.data));return false;
+				
+				if (response.data) {
+					var json = response.data;
+					_this.targetkeystransfer = _this.json2transfer4slot(json);
+					_this.tabledata = json;
+					
+					// _this.slot_review();
+				} else {
+					_this.targetkeystransfer = [];
+					_this.tabledata = [];
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
+			})
+			
+		},
+		
+		// update
+		slotupdate: function () {
+			var _this = this;
+			var slotid = _this.slot_select;
+			var fieldid = _this.targetkeystransfer;
+			
+			if (slotid == undefined || fieldid == undefined || slotid == '' || fieldid == '') return false;
+			
+			var url = "{{ route('admin.slot2field.slot2fieldupdate') }}";
+			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
+			axios.post(url,{
+				slotid: slotid,
+				fieldid: fieldid
+			})
+			.then(function (response) {
+				if (response.data == 1) {
+					_this.success(false, 'Success', 'Update OK!');
+					_this.change_slot();
+				} else {
+					_this.warning(false, 'Warning', 'Update failed!');
+				}
+			})
+			.catch(function (error) {
+				_this.error(false, 'Error', error);
 			})
 		},
+
+		// 远程查询用户
+		remoteMethod_user (query) {
+			var _this = this;
+
+			if (query !== '') {
+				_this.user_loading = true;
+				
+				var queryfilter_name = query;
+				
+				var url = "{{ route('admin.role.userlist') }}";
+				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+				axios.get(url,{
+					params: {
+						queryfilter_name: queryfilter_name
+					}
+				})
+				.then(function (response) {
+					if (response.data) {
+					
+					var json = response.data;
+						_this.user_options = _this.json2selectvalue(json);
+					}
+				})
+				.catch(function (error) {
+				})				
+				
+				setTimeout(() => {
+					_this.user_loading = false;
+					// const list = this.list.map(item => {
+						// return {
+							// value: item,
+							// label: item
+						// };
+					// });
+					// this.options1 = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1);
+				}, 200);
+			} else {
+				_this.user_options = [];
+			}
+		},
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		notification_message: function () {
 			this.$notify({
 				type: this.notification_type,
