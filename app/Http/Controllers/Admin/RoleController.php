@@ -196,6 +196,9 @@ class RoleController extends Controller
 
 		$userid = $request->input('userid');
 		
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+		
 		// 获取当前用户拥有的角色
 		$userhasrole = DB::table('users')
 			->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')

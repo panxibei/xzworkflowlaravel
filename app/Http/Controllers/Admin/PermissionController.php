@@ -182,9 +182,9 @@ class PermissionController extends Controller
      */
     public function permissionDelete(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 
-		$permissionid = $request->input('params.permissionname');
+		$permissionid = $request->input('tableselect');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
@@ -198,23 +198,24 @@ class PermissionController extends Controller
 		// 2.查出role_has_permissions表中的permission_id
 		$role_has_permissions = DB::table('role_has_permissions')
 			->select('permission_id as id')->pluck('id')->toArray();
-		// $role_has_permissions_tmp = array_column($role_has_permissions, 'id');
+		$role_has_permissions_tmp = array_column($role_has_permissions, 'id');
 
 		// 3.合并前删除重复，model_has_permissions和role_has_permissions两个表的结果
-		$permission_used = array_merge($model_has_permissions, $role_has_permissions);
+		$permission_used = array_merge($model_has_permissions, $role_has_permissions_tmp);
 		$permission_used_tmp = array_unique($permission_used);
 
 		// 4.判断是否在列
-		$flag = false;
-		foreach ($permissionid as $value) {
-			if (in_array($value, $permission_used_tmp)) {
-				$flag = true;
-				break;
-			}
-		}
+		// $flag = false;
+		// foreach ($permissionid as $value) {
+			// if (in_array($value, $permission_used_tmp)) {
+				// $flag = true;
+				// break;
+			// }
+		// }
+		$flag = array_intersect($permissionid, $permission_used_tmp);
 		// dd($flag);
 		// 如果在使用之列，则不允许删除
-		if ($flag) { return false; }
+		if ($flag) return false;
 		
         // 如没被使用，则可以删除
 		$result = Permission::whereIn('id', $permissionid)->delete();
@@ -283,10 +284,10 @@ class PermissionController extends Controller
      */
     public function roleHasPermission(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
 
 		$roleid = $request->input('roleid');
-
+dd($roleid);
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 		
@@ -301,12 +302,15 @@ class PermissionController extends Controller
 			->where('roles.id', $roleid)
 			->pluck('permissions.name', 'permissions.id')->toArray();
 
-		$rolenothaspermission = Permission::select('id', 'name')
-			->whereNotIn('id', array_keys($rolehaspermission))
-			->pluck('name', 'id')->toArray();
+		// $rolenothaspermission = Permission::select('id', 'name')
+			// ->whereNotIn('id', array_keys($rolehaspermission))
+			// ->pluck('name', 'id')->toArray();
+		
+		$allpermissions = Permission::pluck('name', 'id')->toArray();
 
-		$result['rolehaspermission'] = $rolehaspermission;
-		$result['rolenothaspermission'] = $rolenothaspermission;
+		// $result['rolehaspermission'] = $rolehaspermission;
+		// $result['rolenothaspermission'] = $rolenothaspermission;
+		$result = compact('rolehaspermission', 'allpermissions');
 
 		return $result;
     }
