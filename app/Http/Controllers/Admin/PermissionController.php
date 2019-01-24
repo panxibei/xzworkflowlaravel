@@ -444,10 +444,10 @@ class PermissionController extends Controller
      */
     public function syncRoleToPermission(Request $request)
     {
-		if (! $request->isMethod('post') || ! $request->ajax()) { return null; }
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 		
-		$permissionid = $request->input('params.permissionid');
-		$roleid = $request->input('params.roleid');
+		$permissionid = $request->input('permissionid');
+		$roleid = $request->input('roleid');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
@@ -456,7 +456,8 @@ class PermissionController extends Controller
 		$permission = Permission::where('id', $permissionid)->first();
 
 		// 2.查询role
-		$roles = Role::whereIn('id', $roleid)
+		// $roles = Role::whereIn('id', $roleid)
+		$roles = Role::where('id', $roleid)
 			->pluck('name')->toArray();
 
 		$result = $permission->syncRoles($roles);

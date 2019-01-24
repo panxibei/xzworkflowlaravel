@@ -54,15 +54,19 @@ Admin(Permission) -
 			&nbsp;
 			</i-col>
 			<i-col span="15">
-				<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
-					<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-				</i-select>
+				<Tooltip content="输入权限选择" placement="top">
+					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 200px;" size="small">
+						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</Tooltip>
+				&nbsp;<Icon type="md-arrow-round-back"></Icon>&nbsp;
+				<Tooltip content="输入角色选择" placement="top">
+					<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 200px;" size="small">
+						<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</Tooltip>
 				&nbsp;&nbsp;
-				<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 120px;" size="small">
-					<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-				</i-select>
-				&nbsp;&nbsp;
-				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="ios-sync"></Icon> 同步权限到角色</i-button>
+				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="ios-sync"></Icon> 同步角色到权限</i-button>
 			</i-col>
 		</i-row>
 		
@@ -938,14 +942,13 @@ var vm_app = new Vue({
 		
 		
 
-		// 同步权限到指定角色
+		// 同步角色到权限
 		syncroletopermission: function () {
 			var _this = this;
 			var permissionid = _this.sync_permission_select;
 			var roleid = _this.sync_role_select;
-			// alert(roleid);alert(permissionid);return false;
 
-		if (roleid == undefined || roleid == '' ||
+			if (roleid == undefined || roleid == '' ||
 				permissionid == undefined || permissionid == '') {
 				_this.warning(false, 'Warning', '内容不能为空！');
 				return false;
@@ -954,35 +957,21 @@ var vm_app = new Vue({
 			var url = "{{ route('admin.permission.syncroletopermission') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					permissionid: permissionid,
-					roleid: roleid
-				}
+				permissionid: permissionid,
+				roleid: roleid
 			})
 			.then(function (response) {
-				console.log(response.data);
-				return false;
+				// console.log(response.data);
+				// return false;
 				
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Permission(s) failed to sync!';
-					_this.notification_message();
-					
+				if (response.data) {
+					_this.success(false, 'Success', 'Permission(s) sync successfully!');
 				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Permission(s) sync successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
+					_this.warning(false, 'Warning', 'Permission(s) failed to sync!');
 				}
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
+				_this.error(false, 'Error', 'Permission(s) failed to sync!');
 			})
 		},
 

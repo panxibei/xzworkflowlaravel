@@ -55,15 +55,19 @@ Admin(Role) -
 				&nbsp;
 			</i-col>
 			<i-col span="15">
-				<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 120px;" size="small">
-					<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-				</i-select>
+				<Tooltip content="输入角色选择" placement="top">
+					<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 120px;" size="small">
+						<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</Tooltip>
+				&nbsp;<Icon type="md-arrow-round-back">&nbsp;
+				<Tooltip content="输入权限选择" placement="top">
+					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
+						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</Tooltip>
 				&nbsp;&nbsp;
-				<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
-					<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-				</i-select>
-				&nbsp;&nbsp;
-				<i-button type="default" size="small" @click=""><Icon type="ios-sync"></Icon> 同步角色到权限</i-button>
+				<i-button type="default" size="small" @click=""><Icon type="ios-sync"></Icon> 同步权限到角色</i-button>
 			</i-col>
 		</i-row>
 		
