@@ -230,26 +230,29 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function roleHasPermission(Request $request)
+    public function roleUpdatePermission(Request $request)
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 		
-        $userid = $request->input('userid');
         $roleid = $request->input('roleid');
-		// dd($roleid);
+        $permissionid = $request->input('permissionid');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 
-		$user = User::where('id', $userid)->first();
-		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
-		
-		// 注意：removeRole似乎不接受数组
-		foreach ($role as $rolename) {
-			$result = $user->removeRole($rolename);
+		$role = Role::where('id', $roleid)->first();
+		$permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
+		$permissionall = Permission::pluck('name')->toArray();
+
+		// 注意：revokePermissionTo似乎不接受数组
+		foreach ($permissionall as $permissionname) {
+			$result = $role->revokePermissionTo($permissionname);
 		}
-		
-		$result = $user->assignRole($role);
+
+		foreach ($permission as $permissionname) {
+			$result = $role->givePermissionTo($permissionname);
+		}
+
         return $result;
     }	
 

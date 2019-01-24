@@ -312,9 +312,10 @@ class RoleController extends Controller
 
 		$user = User::where('id', $userid)->first();
 		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
+		$roleall = Role::pluck('name')->toArray();
 		
 		// 注意：removeRole似乎不接受数组
-		foreach ($role as $rolename) {
+		foreach ($roleall as $rolename) {
 			$result = $user->removeRole($rolename);
 		}
 		

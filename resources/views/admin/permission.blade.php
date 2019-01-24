@@ -717,8 +717,8 @@ var vm_app = new Vue({
 				permissionid: permissionid
 			})
 			.then(function (response) {
-				console.log(response.data);
-				return false;
+				// console.log(response.data);
+				// return false;
 				if (response.data) {
 					_this.success(false, 'Success', 'Update OK!');
 				} else {
