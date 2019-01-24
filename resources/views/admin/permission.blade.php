@@ -796,7 +796,8 @@ var vm_app = new Vue({
 					for (var key in json) {
 						str += json[key] + '\n';
 					}
-					_this.permission2role_input = str.slice(0, -2);
+					// _this.permission2role_input = str.slice(0, -2);
+					_this.permission2role_input = str.replace(/\n$/, '');
 				}
 			})
 			.catch(function (error) {

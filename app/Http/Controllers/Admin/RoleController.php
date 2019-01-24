@@ -398,7 +398,6 @@ class RoleController extends Controller
 			->orderBy('created_at', 'desc')
 			->pluck('name', 'id')->toArray();
 
-
 		return $role;
     }
 

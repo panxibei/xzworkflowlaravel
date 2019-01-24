@@ -401,10 +401,19 @@ class PermissionController extends Controller
      */
     public function permissionList(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
-		$permission = Permission::pluck('name', 'id')->toArray();
+		
+		$queryfilter_name = $request->input('queryfilter_name');
+		
+		$permission = Permission::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(10)
+			->orderBy('created_at', 'desc')
+			->pluck('name', 'id')->toArray();
+		
 		return $permission;
     }
 
@@ -416,11 +425,10 @@ class PermissionController extends Controller
      */
     public function permissionToViewRole(Request $request)
     {
-		if (! $request->ajax()) { return null; }
+		if (! $request->ajax()) return null;
 		
 		$permissionid = $request->input('permissionid');
 
-		//
 		$role = Role::join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
 			->where('role_has_permissions.permission_id', $permissionid)
 			->pluck('roles.name', 'roles.id')->toArray();
