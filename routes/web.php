@@ -408,6 +408,9 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>['jwta
 	// 列出当前角色拥有的权限
 	Route::get('roleHasPermission', 'PermissionController@roleHasPermission')->name('admin.permission.rolehaspermission');
 
+	// 更新当前角色的权限
+	Route::post('roleUpdatePermission', 'PermissionController@roleUpdatePermission')->name('admin.role.roleupdatepermission');
+	
 	// 列出所有待删除的权限
 	Route::get('permissionListDelete', 'PermissionController@permissionListDelete')->name('admin.permission.permissionlistdelete');
 

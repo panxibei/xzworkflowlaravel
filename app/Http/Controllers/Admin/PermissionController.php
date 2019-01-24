@@ -222,6 +222,36 @@ class PermissionController extends Controller
 		// dd($result);
 		return $result;
     }
+	
+	
+    /**
+     * 更新当前角色的权限
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function roleHasPermission(Request $request)
+    {
+		if (! $request->isMethod('post') || ! $request->ajax()) return null;
+		
+        $userid = $request->input('userid');
+        $roleid = $request->input('roleid');
+		// dd($roleid);
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
+		$user = User::where('id', $userid)->first();
+		$role = Role::whereIn('id', $roleid)->pluck('name')->toArray();
+		
+		// 注意：removeRole似乎不接受数组
+		foreach ($role as $rolename) {
+			$result = $user->removeRole($rolename);
+		}
+		
+		$result = $user->assignRole($role);
+        return $result;
+    }	
 
     /**
      * 角色赋予permission
@@ -287,7 +317,7 @@ class PermissionController extends Controller
 		if (! $request->ajax()) return null;
 
 		$roleid = $request->input('roleid');
-dd($roleid);
+
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 		
@@ -300,7 +330,10 @@ dd($roleid);
 		$rolehaspermission = Role::join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
 			->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
 			->where('roles.id', $roleid)
-			->pluck('permissions.name', 'permissions.id')->toArray();
+			// ->pluck('permissions.name', 'permissions.id')->toArray();
+			->select('permissions.id')
+			->get()->toArray();
+		$rolehaspermission = array_column($rolehaspermission, 'id'); //变成一维数组
 
 		// $rolenothaspermission = Permission::select('id', 'name')
 			// ->whereNotIn('id', array_keys($rolehaspermission))
@@ -502,7 +535,6 @@ dd($roleid);
 			->limit(10)
 			->orderBy('created_at', 'desc')
 			->pluck('name', 'id')->toArray();
-
 
 		return $role;
     }	

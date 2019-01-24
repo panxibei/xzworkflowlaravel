@@ -734,8 +734,7 @@ var vm_app = new Vue({
 				})
 				.then(function (response) {
 					if (response.data) {
-					
-					var json = response.data;
+						var json = response.data;
 						_this.user_options = _this.json2selectvalue(json);
 					}
 				})

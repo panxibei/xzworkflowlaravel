@@ -99,8 +99,8 @@ Admin(Permission) -
 
 		<i-row :gutter="16">
 			<i-col span="9">
-				<i-select v-model.lazy="permission_select" filterable remote :remote-method="remoteMethod_role" :loading="permission_loading" @on-change="onchange_role" clearable placeholder="输入角色名称后选择" style="width: 280px;">
-					<i-option v-for="item in permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				<i-select v-model.lazy="role_select" filterable remote :remote-method="remoteMethod_role" :loading="role_loading" @on-change="onchange_role" clearable placeholder="输入角色名称后选择" style="width: 280px;">
+					<i-option v-for="item in role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 				</i-select>
 				&nbsp;&nbsp;
 				<i-button type="primary" :disabled="boo_update" @click="roleupdatepermission">Update</i-button>
@@ -264,9 +264,9 @@ var vm_app = new Vue({
 		collapse_query: '',		
 		
 		// 选择角色查看编辑相应权限
-		permission_select: '',
-		permission_options: [],
-		permission_loading: false,
+		role_select: '',
+		role_options: [],
+		role_loading: false,
 		boo_update: false,
 		titlestransfer: ['待选', '已选'], // ['源列表', '目的列表']
 		datatransfer: [],
@@ -664,7 +664,7 @@ var vm_app = new Vue({
 		onchange_role: function () {
 			var _this = this;
 			var roleid = _this.role_select;
-			console.log(roleid);return false;
+			// console.log(roleid);return false;
 			
 			if (roleid == undefined || roleid == '') {
 				_this.targetkeystransfer = [];
@@ -681,8 +681,8 @@ var vm_app = new Vue({
 				}
 			})
 			.then(function (response) {
-				console.log(response.data);
-				return false;
+				// console.log(response.data);
+				// return false;
 				
 				if (response.data) {
 					var json = response.data.allpermissions;
@@ -710,13 +710,15 @@ var vm_app = new Vue({
 
 			if (roleid == undefined || permissionid == undefined || roleid == '' || permissionid == '') return false;
 			
-			var url = "{{ route('admin.role.userupdaterole') }}";
+			var url = "{{ route('admin.permission.roleupdatepermission') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				roleid: roleid,
 				permissionid: permissionid
 			})
 			.then(function (response) {
+				console.log(response.data);
+				return false;
 				if (response.data) {
 					_this.success(false, 'Success', 'Update OK!');
 				} else {
@@ -746,16 +748,15 @@ var vm_app = new Vue({
 				})
 				.then(function (response) {
 					if (response.data) {
-					
-					var json = response.data;
-						_this.permission_options = _this.json2selectvalue(json);
+						var json = response.data;
+						_this.role_options = _this.json2selectvalue(json);
 					}
 				})
 				.catch(function (error) {
 				})				
 				
 				setTimeout(() => {
-					_this.permission_loading = false;
+					_this.role_loading = false;
 					// const list = this.list.map(item => {
 						// return {
 							// value: item,
@@ -765,7 +766,7 @@ var vm_app = new Vue({
 					// this.options1 = list.filter(item => item.label.toLowerCase().indexOf(query.toLowerCase()) > -1);
 				}, 200);
 			} else {
-				_this.permission_options = [];
+				_this.slot_options = [];
 			}
 		},
 		
