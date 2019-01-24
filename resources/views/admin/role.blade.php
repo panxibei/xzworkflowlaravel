@@ -51,8 +51,19 @@ Admin(Role) -
 			<i-col span="2">
 				<i-button type="default" size="small" @click="onexport_role()"><Icon type="ios-download-outline"></Icon> 导出角色</i-button>
 			</i-col>
-			<i-col span="17">
+			<i-col span="2">
 				&nbsp;
+			</i-col>
+			<i-col span="15">
+				<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 120px;" size="small">
+					<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				</i-select>
+				&nbsp;&nbsp;
+				<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
+					<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				</i-select>
+				&nbsp;&nbsp;
+				<i-button type="default" size="small" @click=""><Icon type="ios-sync"></Icon> 同步角色到权限</i-button>
 			</i-col>
 		</i-row>
 		
@@ -279,7 +290,13 @@ var vm_app = new Vue({
 		role2user_loading: false,
 		role2user_input: '',
 		
-		
+		// 同步权限到角色
+		sync_permission_select: '',
+		sync_permission_options: [],
+		sync_permission_loading: false,
+		sync_role_select: '',
+		sync_role_options: [],
+		sync_role_loading: false,
 		
 		
 		
@@ -824,8 +841,64 @@ var vm_app = new Vue({
 			}
 		},
 
+		// 远程查询权限（同步）
+		remoteMethod_sync_permission (query) {
+			var _this = this;
+			if (query !== '') {
+				_this.sync_permission_loading = true;
+				var queryfilter_name = query;
+				var url = "{{ route('admin.permission.permissionlist') }}";
+				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+				axios.get(url,{
+					params: {
+						queryfilter_name: queryfilter_name
+					}
+				})
+				.then(function (response) {
+					if (response.data) {
+						var json = response.data;
+						_this.sync_permission_options = _this.json2selectvalue(json);
+					}
+				})
+				.catch(function (error) {
+				})				
+				setTimeout(() => {
+					_this.sync_permission_loading = false;
+				}, 200);
+			} else {
+				_this.sync_permission_options = [];
+			}
+		},
 		
 		
+		// 远程查询角色（同步）
+		remoteMethod_sync_role (query) {
+			var _this = this;
+			if (query !== '') {
+				_this.sync_role_loading = true;
+				var queryfilter_name = query;
+				var url = "{{ route('admin.role.rolelist') }}";
+				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+				axios.get(url,{
+					params: {
+						queryfilter_name: queryfilter_name
+					}
+				})
+				.then(function (response) {
+					if (response.data) {
+						var json = response.data;
+						_this.sync_role_options = _this.json2selectvalue(json);
+					}
+				})
+				.catch(function (error) {
+				})				
+				setTimeout(() => {
+					_this.sync_role_loading = false;
+				}, 200);
+			} else {
+				_this.sync_role_options = [];
+			}
+		},
 		
 		
 		

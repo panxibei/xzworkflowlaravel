@@ -50,8 +50,19 @@ Admin(Permission) -
 			<i-col span="2">
 				<i-button type="default" size="small" @click="onexport_permission()"><Icon type="ios-download-outline"></Icon> 导出权限</i-button>
 			</i-col>
-			<i-col span="17">
-				&nbsp;
+			<i-col span="2">
+			&nbsp;
+			</i-col>
+			<i-col span="15">
+				<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
+					<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				</i-select>
+				&nbsp;&nbsp;
+				<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 120px;" size="small">
+					<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				</i-select>
+				&nbsp;&nbsp;
+				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="ios-sync"></Icon> 同步权限到角色</i-button>
 			</i-col>
 		</i-row>
 		
@@ -109,7 +120,7 @@ Admin(Permission) -
 				&nbsp;
 			</i-col>
 			<i-col span="6">
-				<i-select v-model.lazy="permission2role_select" filterable remote :remote-method="remoteMethod_permission2role" :loading="permission2role_loading" @on-change="onchange_permission2role" clearable placeholder="输入角色名称查看哪些用户正在使用">
+				<i-select v-model.lazy="permission2role_select" filterable remote :remote-method="remoteMethod_permission2role" :loading="permission2role_loading" @on-change="onchange_permission2role" clearable placeholder="输入权限名称查看哪些角色正在使用">
 					<i-option v-for="item in permission2role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 				</i-select>
 			</i-col>
@@ -272,13 +283,19 @@ var vm_app = new Vue({
 		datatransfer: [],
 		targetkeystransfer: [], // ['1', '2'] key
 		
-		//
+		// 选择权限查看哪些角色在使用
 		permission2role_select: '',
 		permission2role_options: [],
 		permission2role_loading: false,
 		permission2role_input: '',		
 		
-		
+		// 同步权限到角色
+		sync_permission_select: '',
+		sync_permission_options: [],
+		sync_permission_loading: false,
+		sync_role_select: '',
+		sync_role_options: [],
+		sync_role_loading: false,
 		
 		
 		
@@ -836,6 +853,66 @@ var vm_app = new Vue({
 			} else {
 				_this.permission2role_options = [];
 			}
+		},
+
+		
+		// 远程查询权限（同步）
+		remoteMethod_sync_permission (query) {
+			var _this = this;
+			if (query !== '') {
+				_this.sync_permission_loading = true;
+				var queryfilter_name = query;
+				var url = "{{ route('admin.permission.permissionlist') }}";
+				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+				axios.get(url,{
+					params: {
+						queryfilter_name: queryfilter_name
+					}
+				})
+				.then(function (response) {
+					if (response.data) {
+						var json = response.data;
+						_this.sync_permission_options = _this.json2selectvalue(json);
+					}
+				})
+				.catch(function (error) {
+				})				
+				setTimeout(() => {
+					_this.sync_permission_loading = false;
+				}, 200);
+			} else {
+				_this.sync_permission_options = [];
+			}
+		},
+		
+		
+		// 远程查询角色（同步）
+		remoteMethod_sync_role (query) {
+			var _this = this;
+			if (query !== '') {
+				_this.sync_role_loading = true;
+				var queryfilter_name = query;
+				var url = "{{ route('admin.role.rolelist') }}";
+				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
+				axios.get(url,{
+					params: {
+						queryfilter_name: queryfilter_name
+					}
+				})
+				.then(function (response) {
+					if (response.data) {
+						var json = response.data;
+						_this.sync_role_options = _this.json2selectvalue(json);
+					}
+				})
+				.catch(function (error) {
+				})				
+				setTimeout(() => {
+					_this.sync_role_loading = false;
+				}, 200);
+			} else {
+				_this.sync_role_options = [];
+			}
 		},		
 		
 		
@@ -861,17 +938,20 @@ var vm_app = new Vue({
 		
 		
 
-		// 10.同步权限到指定角色
+		// 同步权限到指定角色
 		syncroletopermission: function () {
 			var _this = this;
-			var permissionid = _this.selected_syncpermission;
-			var roleid = _this.selected_syncrole;
+			var permissionid = _this.sync_permission_select;
+			var roleid = _this.sync_role_select;
 			// alert(roleid);alert(permissionid);return false;
 
-			if (roleid.length == 0 || permissionid.length == 0) { return false; }
+		if (roleid == undefined || roleid == '' ||
+				permissionid == undefined || permissionid == '') {
+				_this.warning(false, 'Warning', '内容不能为空！');
+				return false;
+			}
 			
 			var url = "{{ route('admin.permission.syncroletopermission') }}";
-
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				params: {
@@ -880,6 +960,9 @@ var vm_app = new Vue({
 				}
 			})
 			.then(function (response) {
+				console.log(response.data);
+				return false;
+				
 				if (typeof(response.data) == "undefined") {
 					_this.notification_type = 'danger';
 					_this.notification_title = 'Error';
