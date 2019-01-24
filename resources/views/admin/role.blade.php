@@ -60,7 +60,7 @@ Admin(Role) -
 						<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
-				&nbsp;<Icon type="md-arrow-round-back">&nbsp;
+				&nbsp;<Icon type="md-arrow-round-back"></Icon>&nbsp;
 				<Tooltip content="输入权限选择" placement="top">
 					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
 						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
