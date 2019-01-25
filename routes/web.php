@@ -364,7 +364,7 @@ Route::group(['prefix'=>'role', 'namespace'=>'Admin', 'middleware'=>['jwtauth','
 	// Route::get('userGiveRole', 'RoleController@userGiveRole')->name('admin.role.usergiverole');
 
 	// 赋予role
-	// Route::post('roleGive', 'RoleController@roleGive')->name('admin.role.give');
+	Route::post('roleGive', 'RoleController@roleGive')->name('admin.role.give');
 	// 移除role
 	// Route::post('roleRemove', 'RoleController@roleRemove')->name('admin.role.remove');
 

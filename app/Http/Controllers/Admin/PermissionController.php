@@ -239,19 +239,28 @@ class PermissionController extends Controller
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
-
+		
+		// 1.查询role
 		$role = Role::where('id', $roleid)->first();
-		$permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
-		$permissionall = Permission::pluck('name')->toArray();
+
+		// 2.查询permission
+		$permissions = Permission::whereIn('id', $permissionid)
+			->pluck('name')->toArray();
+
+		$result = $role->syncPermissions($permissions);
+
+		// $role = Role::where('id', $roleid)->first();
+		// $permission = Permission::whereIn('id', $permissionid)->pluck('name')->toArray();
+		// $permissionall = Permission::pluck('name')->toArray();
 
 		// 注意：revokePermissionTo似乎不接受数组
-		foreach ($permissionall as $permissionname) {
-			$result = $role->revokePermissionTo($permissionname);
-		}
+		// foreach ($permissionall as $permissionname) {
+			// $result = $role->revokePermissionTo($permissionname);
+		// }
 
-		foreach ($permission as $permissionname) {
-			$result = $role->givePermissionTo($permissionname);
-		}
+		// foreach ($permission as $permissionname) {
+			// $result = $role->givePermissionTo($permissionname);
+		// }
 
         return $result;
     }	
@@ -447,7 +456,7 @@ class PermissionController extends Controller
 		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 		
 		$permissionid = $request->input('permissionid');
-		$roleid = $request->input('roleid');
+		$roleid[] = $request->input('roleid');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
@@ -456,8 +465,7 @@ class PermissionController extends Controller
 		$permission = Permission::where('id', $permissionid)->first();
 
 		// 2.查询role
-		// $roles = Role::whereIn('id', $roleid)
-		$roles = Role::where('id', $roleid)
+		$roles = Role::whereIn('id', $roleid)
 			->pluck('name')->toArray();
 
 		$result = $permission->syncRoles($roles);

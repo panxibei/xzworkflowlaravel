@@ -54,19 +54,22 @@ Admin(Permission) -
 			&nbsp;
 			</i-col>
 			<i-col span="15">
-				<Tooltip content="输入权限选择" placement="top">
-					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 200px;" size="small">
-						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
-					</i-select>
-				</Tooltip>
-				&nbsp;<Icon type="md-arrow-round-back"></Icon>&nbsp;
+			&nbsp;
+			<!--
 				<Tooltip content="输入角色选择" placement="top">
 					<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 200px;" size="small">
 						<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
+				&nbsp;<Icon type="md-arrow-round-forward"></Icon>&nbsp;
+				<Tooltip content="输入权限选择" placement="top">
+					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 200px;" size="small">
+						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					</i-select>
+				</Tooltip>
 				&nbsp;&nbsp;
 				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="ios-sync"></Icon> 同步角色到权限</i-button>
+			-->
 			</i-col>
 		</i-row>
 		
@@ -294,39 +297,14 @@ var vm_app = new Vue({
 		permission2role_input: '',		
 		
 		// 同步权限到角色
-		sync_permission_select: '',
-		sync_permission_options: [],
-		sync_permission_loading: false,
-		sync_role_select: '',
-		sync_role_options: [],
-		sync_role_loading: false,
+		// sync_permission_select: '',
+		// sync_permission_options: [],
+		// sync_permission_loading: false,
+		// sync_role_select: '',
+		// sync_role_options: [],
+		// sync_role_loading: false,
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		// 同步哪些权限到指定角色
-		selected_syncpermission: [],
-        options_syncpermission: [],
-		selected_syncrole: [],
-        options_syncrole: [],
     },
 	methods: {
 		menuselect: function (name) {
@@ -918,28 +896,6 @@ var vm_app = new Vue({
 				_this.sync_role_options = [];
 			}
 		},		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		
 
 		// 同步角色到权限

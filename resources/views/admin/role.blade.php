@@ -55,19 +55,19 @@ Admin(Role) -
 				&nbsp;
 			</i-col>
 			<i-col span="15">
-				<Tooltip content="输入角色选择" placement="top">
-					<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 120px;" size="small">
-						<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				<Tooltip content="输入权限选择" placement="top">
+					<i-select v-model.lazy="give_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="give_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 200px;" size="small">
+						<i-option v-for="item in give_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
-				&nbsp;<Icon type="md-arrow-round-back"></Icon>&nbsp;
-				<Tooltip content="输入权限选择" placement="top">
-					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 120px;" size="small">
-						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				&nbsp;<Icon type="md-arrow-round-forward"></Icon>&nbsp;
+				<Tooltip content="输入角色选择" placement="top">
+					<i-select v-model.lazy="give_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="give_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 200px;" size="small">
+						<i-option v-for="item in give_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
 				&nbsp;&nbsp;
-				<i-button type="default" size="small" @click=""><Icon type="ios-sync"></Icon> 同步权限到角色</i-button>
+				<i-button type="default" size="small" @click="givepermissiontorole"><Icon type="ios-sync"></Icon> 赋予权限到角色</i-button>
 			</i-col>
 		</i-row>
 		
@@ -294,13 +294,13 @@ var vm_app = new Vue({
 		role2user_loading: false,
 		role2user_input: '',
 		
-		// 同步权限到角色
-		sync_permission_select: '',
-		sync_permission_options: [],
-		sync_permission_loading: false,
-		sync_role_select: '',
-		sync_role_options: [],
-		sync_role_loading: false,
+		// 赋予权限到角色
+		give_permission_select: '',
+		give_permission_options: [],
+		give_permission_loading: false,
+		give_role_select: '',
+		give_role_options: [],
+		give_role_loading: false,
 		
 		
 		
@@ -310,11 +310,6 @@ var vm_app = new Vue({
 		
 		
 		
-		// 同步哪些权限到指定角色
-		selected_syncrole: [],
-        options_syncrole: [],
-		selected_syncpermission: [],
-        options_syncpermission: [],
     },
 	methods: {
 		menuselect: function (name) {
@@ -849,7 +844,7 @@ var vm_app = new Vue({
 		remoteMethod_sync_permission (query) {
 			var _this = this;
 			if (query !== '') {
-				_this.sync_permission_loading = true;
+				_this.give_permission_loading = true;
 				var queryfilter_name = query;
 				var url = "{{ route('admin.permission.permissionlist') }}";
 				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
@@ -861,16 +856,16 @@ var vm_app = new Vue({
 				.then(function (response) {
 					if (response.data) {
 						var json = response.data;
-						_this.sync_permission_options = _this.json2selectvalue(json);
+						_this.give_permission_options = _this.json2selectvalue(json);
 					}
 				})
 				.catch(function (error) {
 				})				
 				setTimeout(() => {
-					_this.sync_permission_loading = false;
+					_this.give_permission_loading = false;
 				}, 200);
 			} else {
-				_this.sync_permission_options = [];
+				_this.give_permission_options = [];
 			}
 		},
 		
@@ -879,7 +874,7 @@ var vm_app = new Vue({
 		remoteMethod_sync_role (query) {
 			var _this = this;
 			if (query !== '') {
-				_this.sync_role_loading = true;
+				_this.give_role_loading = true;
 				var queryfilter_name = query;
 				var url = "{{ route('admin.role.rolelist') }}";
 				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
@@ -891,16 +886,16 @@ var vm_app = new Vue({
 				.then(function (response) {
 					if (response.data) {
 						var json = response.data;
-						_this.sync_role_options = _this.json2selectvalue(json);
+						_this.give_role_options = _this.json2selectvalue(json);
 					}
 				})
 				.catch(function (error) {
 				})				
 				setTimeout(() => {
-					_this.sync_role_loading = false;
+					_this.give_role_loading = false;
 				}, 200);
 			} else {
-				_this.sync_role_options = [];
+				_this.give_role_options = [];
 			}
 		},
 		
@@ -918,63 +913,37 @@ var vm_app = new Vue({
 		
 		
 
-		// 8.显示所有权限
-		permissionlist: function () {
-			var _this = this;
-			var url = "{{ route('admin.role.permissionlist') }}";
-			axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
-			axios.get(url, {
-			})
-			.then(function (response) {
-				var json = response.data;
-				_this.options_syncpermission = _this.json2selectvalue(json);
-				_this.selected_syncpermission = [];
-			})
-			.catch(function (error) {
-				console.log(error);
-				alert(error);
-			})
-		},
 
-		// 10.同步权限到指定角色
-		syncpermissiontorole: function () {
+		// 赋予权限到指定角色
+		givepermissiontorole: function () {
 			var _this = this;
-			var roleid = _this.selected_syncrole;
-			var permissionid = _this.selected_syncpermission;
-			// alert(roleid);alert(permissionid);return false;
+			var permissionid = _this.give_permission_select;
+			var roleid = _this.give_role_select;
 
-			if (roleid.length == 0 || permissionid.length == 0) { return false; }
+			if (roleid == undefined || roleid == '' ||
+				permissionid == undefined || permissionid == '') {
+				_this.warning(false, 'Warning', '内容不能为空！');
+				return false;
+			}
 			
 			var url = "{{ route('admin.role.syncpermissiontorole') }}";
-
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
-				params: {
-					roleid: roleid,
-					permissionid: permissionid
-				}
+				permissionid: permissionid,
+				roleid: roleid
 			})
 			.then(function (response) {
-				if (typeof(response.data) == "undefined") {
-					_this.notification_type = 'danger';
-					_this.notification_title = 'Error';
-					_this.notification_content = 'Permission(s) failed to sync!';
-					_this.notification_message();
-					
+				// console.log(response.data);
+				// return false;
+				
+				if (response.data) {
+					_this.success(false, 'Success', 'Permission(s) sync successfully!');
 				} else {
-					_this.notification_type = 'success';
-					_this.notification_title = 'Success';
-					_this.notification_content = 'Permission(s) sync successfully!';
-					_this.notification_message();
-					// 刷新
-					_this.refreshview();
+					_this.warning(false, 'Warning', 'Permission(s) failed to sync!');
 				}
 			})
 			.catch(function (error) {
-				_this.notification_type = 'warning';
-				_this.notification_title = 'Warning';
-				_this.notification_content = error.response.data.message;
-				_this.notification_message();
+				_this.error(false, 'Error', 'Permission(s) failed to sync!');
 			})
 		},
 
