@@ -898,20 +898,6 @@ var vm_app = new Vue({
 				_this.give_role_options = [];
 			}
 		},
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 
 
 		// 赋予权限到指定角色
