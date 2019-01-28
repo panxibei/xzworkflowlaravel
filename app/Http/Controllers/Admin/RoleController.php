@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\roleExport;
+use Illuminate\Support\Facades\Cache;
 
 class RoleController extends Controller
 {
@@ -128,17 +129,38 @@ class RoleController extends Controller
     {
 		if (! $request->ajax()) return null;
 		
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+
+		$url = request()->url();
+		$queryParams = request()->query();
+		
 		$queryfilter_name = $request->input('queryfilter_name');
 
-        // 获取用户信息
-		$user = User::when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(10)
-			->orderBy('created_at', 'desc')
-			->pluck('name', 'id')->toArray();
+		//对查询参数按照键名排序
+		ksort($queryParams);
+
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
+
 		
-		return $user;
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = User::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(10)
+				->orderBy('created_at', 'desc')
+				->pluck('name', 'id')->toArray();
+
+			Cache::put($fullUrl, $result, now()->addSeconds(60));
+		}
+		
+		return $result;
     }
 
     /**
@@ -386,19 +408,35 @@ class RoleController extends Controller
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 		
+		$url = request()->url();
+		$queryParams = request()->query();
+
 		$queryfilter_name = $request->input('queryfilter_name');
-		// $queryfilter_logintime = $request->input('queryfilter_logintime');
-		// $queryfilter_email = $request->input('queryfilter_email');
-		// $queryfilter_loginip = $request->input('queryfilter_loginip');
 
-		$role = Role::when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(10)
-			->orderBy('created_at', 'desc')
-			->pluck('name', 'id')->toArray();
+		//对查询参数按照键名排序
+		ksort($queryParams);
 
-		return $role;
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
+		
+
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = Role::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(10)
+				->orderBy('created_at', 'desc')
+				->pluck('name', 'id')->toArray();
+			
+			Cache::put($fullUrl, $result, now()->addSeconds(60));
+		}
+
+		return $result;
     }
 
     /**
@@ -407,12 +445,12 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function permissionList(Request $request)
-    {
-		if (! $request->ajax()) { return null; }
-		$permission = Permission::pluck('name', 'id')->toArray();
-		return $permission;
-    }
+    // public function permissionList(Request $request)
+    // {
+		// if (! $request->ajax()) { return null; }
+		// $permission = Permission::pluck('name', 'id')->toArray();
+		// return $permission;
+    // }
 
     /**
      * 根据角色查看哪些用户 ajax
@@ -477,35 +515,42 @@ class RoleController extends Controller
 		$url = request()->url();
 		$queryParams = request()->query();
 		
-		if (isset($queryParams['perPage'])) {
-			$perPage = $queryParams['perPage'] ?: 10000;
-		} else {
-			$perPage = 10000;
-		}
-		
-		if (isset($queryParams['page'])) {
-			$page = $queryParams['page'] ?: 1;
-		} else {
-			$page = 1;
-		}
+		$perPage = $queryParams['perPage'] ?? 10000;
+		$page = $queryParams['page'] ?? 1;
 		
 		$queryfilter_name = $request->input('queryfilter_name');
 		// $queryfilter_logintime = $request->input('queryfilter_logintime');
 		// $queryfilter_email = $request->input('queryfilter_email');
 		// $queryfilter_loginip = $request->input('queryfilter_loginip');
 
-		$role = Role::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
-			// ->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
-				// return $query->whereBetween('login_time', $queryfilter_logintime);
-			// })
-			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(1000)
-			->orderBy('created_at', 'desc')
-			->paginate($perPage, ['*'], 'page', $page);
+		//对查询参数按照键名排序
+		ksort($queryParams);
 
-		return $role;
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
+		
+
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = Role::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+				// ->when($queryfilter_logintime, function ($query) use ($queryfilter_logintime) {
+					// return $query->whereBetween('login_time', $queryfilter_logintime);
+				// })
+				->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(1000)
+				->orderBy('created_at', 'desc')
+				->paginate($perPage, ['*'], 'page', $page);
+			
+			Cache::put($fullUrl, $result, now()->addSeconds(60));
+		}
+
+		return $result;
 	}
 	
 	

@@ -421,7 +421,7 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>['jwta
 	Route::get('permissionToViewRole', 'PermissionController@permissionToViewRole')->name('admin.permission.permissiontoviewrole');
 
 	// 角色同步到指定权限
-	Route::post('syncRoleToPermission', 'PermissionController@syncRoleToPermission')->name('admin.permission.syncroletopermission');
+	Route::post('testUsersPermission', 'PermissionController@testUsersPermission')->name('admin.permission.testuserspermission');
 	
 	// 测试excelExport
 	Route::get('excelExport', 'PermissionController@excelExport')->name('admin.permission.excelexport');

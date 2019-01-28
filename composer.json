@@ -10,8 +10,10 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.6.*",
         "laravel/tinker": "^1.0",
-        "maatwebsite/excel": "^3.0",
+        "maatwebsite/excel": "^3.1",
         "mews/captcha": "^2.2",
+        "phpoffice/phpspreadsheet": "^1.6",
+        "predis/predis": "^1.1",
         "spatie/laravel-permission": "^2.29",
         "tymon/jwt-auth": "1.0.0-rc.3"
     },

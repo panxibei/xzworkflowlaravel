@@ -56,18 +56,18 @@ Admin(Permission) -
 			<i-col span="15">
 			&nbsp;
 				<Tooltip content="输入用户选择" placement="top">
-					<i-select v-model.lazy="sync_user_select" filterable remote :remote-method="remoteMethod_sync_user" :loading="sync_user_loading" @on-change="" clearable placeholder="输入用户" style="width: 200px;" size="small">
-						<i-option v-for="item in sync_user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					<i-select v-model.lazy="test_user_select" filterable remote :remote-method="remoteMethod_sync_user" :loading="test_user_loading" @on-change="" clearable placeholder="输入用户" style="width: 200px;" size="small">
+						<i-option v-for="item in test_user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
 				&nbsp;<Icon type="md-arrow-round-forward"></Icon>&nbsp;
 				<Tooltip content="输入权限选择" placement="top">
-					<i-select v-model.lazy="sync_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="sync_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 200px;" size="small">
-						<i-option v-for="item in sync_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+					<i-select v-model.lazy="test_permission_select" filterable remote :remote-method="remoteMethod_sync_permission" :loading="test_permission_loading" @on-change="" clearable placeholder="输入权限" style="width: 200px;" size="small">
+						<i-option v-for="item in test_permission_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
 				&nbsp;&nbsp;
-				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="md-help"></Icon> 测试用户是否有权限</i-button>
+				<i-button type="default" size="small" @click="testuserspermission"><Icon type="md-help"></Icon> 测试用户是否有权限</i-button>
 			</i-col>
 		</i-row>
 		
@@ -295,12 +295,12 @@ var vm_app = new Vue({
 		permission2role_input: '',		
 		
 		// 测试用户是否有相应权限
-		sync_permission_select: '',
-		sync_permission_options: [],
-		sync_permission_loading: false,
-		sync_user_select: '',
-		sync_user_options: [],
-		sync_user_loading: false,
+		test_permission_select: '',
+		test_permission_options: [],
+		test_permission_loading: false,
+		test_user_select: '',
+		test_user_options: [],
+		test_user_loading: false,
 		
 		
     },
@@ -840,7 +840,7 @@ var vm_app = new Vue({
 		remoteMethod_sync_permission (query) {
 			var _this = this;
 			if (query !== '') {
-				_this.sync_permission_loading = true;
+				_this.test_permission_loading = true;
 				var queryfilter_name = query;
 				var url = "{{ route('admin.permission.permissionlist') }}";
 				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
@@ -852,16 +852,16 @@ var vm_app = new Vue({
 				.then(function (response) {
 					if (response.data) {
 						var json = response.data;
-						_this.sync_permission_options = _this.json2selectvalue(json);
+						_this.test_permission_options = _this.json2selectvalue(json);
 					}
 				})
 				.catch(function (error) {
 				})				
 				setTimeout(() => {
-					_this.sync_permission_loading = false;
+					_this.test_permission_loading = false;
 				}, 200);
 			} else {
-				_this.sync_permission_options = [];
+				_this.test_permission_options = [];
 			}
 		},
 		
@@ -870,9 +870,9 @@ var vm_app = new Vue({
 		remoteMethod_sync_user (query) {
 			var _this = this;
 			if (query !== '') {
-				_this.sync_user_loading = true;
+				_this.test_user_loading = true;
 				var queryfilter_name = query;
-				var url = "{{ route('admin.role.userlist') }}";
+				var url = "{{ route('admin.permission.userlist') }}";
 				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 				axios.get(url,{
 					params: {
@@ -882,50 +882,50 @@ var vm_app = new Vue({
 				.then(function (response) {
 					if (response.data) {
 						var json = response.data;
-						_this.sync_user_options = _this.json2selectvalue(json);
+						_this.test_user_options = _this.json2selectvalue(json);
 					}
 				})
 				.catch(function (error) {
 				})				
 				setTimeout(() => {
-					_this.sync_user_loading = false;
+					_this.test_user_loading = false;
 				}, 200);
 			} else {
-				_this.sync_user_options = [];
+				_this.test_user_options = [];
 			}
 		},		
 		
 
-		// 同步角色到权限
-		syncroletopermission: function () {
+		// 测试用户是否有权限
+		testuserspermission: function () {
 			var _this = this;
-			var permissionid = _this.sync_permission_select;
-			var roleid = _this.sync_role_select;
+			var permissionid = _this.test_permission_select;
+			var userid = _this.test_user_select;
 
-			if (roleid == undefined || roleid == '' ||
+			if (userid == undefined || userid == '' ||
 				permissionid == undefined || permissionid == '') {
 				_this.warning(false, 'Warning', '内容不能为空！');
 				return false;
 			}
 			
-			var url = "{{ route('admin.permission.syncroletopermission') }}";
+			var url = "{{ route('admin.permission.testuserspermission') }}";
 			axios.defaults.headers.post['X-Requested-With'] = 'XMLHttpRequest';
 			axios.post(url,{
 				permissionid: permissionid,
-				roleid: roleid
+				userid: userid
 			})
 			.then(function (response) {
 				// console.log(response.data);
 				// return false;
 				
 				if (response.data) {
-					_this.success(false, 'Success', 'Permission(s) sync successfully!');
+					_this.success(false, 'Success', 'Permission(s) test successfully!');
 				} else {
-					_this.warning(false, 'Warning', 'Permission(s) failed to sync!');
+					_this.warning(false, 'Warning', 'Permission(s) test failed!');
 				}
 			})
 			.catch(function (error) {
-				_this.error(false, 'Error', 'Permission(s) failed to sync!');
+				_this.error(false, 'Error', 'Permission(s) test failed!');
 			})
 		},
 

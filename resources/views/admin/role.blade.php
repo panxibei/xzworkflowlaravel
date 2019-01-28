@@ -151,19 +151,7 @@ Admin(Role) -
 			&nbsp;
 			</i-col>
 			<i-col span="6">
-				<i-input v-model.lazy="role2user_input" type="textarea" :rows="6" placeholder="" :readonly="true"></i-input>
-				<br><br>
-				刷新本页测试管理员是否有以下权限<br><br>
-				
-				@hasallroles('role_role_page|role_permission_page')
-					我拥有访问role页面权限!
-				@else
-					我没有访问role页面权限...
-				@endrole
-				<br>
-				@can('permission_page_config')
-				  我有permission_page_config权限
-				@endcan
+				<i-input v-model.lazy="role2user_input" type="textarea" :rows="14" placeholder="" :readonly="true"></i-input>
 			</i-col>
 			<i-col span="3">
 			&nbsp;

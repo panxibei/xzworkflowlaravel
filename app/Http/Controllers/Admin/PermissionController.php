@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\permissionExport;
+use Illuminate\Support\Facades\Cache;
 
 class PermissionController extends Controller
 {
@@ -131,29 +132,36 @@ class PermissionController extends Controller
 		$url = request()->url();
 		$queryParams = request()->query();
 		
-		if (isset($queryParams['perPage'])) {
-			$perPage = $queryParams['perPage'] ?: 10000;
-		} else {
-			$perPage = 10000;
-		}
-		
-		if (isset($queryParams['page'])) {
-			$page = $queryParams['page'] ?: 1;
-		} else {
-			$page = 1;
-		}
+		$perPage = $queryParams['perPage'] ?? 10000;
+		$page = $queryParams['page'] ?? 1;
 		
 		$queryfilter_name = $request->input('queryfilter_name');
 
-		$permission = Permission::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
-			->when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(1000)
-			->orderBy('created_at', 'desc')
-			->paginate($perPage, ['*'], 'page', $page);
+		//对查询参数按照键名排序
+		ksort($queryParams);
+
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
 		
-		return $permission;
+		
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = Permission::select('id', 'name', 'guard_name', 'created_at', 'updated_at')
+				->when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(1000)
+				->orderBy('created_at', 'desc')
+				->paginate($perPage, ['*'], 'page', $page);
+
+			Cache::put($fullUrl, $result, now()->addSeconds(60));
+		}
+		
+		return $result;
     }
 	
     /**
@@ -414,16 +422,35 @@ class PermissionController extends Controller
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 		
+		$url = request()->url();
+		$queryParams = request()->query();
+
 		$queryfilter_name = $request->input('queryfilter_name');
+
+		//对查询参数按照键名排序
+		ksort($queryParams);
+
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
 		
-		$permission = Permission::when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(10)
-			->orderBy('created_at', 'desc')
-			->pluck('name', 'id')->toArray();
+
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = Permission::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(10)
+				->orderBy('created_at', 'desc')
+				->pluck('name', 'id')->toArray();
+
+			Cache::put($fullUrl, $result, now()->addSeconds(60));
+		}
 		
-		return $permission;
+		return $result;
     }
 
     /**
@@ -446,31 +473,32 @@ class PermissionController extends Controller
     }
 
     /**
-     * 角色同步到指定权限 ajax
+     * 测试用户是否有权限
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function syncRoleToPermission(Request $request)
+    public function testUsersPermission(Request $request)
     {
 		if (! $request->isMethod('post') || ! $request->ajax()) return null;
 		
-		$permissionid = $request->input('permissionid');
-		$roleid[] = $request->input('roleid');
+		$userid = $request->input('userid');
+		$permissionid[] = $request->input('permissionid');
 
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 
-		// 1.查询permission
-		$permission = Permission::where('id', $permissionid)->first();
-
-		// 2.查询role
-		$roles = Role::whereIn('id', $roleid)
+		// 1.查询User
+		$user = User::where('id', $userid)->first();
+		
+		// 2.查询Permission
+		$permissions = Permission::whereIn('id', $permissionid)
 			->pluck('name')->toArray();
 
-		$result = $permission->syncRoles($roles);
+		// 3.测试用户是否有权限
+		$result = $user->hasAnyPermission($permissions);
 
-		return $result;
+		return $result ? 1 : 0;
     }
 
 	
@@ -544,19 +572,35 @@ class PermissionController extends Controller
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
 		
+		$url = request()->url();
+		$queryParams = request()->query();
+		
 		$queryfilter_name = $request->input('queryfilter_name');
-		// $queryfilter_logintime = $request->input('queryfilter_logintime');
-		// $queryfilter_email = $request->input('queryfilter_email');
-		// $queryfilter_loginip = $request->input('queryfilter_loginip');
 
-		$role = Role::when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(10)
-			->orderBy('created_at', 'desc')
-			->pluck('name', 'id')->toArray();
+		//对查询参数按照键名排序
+		ksort($queryParams);
 
-		return $role;
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
+		
+		
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = Role::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(10)
+				->orderBy('created_at', 'desc')
+				->pluck('name', 'id')->toArray();
+
+			Cache::put($fullUrl, $result, now()->addSeconds(30));
+		}
+
+		return $result;
     }
 	
 	
@@ -569,23 +613,39 @@ class PermissionController extends Controller
     public function userList(Request $request)
     {
 		if (! $request->ajax()) return null;
-
+		
 		// 重置角色和权限的缓存
 		app()['cache']->forget('spatie.permission.cache');
-		
+
+		$url = request()->url();
+		$queryParams = request()->query();
+
 		$queryfilter_name = $request->input('queryfilter_name');
-		// $queryfilter_logintime = $request->input('queryfilter_logintime');
-		// $queryfilter_email = $request->input('queryfilter_email');
-		// $queryfilter_loginip = $request->input('queryfilter_loginip');
 
-		$user = User::when($queryfilter_name, function ($query) use ($queryfilter_name) {
-				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
-			})
-			->limit(10)
-			->orderBy('created_at', 'desc')
-			->pluck('name', 'id')->toArray();
+		//对查询参数按照键名排序
+		ksort($queryParams);
 
-		return $user;
+		//将查询数组转换为查询字符串
+		$queryString = http_build_query($queryParams);
+
+		$fullUrl = sha1("{$url}?{$queryString}");
+		
+
+		//首先查寻cache如果找到
+		if (Cache::has($fullUrl)) {
+			$result = Cache::get($fullUrl);    //直接读取cache
+		} else {                                   //如果cache里面没有
+			$result = User::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+					return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+				})
+				->limit(10)
+				->orderBy('created_at', 'desc')
+				->pluck('name', 'id')->toArray();
+
+			Cache::put($fullUrl, $result, now()->addSeconds(60));
+		}
+
+		return $result;
     }	
 	
 }
