@@ -557,6 +557,35 @@ class PermissionController extends Controller
 			->pluck('name', 'id')->toArray();
 
 		return $role;
+    }
+	
+	
+    /**
+     * 列出所有用户，用于测试是否有权限
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function userList(Request $request)
+    {
+		if (! $request->ajax()) return null;
+
+		// 重置角色和权限的缓存
+		app()['cache']->forget('spatie.permission.cache');
+		
+		$queryfilter_name = $request->input('queryfilter_name');
+		// $queryfilter_logintime = $request->input('queryfilter_logintime');
+		// $queryfilter_email = $request->input('queryfilter_email');
+		// $queryfilter_loginip = $request->input('queryfilter_loginip');
+
+		$user = User::when($queryfilter_name, function ($query) use ($queryfilter_name) {
+				return $query->where('name', 'like', '%'.$queryfilter_name.'%');
+			})
+			->limit(10)
+			->orderBy('created_at', 'desc')
+			->pluck('name', 'id')->toArray();
+
+		return $user;
     }	
 	
 }

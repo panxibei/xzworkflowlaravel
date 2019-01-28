@@ -428,6 +428,9 @@ Route::group(['prefix'=>'permission', 'namespace'=>'Admin', 'middleware'=>['jwta
 
 	// 列出所有角色
 	Route::get('roleList', 'PermissionController@roleList')->name('admin.permission.rolelist');
+
+	// 列出所有用户
+	Route::get('userList', 'PermissionController@userList')->name('admin.permission.userlist');
 	
 });
 

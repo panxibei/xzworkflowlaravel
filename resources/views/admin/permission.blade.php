@@ -55,10 +55,9 @@ Admin(Permission) -
 			</i-col>
 			<i-col span="15">
 			&nbsp;
-			<!--
-				<Tooltip content="输入角色选择" placement="top">
-					<i-select v-model.lazy="sync_role_select" filterable remote :remote-method="remoteMethod_sync_role" :loading="sync_role_loading" @on-change="" clearable placeholder="输入角色" style="width: 200px;" size="small">
-						<i-option v-for="item in sync_role_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
+				<Tooltip content="输入用户选择" placement="top">
+					<i-select v-model.lazy="sync_user_select" filterable remote :remote-method="remoteMethod_sync_user" :loading="sync_user_loading" @on-change="" clearable placeholder="输入用户" style="width: 200px;" size="small">
+						<i-option v-for="item in sync_user_options" :value="item.value" :key="item.value">@{{ item.label }}</i-option>
 					</i-select>
 				</Tooltip>
 				&nbsp;<Icon type="md-arrow-round-forward"></Icon>&nbsp;
@@ -68,8 +67,7 @@ Admin(Permission) -
 					</i-select>
 				</Tooltip>
 				&nbsp;&nbsp;
-				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="ios-sync"></Icon> 同步角色到权限</i-button>
-			-->
+				<i-button type="default" size="small" @click="syncroletopermission"><Icon type="md-help"></Icon> 测试用户是否有权限</i-button>
 			</i-col>
 		</i-row>
 		
@@ -296,13 +294,13 @@ var vm_app = new Vue({
 		permission2role_loading: false,
 		permission2role_input: '',		
 		
-		// 同步权限到角色
-		// sync_permission_select: '',
-		// sync_permission_options: [],
-		// sync_permission_loading: false,
-		// sync_role_select: '',
-		// sync_role_options: [],
-		// sync_role_loading: false,
+		// 测试用户是否有相应权限
+		sync_permission_select: '',
+		sync_permission_options: [],
+		sync_permission_loading: false,
+		sync_user_select: '',
+		sync_user_options: [],
+		sync_user_loading: false,
 		
 		
     },
@@ -868,13 +866,13 @@ var vm_app = new Vue({
 		},
 		
 		
-		// 远程查询角色（同步）
-		remoteMethod_sync_role (query) {
+		// 远程查询用户（同步）
+		remoteMethod_sync_user (query) {
 			var _this = this;
 			if (query !== '') {
-				_this.sync_role_loading = true;
+				_this.sync_user_loading = true;
 				var queryfilter_name = query;
-				var url = "{{ route('admin.role.rolelist') }}";
+				var url = "{{ route('admin.role.userlist') }}";
 				axios.defaults.headers.get['X-Requested-With'] = 'XMLHttpRequest';
 				axios.get(url,{
 					params: {
@@ -884,16 +882,16 @@ var vm_app = new Vue({
 				.then(function (response) {
 					if (response.data) {
 						var json = response.data;
-						_this.sync_role_options = _this.json2selectvalue(json);
+						_this.sync_user_options = _this.json2selectvalue(json);
 					}
 				})
 				.catch(function (error) {
 				})				
 				setTimeout(() => {
-					_this.sync_role_loading = false;
+					_this.sync_user_loading = false;
 				}, 200);
 			} else {
-				_this.sync_role_options = [];
+				_this.sync_user_options = [];
 			}
 		},		
 		
